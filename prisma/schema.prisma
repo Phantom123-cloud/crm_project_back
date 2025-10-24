@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(uuid())
+  email           String            @unique
+  full_name       String
+  password        String
+  isActive        Boolean           @default(true) @map("is_active")
+  isOnline        Boolean           @default(false) @map("is_online")
+  token           Token?
+  roleTemplate    RoleTemplates?    @relation(fields: [roleTemplatesId], references: [id], onDelete: SetNull)
+  roleTemplatesId String?           @map("role_templates_id")
+  individualRules IndividualRules[]
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Token {
+  id        String   @id @default(uuid())
+  hash      String?  @map("hash")
+  isActive  Boolean  @default(false) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique @map("user_id")
+
+  @@map("tokens")
+}
+
+model Role {
+  id              String            @id @default(uuid())
+  name            String            @unique
+  roleTemplates   RoleTemplates[]   @relation("role_connections")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  individualRules IndividualRules[]
+
+  @@map("roles")
+}
+
+model RoleTemplates {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  roles     Role[]   @relation("role_connections")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  users     User[]
+
+  @@map("role_templates")
+}
+
+model IndividualRules {
+  id        String              @id @default(uuid())
+  userId    String              @map("user_id")
+  user      User                @relation(fields: [userId], references: [id])
+  roleId    String              @map("role_id")
+  role      Role                @relation(fields: [roleId], references: [id])
+  type      IndividualRulesType
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  @@map("individual_rules")
+}
+
+enum IndividualRulesType {
+  ADD
+  REMOVE
+
+  @@map("individual_rules_type")
+}

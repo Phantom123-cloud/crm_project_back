@@ -1,0 +1,203 @@
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import type { Response } from 'express';
+import * as argon2 from 'argon2';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { TokenService } from 'src/token/token.service';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { buildResponse } from 'src/utils/build-response';
+import { UsersService } from 'src/users/users.service';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly tokenService: TokenService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+    @Inject(forwardRef(() => UsersService))
+    private readonly userService: UsersService,
+  ) {}
+
+  async register(dto: RegisterDto, roleTemplatesId: string) {
+    const { email, password, full_name } = dto;
+
+    if (!email || !password || !full_name) {
+      throw new BadRequestException('Все данные должны быть заполнены');
+    }
+
+    const isUser = await this.prismaService.user.findUnique({
+      where: { email },
+    });
+
+    if (isUser) {
+      throw new ConflictException(
+        'Пользователь с такой почтой уже зарегистирован',
+      );
+    }
+
+    const hashPassword = await argon2.hash(password);
+    await this.prismaService.user.create({
+      data: {
+        email,
+        full_name,
+        password: hashPassword,
+        roleTemplatesId,
+        token: {
+          create: {},
+        },
+      },
+    });
+
+    return buildResponse('Новый пользователь добавлен');
+  }
+  async login(res: Response, dto: LoginDto) {
+    const { email, password, remember } = dto;
+
+    if (!email || !password) {
+      throw new BadRequestException('Отсутствует email или пароль');
+    }
+
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        email,
+      },
+
+      select: {
+        id: true,
+        password: true,
+        isActive: true,
+        email: true,
+        full_name: true,
+        token: true,
+
+        roleTemplate: {
+          select: {
+            roles: true,
+          },
+        },
+        individualRules: {
+          select: {
+            type: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Не верный логин или пароль');
+    }
+
+    if (
+      !user.roleTemplate?.roles.length ||
+      !user.individualRules.some((r) => r.type === 'ADD')
+    ) {
+      throw new ForbiddenException(
+        'Данный аккаунт не обладает правами доступа. Обратитесь к администратору',
+      );
+    }
+
+    const verifyPassword = await argon2.verify(user.password, password);
+
+    if (!verifyPassword) {
+      throw new UnauthorizedException('Не верный логин или пароль');
+    }
+
+    if (!user.isActive) {
+      throw new ConflictException(
+        'Ваш аккаунт заблокирован, обратитесь к администратору',
+      );
+    }
+
+    if (user.token?.isActive) {
+      throw new ConflictException(
+        'Ваша сессия активна, что бы выполнить вход заново выйдите из системы',
+      );
+    }
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+      full_name: user.full_name,
+    };
+    return this.tokenService.auth(res, payload, remember);
+  }
+
+  // async validate(id: string): Promise<JwtPayload> {
+  //   const userInfo = await this.userService.findUser(id);
+
+  //   await this.prismaService.user.findUnique({
+  //     where: { id },
+
+  //     select: {
+  //       id: true,
+  //       roles: true,
+  //     },
+  //   });
+
+  //   if (!userInfo) throw new NotFoundException('Пользователь не найден');
+
+  //   const checkAuth = await this.prismaService.tokens.findMany({
+  //     where: {
+  //       userId: id,
+  //       revoked: false,
+  //     },
+  //   });
+
+  //   if (checkAuth.length < 1) {
+  //     throw new UnauthorizedException('Пользователь не авторизован');
+  //   }
+
+  //   const roles = userInfo.roles.map(({ systemName }) => systemName);
+  //   const user = { ...userInfo, roles };
+
+  //   return user;
+  // }
+  // async refresh(req: Request, res: Response) {
+  //   const tokens = req.cookies['token'];
+  //   const payload: JwtPayload = await this.jwtService.verifyAsync(tokens);
+
+  //   const isRevoked = await this.prismaService.tokens.findUnique({
+  //     where: {
+  //       tokenHash: tokens,
+  //     },
+  //   });
+
+  //   if (!isRevoked || isRevoked.revoked)
+  //     throw new ConflictException('Токен не активен');
+
+  //   const userInfo = await this.prismaService.user.findUnique({
+  //     where: {
+  //       id: payload.id,
+  //     },
+
+  //     select: {
+  //       id: true,
+  //       roles: {
+  //         select: {
+  //           name: true,
+  //         },
+  //       },
+  //     },
+  //   });
+
+  //   if (!userInfo) {
+  //     throw new NotFoundException('Пользователь не найден');
+  //   }
+  //   const user = await this.validate(userInfo.id);
+
+  //   this.tokenService.deactivateTokens(userInfo.id);
+  //   return this.tokenService.auth(res, user);
+  // }
+}
