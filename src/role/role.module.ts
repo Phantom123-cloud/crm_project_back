@@ -7,5 +7,6 @@ import { UsersModule } from 'src/users/users.module';
   controllers: [RoleController],
   providers: [RoleService],
   imports: [UsersModule],
+  exports: [RoleService],
 })
 export class RoleModule {}

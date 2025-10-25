@@ -5,6 +5,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -17,6 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { buildResponse } from 'src/utils/build-response';
 import { UsersService } from 'src/users/users.service';
+import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -134,70 +136,18 @@ export class AuthService {
     return this.tokenService.auth(res, payload, remember);
   }
 
-  // async validate(id: string): Promise<JwtPayload> {
-  //   const userInfo = await this.userService.findUser(id);
+  async validate(id: string): Promise<JwtPayload> {
+    const user = await this.userService.findUser(id);
+    if (!user) throw new NotFoundException('Пользователь не найден');
+    if (!user.isActive)
+      throw new BadRequestException('Пользователь заблокирован');
+    if (!user.token?.isActive)
+      throw new UnauthorizedException('Пользователь не авторизован');
 
-  //   await this.prismaService.user.findUnique({
-  //     where: { id },
-
-  //     select: {
-  //       id: true,
-  //       roles: true,
-  //     },
-  //   });
-
-  //   if (!userInfo) throw new NotFoundException('Пользователь не найден');
-
-  //   const checkAuth = await this.prismaService.tokens.findMany({
-  //     where: {
-  //       userId: id,
-  //       revoked: false,
-  //     },
-  //   });
-
-  //   if (checkAuth.length < 1) {
-  //     throw new UnauthorizedException('Пользователь не авторизован');
-  //   }
-
-  //   const roles = userInfo.roles.map(({ systemName }) => systemName);
-  //   const user = { ...userInfo, roles };
-
-  //   return user;
-  // }
-  // async refresh(req: Request, res: Response) {
-  //   const tokens = req.cookies['token'];
-  //   const payload: JwtPayload = await this.jwtService.verifyAsync(tokens);
-
-  //   const isRevoked = await this.prismaService.tokens.findUnique({
-  //     where: {
-  //       tokenHash: tokens,
-  //     },
-  //   });
-
-  //   if (!isRevoked || isRevoked.revoked)
-  //     throw new ConflictException('Токен не активен');
-
-  //   const userInfo = await this.prismaService.user.findUnique({
-  //     where: {
-  //       id: payload.id,
-  //     },
-
-  //     select: {
-  //       id: true,
-  //       roles: {
-  //         select: {
-  //           name: true,
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   if (!userInfo) {
-  //     throw new NotFoundException('Пользователь не найден');
-  //   }
-  //   const user = await this.validate(userInfo.id);
-
-  //   this.tokenService.deactivateTokens(userInfo.id);
-  //   return this.tokenService.auth(res, user);
-  // }
+    return {
+      id: user.id,
+      email: user.email,
+      full_name: user.full_name,
+    };
+  }
 }

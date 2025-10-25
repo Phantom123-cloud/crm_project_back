@@ -39,12 +39,24 @@ model Token {
 model Role {
   id              String            @id @default(uuid())
   name            String            @unique
+  roleTypeId     String            @map("role_type_id")
+  type            RoleTypes         @relation(fields: [roleTypeId], references: [id])
   roleTemplates   RoleTemplates[]   @relation("role_connections")
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
   individualRules IndividualRules[]
 
   @@map("roles")
+}
+
+model RoleTypes {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  roles      Role[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("role_types")
 }
 
 model RoleTemplates {

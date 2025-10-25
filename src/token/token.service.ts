@@ -106,12 +106,10 @@ export class TokenService {
 
     return buildResponse('Выполнен выход из системы');
   }
-
   async logoutById(id: string) {
     await this.deactivateTokens(id);
     return buildResponse('Выполнен выход из системы');
   }
-
   async deactivateTokens(id: string) {
     const user = await this.usersService.findUser(id);
 
@@ -144,9 +142,8 @@ export class TokenService {
 
     return true;
   }
-
   async validateToken(req: Request, res: Response) {
-    const tokenHash = req.cookies['token'] as string;
+    const tokenHash = req.cookies['token'];
     const { id } = req.user as JwtPayload;
     const user = await this.usersService.findUser(id);
 
@@ -161,17 +158,12 @@ export class TokenService {
       throw new UnauthorizedException('Сессия просрочена, войдите снова');
     }
 
-    if (tokenHash !== hash) {
-      await this.deactivateTokens(id);
-      throw new UnauthorizedException('Сессия просрочена, войдите снова');
-    }
-
     const verifyTokenHash: JwtPayload & { exp: number } =
       await this.jwtService.verifyAsync(tokenHash);
     const exp = verifyTokenHash.exp;
     const now = Math.floor(Date.now() / 1000);
 
-    if (exp < now) {
+    if (tokenHash !== hash || exp < now) {
       await this.deactivateTokens(id);
       throw new UnauthorizedException('Сессия просрочена, войдите снова');
     }

@@ -26,7 +26,7 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
-  // @AuthRoles('ADMIN')
+  @AuthRoles('register_users')
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(

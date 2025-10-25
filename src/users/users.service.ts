@@ -36,6 +36,8 @@ export class UsersService {
         id: true,
         password: true,
         isActive: true,
+        full_name: true,
+        email: true,
 
         token: {
           select: {

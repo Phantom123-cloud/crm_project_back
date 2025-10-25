@@ -17,7 +17,7 @@ export class RoleService {
     private readonly usersService: UsersService,
   ) {}
 
-  async create(dto: RoleDto) {
+  async createRole(dto: RoleDto, roleTypeId: string) {
     const { name } = dto;
 
     const isExist = await this.prismaService.role.findUnique({
@@ -30,19 +30,43 @@ export class RoleService {
       throw new ConflictException('Данная роль уже существует');
     }
 
+    const isExistType = await this.prismaService.roleTypes.findUnique({
+      where: { id: roleTypeId },
+    });
+
+    if (!isExistType) {
+      throw new NotFoundException('Такого типа роли не существует');
+    }
+
     await this.prismaService.role.create({
-      data: { name },
+      data: { name, roleTypeId },
     });
 
     return buildResponse('Новая роль создана');
   }
+  async createRoleType(dto: RoleDto) {
+    const { name } = dto;
 
+    const isExist = await this.prismaService.roleTypes.findUnique({
+      where: {
+        name,
+      },
+    });
+
+    if (isExist) {
+      throw new ConflictException('Данная тип роли уже существует');
+    }
+
+    await this.prismaService.roleTypes.create({
+      data: { name },
+    });
+
+    return buildResponse('Новый тип роли создан');
+  }
   async allRoles() {
     const data = await this.prismaService.role.findMany();
     return buildResponse('Список ролей', { data });
   }
-
-  // добавление или удаление ролей в индивидуальном порядке
   async createIndividualRules(dto: IndividualRulesDto, userId: string) {
     const { array, type } = dto;
     const user = await this.usersService.findUser(userId);
@@ -95,9 +119,6 @@ export class RoleService {
 
     return buildResponse('Индивидуальные ролевые связи добавлены');
   }
-
-  // удаление правил
-
   async deleteIndividualRule(id: string) {
     const isExistRule = await this.prismaService.individualRules.findUnique({
       where: { id },
@@ -115,8 +136,6 @@ export class RoleService {
 
     return buildResponse('Успешно удалено');
   }
-
-  // создание шаблона
   async createRoleTemplate(dto: RoleTemplatesDto) {
     const { array, name } = dto;
 
@@ -150,7 +169,6 @@ export class RoleService {
     });
     return buildResponse('Шаблон создан');
   }
-
   async deleteRoleTemplate(id: string) {
     const isExistTemplate = await this.prismaService.roleTemplates.findUnique({
       where: { id },
@@ -168,9 +186,61 @@ export class RoleService {
 
     return buildResponse('Успешно удалено');
   }
-
   async roleTemplatesAll() {
     const data = await this.prismaService.roleTemplates.findMany();
     return buildResponse('Список шаблонов', { data });
+  }
+  async getRolesByUserId(userId: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: {
+        individualRules: {
+          select: {
+            type: true,
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не обнаружен');
+    }
+
+    const templateRoles = await this.prismaService.role.findMany({
+      where: {
+        roleTemplates: {
+          some: {
+            users: {
+              some: {
+                id: userId,
+              },
+            },
+          },
+        },
+
+        NOT: {
+          individualRules: {
+            some: {
+              userId,
+              type: 'REMOVE',
+            },
+          },
+        },
+      },
+      select: { name: true },
+    });
+
+    const individualRoles = user.individualRules
+      .filter((rule) => rule.type === 'ADD')
+      .map((rule) => rule.role.name);
+
+    const allRoles = [...templateRoles.map((r) => r.name), ...individualRoles];
+
+    return [...new Set(allRoles)];
   }
 }

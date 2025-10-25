@@ -20,11 +20,17 @@ import { IndividualRulesDto } from './dto/individual-rules.dto';
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
-  // создание роли
+  @AuthRoles('register_users')
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() dto: RoleDto) {
-    return this.roleService.create(dto);
+  createRole(@Body() dto: RoleDto, @Query('roleTypeId') roleTypeId: string) {
+    return this.roleService.createRole(dto, roleTypeId);
+  }
+
+  @Post('create-type')
+  @HttpCode(HttpStatus.CREATED)
+  createRoleType(@Body() dto: RoleDto) {
+    return this.roleService.createRoleType(dto);
   }
   // все роли
   @Get('all')
@@ -48,7 +54,7 @@ export class RoleController {
   deleteIndividualRule(@Param('id') id: string) {
     return this.roleService.deleteIndividualRule(id);
   }
-  
+
   // создание шаблона
   @Post('create-template')
   @HttpCode(HttpStatus.CREATED)
