@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
@@ -26,7 +27,7 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
-  @AuthRoles('register_users')
+  // @AuthRoles('register_users')
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(
@@ -45,37 +46,27 @@ export class AuthController {
     return await this.authService.login(res, dto);
   }
 
-  // @Auth()
-  // @Post('logout/me')
-  // @HttpCode(HttpStatus.OK)
-  // async logout(@Res({ passthrough: true }) res: Response, @Req() req: Request) {
-  //   return await this.tokenService.logout(res, req);
-  // }
+  @Auth()
+  @Post('logout/me')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Res({ passthrough: true }) res: Response, @Req() req: Request) {
+    return await this.tokenService.logout(res, req);
+  }
 
-  // @Auth()
-  // @Get('me')
-  // @HttpCode(HttpStatus.OK)
-  // async findOne(
-  //   @Res({ passthrough: true }) res: Response,
-  //   @Req() req: Request,
-  // ) {
-  //   return await this.usersService.me(req, res);
-  // }
+  @Auth()
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  async findOne(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+  ) {
+    return await this.usersService.me(req, res);
+  }
 
-  // @AuthRoles('ADMIN')
-  // @Post('logout/:id')
-  // @HttpCode(HttpStatus.OK)
-  // async logoutById(@Param('id') id: string) {
-  //   return await this.tokenService.logoutById(id);
-  // }
-
-  // @Auth()
-  // @Post('refresh')
-  // @HttpCode(HttpStatus.OK)
-  // async tokenss(
-  //   @Req() req: Request,
-  //   @Res({ passthrough: true }) res: Response,
-  // ) {
-  //   return await this.authService.refresh(req, res);
-  // }
+  @AuthRoles('logout_users')
+  @Post('logout/:id')
+  @HttpCode(HttpStatus.OK)
+  async logoutById(@Param('id') id: string) {
+    return await this.tokenService.logoutById(id);
+  }
 }

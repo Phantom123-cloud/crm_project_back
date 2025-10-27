@@ -10,6 +10,8 @@ import { UsersModule } from './users/users.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { LoggerModule } from './common/logger/logger.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { RolesTypeModule } from './roles-type/roles-type.module';
+import { RoleTemplatesModule } from './role-templates/role-templates.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     RoleModule,
     UsersModule,
     LoggerModule,
+    RolesTypeModule,
+    RoleTemplatesModule,
   ],
 
   controllers: [AppController],

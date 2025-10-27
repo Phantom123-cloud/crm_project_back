@@ -9,34 +9,46 @@ import {
   Get,
   Query,
   Delete,
+  Put,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { RoleDto } from './dto/role.dto';
-import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
-import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { IndividualRulesDto } from './dto/individual-rules.dto';
 
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
-  @AuthRoles('register_users')
   @Post('create')
-  @HttpCode(HttpStatus.CREATED)
-  createRole(@Body() dto: RoleDto, @Query('roleTypeId') roleTypeId: string) {
+  @HttpCode(HttpStatus.OK)
+  createRole(
+    @Body() dto: Required<RoleDto>,
+    @Query('roleTypeId') roleTypeId: string,
+  ) {
     return this.roleService.createRole(dto, roleTypeId);
   }
 
-  @Post('create-type')
-  @HttpCode(HttpStatus.CREATED)
-  createRoleType(@Body() dto: RoleDto) {
-    return this.roleService.createRoleType(dto);
+  @Delete('delete/:id')
+  @HttpCode(HttpStatus.OK)
+  deleteRole(@Param('id') id: string) {
+    return this.roleService.deleteRole(id);
   }
+
+  @Put('update/:id')
+  @HttpCode(HttpStatus.OK)
+  updateRole(@Param('id') id: string, @Body() dto: RoleDto) {
+    return this.roleService.updateRole(id, dto);
+  }
+
   // все роли
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  allRoles() {
-    return this.roleService.allRoles();
+  allRoles(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return this.roleService.allRoles(page, limit);
   }
 
   // добавление или блокировка отдельных ролей
@@ -50,27 +62,8 @@ export class RoleController {
   }
   // удаление правил
   @Delete('delete-individual-rule/:id')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   deleteIndividualRule(@Param('id') id: string) {
     return this.roleService.deleteIndividualRule(id);
-  }
-
-  // создание шаблона
-  @Post('create-template')
-  @HttpCode(HttpStatus.CREATED)
-  createRoleTemplate(@Body() dto: RoleTemplatesDto) {
-    return this.roleService.createRoleTemplate(dto);
-  }
-
-  @Delete('delete-template/:id')
-  @HttpCode(HttpStatus.CREATED)
-  deleteRoleTemplate(@Param('id') id: string) {
-    return this.roleService.deleteRoleTemplate(id);
-  }
-
-  @Get('templates-all')
-  @HttpCode(HttpStatus.OK)
-  roleTemplatesAll() {
-    return this.roleService.roleTemplatesAll();
   }
 }

@@ -135,7 +135,6 @@ export class AuthService {
     };
     return this.tokenService.auth(res, payload, remember);
   }
-
   async validate(id: string): Promise<JwtPayload> {
     const user = await this.userService.findUser(id);
     if (!user) throw new NotFoundException('Пользователь не найден');

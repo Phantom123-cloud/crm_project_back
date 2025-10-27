@@ -10,7 +10,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-    origin: process.env.VITE_API_URL,
+    origin: 'http://localhost:5173',
     credentials: true,
   });
 
@@ -21,9 +21,9 @@ async function bootstrap() {
     await fs.promises.mkdir(uploads, { recursive: true });
   }
 
-  app.useStaticAssets(path.join(uploads, 'avatars'), {
-    prefix: '/avatars/',
-  });
+  // app.useStaticAssets(path.join(uploads, 'avatars'), {
+  //   prefix: '/avatars/',
+  // });
 
   app.useGlobalPipes(
     new ValidationPipe({

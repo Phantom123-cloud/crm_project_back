@@ -13,6 +13,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
+
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse();
 
@@ -50,6 +51,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message,
       timestamp: new Date().toISOString(),
       path: req.url,
+      status,
     });
   }
 }
