@@ -74,7 +74,7 @@ export class RoleService {
     return buildResponse('Роль была удалена');
   }
   // редактирование имени роли
-  async updateRole(id: string, dto: RoleDto) {
+  async updateRole(id: string, dto: RoleDto & { roleTypeId?: string }) {
     const role = await this.prismaService.role.findUnique({
       where: {
         id,
@@ -104,10 +104,11 @@ export class RoleService {
       data: {
         name: dto.name || undefined,
         descriptions: dto.descriptions || undefined,
+        roleTypeId: dto.roleTypeId || undefined,
       },
     });
 
-    return buildResponse('Имя роли было изменено');
+    return buildResponse('Изменения были внесены');
   }
   // список ролей
   async allRoles(page: number, limit: number) {
@@ -117,6 +118,11 @@ export class RoleService {
       this.prismaService.role.findMany({
         skip: (currentPage - 1) * pageSize,
         take: pageSize,
+        orderBy: {
+          type: {
+            name: 'asc',
+          },
+        },
         select: {
           id: true,
           name: true,
@@ -132,32 +138,31 @@ export class RoleService {
       this.prismaService.role.count(),
     ]);
 
-    const roles = rolesData
-      .reduce(
-        (acc, val) => {
-          const { id, name, descriptions, type } = val;
+    const roles = rolesData.reduce(
+      (acc, val) => {
+        const { id, name, descriptions, type } = val;
 
-          acc.push({
-            id,
-            name,
-            descriptions,
-            typeName: type.name,
-            typeId: type.id,
-          });
+        acc.push({
+          id,
+          name,
+          descriptions,
+          typeName: type.name,
+          typeId: type.id,
+        });
 
-          return acc;
-        },
-        [] as {
-          id: string;
-          name: string;
-          descriptions: string;
-          typeName: string;
-          typeId: string;
-        }[],
-      )
-      .sort((a, b) => {
-        return String(a).localeCompare(String(b));
-      });
+        return acc;
+      },
+      [] as {
+        id: string;
+        name: string;
+        descriptions: string;
+        typeName: string;
+        typeId: string;
+      }[],
+    );
+    // .sort((a, b) => {
+    //   return String(a).localeCompare(String(b));
+    // });
 
     const countPages = Math.ceil(total / limit);
 
