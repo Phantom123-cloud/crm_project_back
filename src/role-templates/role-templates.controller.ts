@@ -8,11 +8,12 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { RoleTemplatesService } from './role-templates.service';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
-import { ChangingRolesTemplateDto } from './dto/changing-roles-template.dto';
+import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
 import { RolesDto } from 'src/roles/dto/roles.dto';
 
 @Controller('role-templates')
@@ -34,20 +35,10 @@ export class RoleTemplatesController {
   }
 
   // изменение ролей в шаблоне
-  @Delete('changing-roles/:id')
+  @Put('update/:id')
   @HttpCode(HttpStatus.OK)
-  changingRolesTemplate(
-    @Param('id') id: string,
-    dto: ChangingRolesTemplateDto,
-  ) {
-    return this.roleTemplatesService.changingRolesTemplate(id, dto);
-  }
-
-  // изменение ролей в шаблоне
-  @Delete('change-name/:id')
-  @HttpCode(HttpStatus.OK)
-  changeNameRolesTemplate(@Param('id') id: string, dto: RolesDto) {
-    return this.roleTemplatesService.changeNameRolesTemplate(id, dto);
+  updateRoleTemplate(@Param('id') id: string, dto: UpdateRoleTemplateDto) {
+    return this.roleTemplatesService.updateRoleTemplate(id, dto);
   }
 
   @Patch('assign')
@@ -76,7 +67,7 @@ export class RoleTemplatesController {
 
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  roleTemplatesAll() {
-    return this.roleTemplatesService.roleTemplatesAll();
+  allRoleTemplates() {
+    return this.roleTemplatesService.allRoleTemplates();
   }
 }
