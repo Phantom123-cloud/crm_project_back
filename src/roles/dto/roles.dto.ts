@@ -1,6 +1,6 @@
 import { IsOptional, Length } from 'class-validator';
 
-export class RoleDto {
+export class RolesDto {
   @IsOptional()
   // @Length(5, 20, { message: 'Длина от 5 до 20 символов' })
   name?: string;

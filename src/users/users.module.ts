@@ -3,7 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { TokenModule } from 'src/token/token.module';
 import { AuthModule } from 'src/auth/auth.module';
-import { RoleModule } from 'src/role/role.module';
+import { RolesModule } from 'src/roles/roles.module';
 
 @Module({
   controllers: [UsersController],
@@ -12,7 +12,7 @@ import { RoleModule } from 'src/role/role.module';
   imports: [
     forwardRef(() => AuthModule),
     forwardRef(() => TokenModule),
-    forwardRef(() => RoleModule),
+    forwardRef(() => RolesModule),
   ],
 })
 export class UsersModule {}

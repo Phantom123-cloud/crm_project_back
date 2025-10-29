@@ -5,18 +5,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RoleDto } from 'src/role/dto/role.dto';
+import { RolesDto } from 'src/roles/dto/roles.dto';
 import { buildResponse } from 'src/utils/build-response';
 
 @Injectable()
-export class RolesTypeService {
+export class RoleTypesService {
   constructor(
     private readonly prismaService: PrismaService,
     // @Inject(forwardRef(() => UsersService))
     // private readonly usersService: UsersService,
   ) {}
   // создать тип роли
-  async createRoleType(dto: Required<RoleDto>) {
+  async createRoleType(dto: Required<RolesDto>) {
     const { name, descriptions } = dto;
 
     const isExist = await this.prismaService.roleTypes.findUnique({
@@ -68,7 +68,7 @@ export class RolesTypeService {
     return buildResponse('Тип роли был удалён');
   }
   // смена имени типа роли, если к нему ничего не прикреплено
-  async updateRoleType(id: string, dto: RoleDto) {
+  async updateRoleType(id: string, dto: RolesDto) {
     const roleType = await this.prismaService.roleTypes.findUnique({
       where: {
         id,

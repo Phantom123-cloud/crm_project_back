@@ -5,13 +5,13 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TokenModule } from './token/token.module';
-import { RoleModule } from './role/role.module';
 import { UsersModule } from './users/users.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { LoggerModule } from './common/logger/logger.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RolesTypeModule } from './roles-type/roles-type.module';
+import { RoleTypesModule } from './role-types/role-types.module';
 import { RoleTemplatesModule } from './role-templates/role-templates.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -23,10 +23,10 @@ import { RoleTemplatesModule } from './role-templates/role-templates.module';
     PrismaModule,
     AuthModule,
     TokenModule,
-    RoleModule,
+    RolesModule,
     UsersModule,
     LoggerModule,
-    RolesTypeModule,
+    RoleTypesModule,
     RoleTemplatesModule,
   ],
 

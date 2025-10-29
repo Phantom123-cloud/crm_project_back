@@ -16,7 +16,7 @@ import { PaginationDto } from './dto/pagination.dto';
 import { UpdateUserByIdDto } from './dto/update-user-by-id.dto';
 import { TokenService } from 'src/token/token.service';
 import { AuthService } from 'src/auth/auth.service';
-import { RoleService } from 'src/role/role.service';
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class UsersService {
@@ -26,8 +26,8 @@ export class UsersService {
     private readonly tokenService: TokenService,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
-    @Inject(forwardRef(() => RoleService))
-    private readonly roleService: RoleService,
+    @Inject(forwardRef(() => RolesService))
+    private readonly RolesService: RolesService,
   ) {}
 
   async findUser(id: string) {
@@ -82,7 +82,7 @@ export class UsersService {
   async me(req: Request, res: Response) {
     const { id } = req.user as JwtPayload;
     await this.tokenService.validateToken(req, res);
-    const data = await this.roleService.getRolesByUserId(id);
+    const data = await this.RolesService.getRolesByUserId(id);
     console.log(data);
 
     return buildResponse('Список ролей', { data });

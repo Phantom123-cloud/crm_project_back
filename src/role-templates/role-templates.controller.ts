@@ -13,7 +13,7 @@ import {
 import { RoleTemplatesService } from './role-templates.service';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { ChangingRolesTemplateDto } from './dto/changing-roles-template.dto';
-import { RoleDto } from 'src/role/dto/role.dto';
+import { RolesDto } from 'src/roles/dto/roles.dto';
 
 @Controller('role-templates')
 export class RoleTemplatesController {
@@ -46,7 +46,7 @@ export class RoleTemplatesController {
   // изменение ролей в шаблоне
   @Delete('change-name/:id')
   @HttpCode(HttpStatus.OK)
-  changeNameRolesTemplate(@Param('id') id: string, dto: RoleDto) {
+  changeNameRolesTemplate(@Param('id') id: string, dto: RolesDto) {
     return this.roleTemplatesService.changeNameRolesTemplate(id, dto);
   }
 

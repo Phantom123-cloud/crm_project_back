@@ -3,8 +3,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { ChangingRolesTemplateDto } from './dto/changing-roles-template.dto';
-import { RoleDto } from 'src/role/dto/role.dto';
 import { UsersService } from 'src/users/users.service';
+import { RolesDto } from 'src/roles/dto/roles.dto';
 
 @Injectable()
 export class RoleTemplatesService {
@@ -103,7 +103,7 @@ export class RoleTemplatesService {
         return buildResponse('Роли обновлены');
       }
       // смена имена шаблона
-      async changeNameRolesTemplate(id: string, dto: RoleDto) {
+      async changeNameRolesTemplate(id: string, dto: RolesDto) {
         const isExistTemplate = await this.prismaService.roleTemplates.findUnique({
           where: { id },
         });

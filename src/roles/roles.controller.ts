@@ -12,43 +12,47 @@ import {
   Put,
   ParseIntPipe,
 } from '@nestjs/common';
-import { RoleService } from './role.service';
-import { RoleDto } from './dto/role.dto';
+import { RolesService } from './roles.service';
+import { RolesDto } from './dto/roles.dto';
 import { IndividualRulesDto } from './dto/individual-rules.dto';
 
-@Controller('role')
-export class RoleController {
-  constructor(private readonly roleService: RoleService) {}
+@Controller('roles')
+export class RolesController {
+  constructor(private readonly RolesService: RolesService) {}
 
   @Post('create')
+  // create_roles
   @HttpCode(HttpStatus.OK)
   createRole(
-    @Body() dto: Required<RoleDto>,
+    @Body() dto: Required<RolesDto>,
     @Query('roleTypeId') roleTypeId: string,
   ) {
-    return this.roleService.createRole(dto, roleTypeId);
+    return this.RolesService.createRole(dto, roleTypeId);
   }
 
   @Delete('delete/:id')
+  // delete_roles
   @HttpCode(HttpStatus.OK)
   deleteRole(@Param('id') id: string) {
-    return this.roleService.deleteRole(id);
+    return this.RolesService.deleteRole(id);
   }
 
   @Put('update/:id')
+  // update_roles
   @HttpCode(HttpStatus.OK)
-  updateRole(@Param('id') id: string, @Body() dto: RoleDto) {
-    return this.roleService.updateRole(id, dto);
+  updateRole(@Param('id') id: string, @Body() dto: RolesDto) {
+    return this.RolesService.updateRole(id, dto);
   }
 
   // все роли
   @Get('all')
+  // view_roles
   @HttpCode(HttpStatus.OK)
   allRoles(
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
   ) {
-    return this.roleService.allRoles(page, limit);
+    return this.RolesService.allRoles(page, limit);
   }
 
   // добавление или блокировка отдельных ролей
@@ -58,12 +62,12 @@ export class RoleController {
     @Body() dto: IndividualRulesDto,
     @Query('userId') userId: string,
   ) {
-    return this.roleService.createIndividualRules(dto, userId);
+    return this.RolesService.createIndividualRules(dto, userId);
   }
   // удаление правил
   @Delete('delete-individual-rule/:id')
   @HttpCode(HttpStatus.OK)
   deleteIndividualRule(@Param('id') id: string) {
-    return this.roleService.deleteIndividualRule(id);
+    return this.RolesService.deleteIndividualRule(id);
   }
 }

@@ -7,7 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getJwtConfig } from 'src/common/config/jwt.config';
 import { UsersModule } from 'src/users/users.module';
 import { JwtStrategy } from './strategy/jwt.strategy';
-import { RoleService } from 'src/role/role.service';
+import { RolesService } from 'src/roles/roles.service';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { RoleService } from 'src/role/role.service';
     forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RoleService],
+  providers: [AuthService, JwtStrategy, RolesService],
   exports: [AuthService],
 })
 export class AuthModule {}

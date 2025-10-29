@@ -7,12 +7,12 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
-import { RoleDto } from './dto/role.dto';
+import { RolesDto } from './dto/roles.dto';
 import { IndividualRulesDto } from './dto/individual-rules.dto';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class RoleService {
+export class RolesService {
   constructor(
     private readonly prismaService: PrismaService,
     @Inject(forwardRef(() => UsersService))
@@ -20,7 +20,7 @@ export class RoleService {
   ) {}
 
   // создание роли
-  async createRole(dto: Required<RoleDto>, roleTypeId: string) {
+  async createRole(dto: Required<RolesDto>, roleTypeId: string) {
     const isExist = await this.prismaService.role.findUnique({
       where: {
         name: dto.name,
@@ -74,7 +74,7 @@ export class RoleService {
     return buildResponse('Роль была удалена');
   }
   // редактирование имени роли
-  async updateRole(id: string, dto: RoleDto & { roleTypeId?: string }) {
+  async updateRole(id: string, dto: RolesDto & { roleTypeId?: string }) {
     const role = await this.prismaService.role.findUnique({
       where: {
         id,
