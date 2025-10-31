@@ -1,15 +1,15 @@
 import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class UpdateRoleTemplateDto {
-  @IsString()
   @IsOptional()
-  key?: 'connect' | 'disconnect';
-  
   @IsArray({ message: 'Данные должны быть массивом' })
-  @IsOptional()
-  array?: string[];
+  arrayConnect?: string[];
 
-  @IsString()
   @IsOptional()
+  @IsArray({ message: 'Данные должны быть массивом' })
+  arrayDisconnect?: string[];
+
+  @IsOptional()
+  @IsString()
   name?: string;
 }

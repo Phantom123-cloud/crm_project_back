@@ -27,7 +27,7 @@ export class UsersService {
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     @Inject(forwardRef(() => RolesService))
-    private readonly RolesService: RolesService,
+    private readonly rolesService: RolesService,
   ) {}
 
   async findUser(id: string) {
@@ -82,8 +82,7 @@ export class UsersService {
   async me(req: Request, res: Response) {
     const { id } = req.user as JwtPayload;
     await this.tokenService.validateToken(req, res);
-    const data = await this.RolesService.getRolesByUserId(id);
-    console.log(data);
+    const data = await this.rolesService.getRolesByUserId(id);
 
     return buildResponse('Список ролей', { data });
   }

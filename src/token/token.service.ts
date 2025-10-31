@@ -53,7 +53,7 @@ export class TokenService {
       );
     }
 
-    const ttl = this[remember ? 'TOKEN_TTL_S' : 'TOKEN_TTL_L'];
+    const ttl = this[remember ? 'TOKEN_TTL_L' : 'TOKEN_TTL_S'];
     const { hash } = this.generateTokens(id, email, full_name, ttl);
 
     this.setTokenCookie(res, hash, ttl);
@@ -162,6 +162,7 @@ export class TokenService {
       await this.jwtService.verifyAsync(tokenHash);
     const exp = verifyTokenHash.exp;
     const now = Math.floor(Date.now() / 1000);
+    console.log(exp< now);
 
     if (tokenHash !== hash || exp < now) {
       await this.deactivateTokens(id);

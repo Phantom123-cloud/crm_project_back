@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => req?.cookies?.token || null,
+        (req: Request) => req?.cookies['token'] || null,
       ]),
       algorithms: ['HS256'],
       ignoreExpiration: false,
@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<JwtPayload> {
-    return this.authService.validate(payload.id);
+    const user = await this.authService.validate(payload.id);
+    return user;
   }
 }

@@ -37,7 +37,10 @@ export class RoleTemplatesController {
   // изменение ролей в шаблоне
   @Put('update/:id')
   @HttpCode(HttpStatus.OK)
-  updateRoleTemplate(@Param('id') id: string, dto: UpdateRoleTemplateDto) {
+  updateRoleTemplate(
+    @Param('id') id: string,
+    @Body() dto: UpdateRoleTemplateDto,
+  ) {
     return this.roleTemplatesService.updateRoleTemplate(id, dto);
   }
 
@@ -69,5 +72,11 @@ export class RoleTemplatesController {
   @HttpCode(HttpStatus.OK)
   allRoleTemplates() {
     return this.roleTemplatesService.allRoleTemplates();
+  }
+
+  @Get('all-by/:id')
+  @HttpCode(HttpStatus.OK)
+  allRoleTemplatesById(@Param('id') id: string) {
+    return this.roleTemplatesService.allRoleTemplatesById(id);
   }
 }

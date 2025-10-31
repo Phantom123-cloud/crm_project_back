@@ -101,6 +101,80 @@ export class RoleTemplatesService {
       ],
     );
 
+    const roles = this.roleData(types, rolesData);
+    return buildResponse('Список шаблонов', { data: { templates, roles } });
+  }
+  async allRoleTemplatesById(id: string) {
+    const [rolesData, types] = await this.prismaService.$transaction([
+      this.prismaService.role.findMany({
+        where: {
+          roleTemplates: {
+            some: {
+              id,
+            },
+          },
+        },
+        select: {
+          name: true,
+          id: true,
+          descriptions: true,
+          type: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+
+        orderBy: {
+          type: {
+            name: 'asc',
+          },
+        },
+      }),
+      this.prismaService.roleTypes.findMany({
+        where: {
+          roles: {
+            some: {
+              roleTemplates: {
+                some: { id },
+              },
+            },
+          },
+        },
+        select: {
+          name: true,
+          descriptions: true,
+          id: true,
+        },
+
+        orderBy: {
+          name: 'asc',
+        },
+      }),
+    ]);
+
+    const roles = this.roleData(types, rolesData);
+
+    return buildResponse('Список шаблонов', { data: { roles } });
+  }
+
+  private roleData(
+    types: {
+      name: string;
+      id: string;
+      descriptions: string;
+    }[],
+    rolesData: {
+      name: string;
+      id: string;
+      descriptions: string;
+      type: {
+        name: string;
+        id: string;
+      };
+    }[],
+  ) {
     const roles = types.reduce(
       (acc, val) => {
         acc.push({
@@ -133,7 +207,7 @@ export class RoleTemplatesService {
       });
     }
 
-    return buildResponse('Список шаблонов', { data: { templates, roles } });
+    return roles;
   }
   // удалить шабуло
   async deleteRoleTemplate(id: string) {
@@ -161,33 +235,52 @@ export class RoleTemplatesService {
 
     return buildResponse('Успешно удалено');
   }
-  // смена ролей в шаблоне
   async updateRoleTemplate(id: string, dto: UpdateRoleTemplateDto) {
     const isExistTemplate = await this.prismaService.roleTemplates.findUnique({
       where: { id },
+      select: { roles: { select: { id: true } } },
     });
 
     if (!isExistTemplate) {
       throw new ConflictException('Такого шаблона не существует');
     }
 
-    const { key, array, name } = dto;
+    const { arrayConnect, arrayDisconnect, name } = dto;
 
-    const roles = array
-      ? key === 'connect'
-        ? {
-            connect: array.map((id) => ({ id })),
-          }
-        : {
-            disconnect: array.map((id) => ({ id })),
-          }
-      : {};
+    if (arrayConnect?.length) {
+      const alreadyExists = isExistTemplate.roles.some((r) =>
+        arrayConnect.includes(r.id),
+      );
+      if (alreadyExists) {
+        throw new BadRequestException(
+          'Вы пытаетесь добавить уже существующую роль',
+        );
+      }
+    }
+
+    if (arrayDisconnect?.length) {
+      const missingRole = arrayDisconnect.some(
+        (id) => !isExistTemplate.roles.some((r) => r.id === id),
+      );
+      if (missingRole) {
+        throw new BadRequestException(
+          'Вы пытаетесь удалить роль, отсутствующую в шаблоне',
+        );
+      }
+    }
 
     await this.prismaService.roleTemplates.update({
       where: { id },
       data: {
-        roles,
-        name: name || undefined,
+        name,
+        roles: {
+          ...(arrayDisconnect?.length
+            ? { disconnect: arrayDisconnect.map((id) => ({ id })) }
+            : {}),
+          ...(arrayConnect?.length
+            ? { connect: arrayConnect.map((id) => ({ id })) }
+            : {}),
+        },
       },
     });
 
