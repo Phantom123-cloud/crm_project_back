@@ -20,10 +20,11 @@ import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class TokenService {
-  private readonly TOKEN_TTL_S: StringValue;
-  private readonly TOKEN_TTL_L: StringValue;
+  private readonly TOKEN_TTL_S: number;
+  private readonly TOKEN_TTL_L: number;
   private readonly COOKIE_DOMAIN: string;
   private readonly JWT_SECRET: string;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
@@ -31,8 +32,9 @@ export class TokenService {
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {
-    this.TOKEN_TTL_S = configService.getOrThrow<StringValue>('JWT_TOKEN_TTL_S');
-    this.TOKEN_TTL_L = configService.getOrThrow<StringValue>('JWT_TOKEN_TTL_L');
+    // секунды, а не миллисекунды!
+    this.TOKEN_TTL_S = 1 * 24 * 60 * 60; // 1 день
+    this.TOKEN_TTL_L = 7 * 24 * 60 * 60; // 7 дней
     this.COOKIE_DOMAIN = configService.getOrThrow<string>('COOKIE_DOMAIN');
     this.JWT_SECRET = configService.getOrThrow<string>('JWT_SECRET');
   }
@@ -45,57 +47,52 @@ export class TokenService {
       throw new NotFoundException('Пользователь не обнаружен');
     }
 
-    const { id: tokenId, isActive } = user.token;
+    const { id: tokenId, exp: currentExp } = user.token;
+    const now = Math.floor(Date.now() / 1000);
 
-    if (isActive) {
+    if (user.token.hash && now < currentExp) {
       throw new ConflictException(
         'Ваша сессия активна, вы не можете войти повторно!',
       );
     }
 
     const ttl = this[remember ? 'TOKEN_TTL_L' : 'TOKEN_TTL_S'];
+    const exp = now + ttl;
+
     const { hash } = this.generateTokens(id, email, full_name, ttl);
-
-    this.setTokenCookie(res, hash, ttl);
-
+    this.setTokenCookie(res, hash, ttl * 1000);
     await this.prismaService.token.update({
-      where: {
-        id: tokenId,
-      },
-      data: {
-        isActive: true,
-        hash,
-      },
+      where: { id: tokenId },
+      data: { exp, hash },
     });
 
     return buildResponse('Вы вошли в систему');
   }
-  private signToken(payload: JwtPayload, ttl: StringValue) {
+
+  private signToken(payload: JwtPayload, ttl: number) {
     return this.jwtService.sign(payload, {
       expiresIn: ttl,
       secret: this.JWT_SECRET,
     });
   }
+
   private generateTokens(
     id: string,
     email: string,
     full_name: string,
-    ttl: StringValue,
+    ttl: number,
   ) {
     const payload: JwtPayload = { id, email, full_name };
     const hash = this.signToken(payload, ttl);
-
     return { hash };
   }
-  private setTokenCookie(res: Response, value: string, ttl: string | 0) {
-    const maxAge = typeof ttl === 'string' ? (parse(ttl) as number) : 0;
-
-    return res.cookie('token', value, {
+  private setTokenCookie(res: Response, value: string, maxAgeMs: number) {
+    res.cookie('token', value, {
       httpOnly: true,
       domain: this.COOKIE_DOMAIN,
       secure: !isDev(this.configService),
       sameSite: 'lax',
-      maxAge,
+      maxAge: maxAgeMs,
     });
   }
   async logout(res: Response, req: Request) {
@@ -116,10 +113,10 @@ export class TokenService {
     if (!user || !user.token) {
       throw new NotFoundException('Пользователь не обнаружен');
     }
+    const now = Math.floor(Date.now() / 1000);
+    const { exp } = user.token;
 
-    const { isActive } = user.token;
-
-    if (!isActive) {
+    if (!user.token.hash && now > exp) {
       throw new BadRequestException('Пользователь не имеет активной сессии');
     }
 
@@ -133,8 +130,8 @@ export class TokenService {
 
         token: {
           update: {
-            isActive: false,
-            hash: 'null',
+            exp: 0,
+            hash: null,
           },
         },
       },
@@ -151,21 +148,11 @@ export class TokenService {
       throw new NotFoundException('Пользователь не обнаружен');
     }
 
-    const { isActive, hash } = user.token;
-
-    if (!isActive) {
-      this.setTokenCookie(res, '', 0);
-      throw new UnauthorizedException('Сессия просрочена, войдите снова');
-    }
-
-    const verifyTokenHash: JwtPayload & { exp: number } =
-      await this.jwtService.verifyAsync(tokenHash);
-    const exp = verifyTokenHash.exp;
     const now = Math.floor(Date.now() / 1000);
-    console.log(exp< now);
+    const { exp, hash } = user.token;
 
-    if (tokenHash !== hash || exp < now) {
-      await this.deactivateTokens(id);
+    if (now > exp || tokenHash !== hash) {
+      this.setTokenCookie(res, '', 0);
       throw new UnauthorizedException('Сессия просрочена, войдите снова');
     }
   }

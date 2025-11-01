@@ -27,7 +27,8 @@ model User {
 model Token {
   id        String   @id @default(uuid())
   hash      String?  @map("hash")
-  isActive  Boolean  @default(false) @map("is_active")
+  exp       BigInt   @default(0)
+  // isActive  Boolean  @default(false) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   user      User     @relation(fields: [userId], references: [id])
@@ -51,12 +52,12 @@ model Role {
 }
 
 model RoleTypes {
-  id           String @id @default(uuid())
-  name         String @unique
-  descriptions String @default("")
-  roles     Role[]
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(uuid())
+  name         String   @unique
+  descriptions String   @default("")
+  roles        Role[]
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("role_types")
 }

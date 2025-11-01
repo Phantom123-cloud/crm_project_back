@@ -121,8 +121,8 @@ export class AuthService {
         'Ваш аккаунт заблокирован, обратитесь к администратору',
       );
     }
-
-    if (user.token?.isActive) {
+    const now = Math.floor(Date.now() / 1000);
+    if (user.token?.hash && now < user.token?.exp) {
       throw new ConflictException(
         'Ваша сессия активна, что бы выполнить вход заново выйдите из системы',
       );
@@ -140,9 +140,6 @@ export class AuthService {
     if (!user) throw new NotFoundException('Пользователь не найден');
     if (!user.isActive)
       throw new BadRequestException('Пользователь заблокирован');
-    if (!user.token?.isActive)
-      throw new UnauthorizedException('Пользователь не авторизован');
-
     return {
       id: user.id,
       email: user.email,

@@ -45,7 +45,7 @@ export class UsersService {
         token: {
           select: {
             id: true,
-            isActive: true,
+            exp: true,
             hash: true,
           },
         },

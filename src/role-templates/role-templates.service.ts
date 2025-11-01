@@ -59,13 +59,6 @@ export class RoleTemplatesService {
           select: {
             name: true,
             id: true,
-            roles: {
-              select: {
-                id: true,
-                name: true,
-                descriptions: true,
-              },
-            },
           },
         }),
         this.prismaService.role.findMany({

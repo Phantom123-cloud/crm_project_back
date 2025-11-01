@@ -15,11 +15,12 @@ import {
 import { RolesService } from './roles.service';
 import { RolesDto } from './dto/roles.dto';
 import { IndividualRulesDto } from './dto/individual-rules.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly RolesService: RolesService) {}
-
+  @Auth()
   @Post('create')
   // create_roles
   @HttpCode(HttpStatus.OK)
@@ -29,14 +30,14 @@ export class RolesController {
   ) {
     return this.RolesService.createRole(dto, roleTypeId);
   }
-
+  @Auth()
   @Delete('delete/:id')
   // delete_roles
   @HttpCode(HttpStatus.OK)
   deleteRole(@Param('id') id: string) {
     return this.RolesService.deleteRole(id);
   }
-
+  @Auth()
   @Put('update/:id')
   // update_roles
   @HttpCode(HttpStatus.OK)
@@ -44,7 +45,7 @@ export class RolesController {
     return this.RolesService.updateRole(id, dto);
   }
 
-  // все роли
+  @Auth()
   @Get('all')
   // view_roles
   @HttpCode(HttpStatus.OK)
@@ -55,7 +56,7 @@ export class RolesController {
     return this.RolesService.allRoles(page, limit);
   }
 
-  // добавление или блокировка отдельных ролей
+  @Auth()
   @Post('create-individual-rules')
   @HttpCode(HttpStatus.CREATED)
   createIndividualRules(
@@ -64,7 +65,7 @@ export class RolesController {
   ) {
     return this.RolesService.createIndividualRules(dto, userId);
   }
-  // удаление правил
+  @Auth()
   @Delete('delete-individual-rule/:id')
   @HttpCode(HttpStatus.OK)
   deleteIndividualRule(@Param('id') id: string) {

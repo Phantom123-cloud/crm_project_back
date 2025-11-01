@@ -15,26 +15,27 @@ import { RoleTemplatesService } from './role-templates.service';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
 import { RolesDto } from 'src/roles/dto/roles.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @Controller('role-templates')
 export class RoleTemplatesController {
   constructor(private readonly roleTemplatesService: RoleTemplatesService) {}
 
-  // создание шаблона
+  @Auth()
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   createRoleTemplate(@Body() dto: RoleTemplatesDto) {
     return this.roleTemplatesService.createRoleTemplate(dto);
   }
 
-  // удаление шаблона
+  @Auth()
   @Delete('delete/:id')
   @HttpCode(HttpStatus.OK)
   deleteRoleTemplate(@Param('id') id: string) {
     return this.roleTemplatesService.deleteRoleTemplate(id);
   }
 
-  // изменение ролей в шаблоне
+  @Auth()
   @Put('update/:id')
   @HttpCode(HttpStatus.OK)
   updateRoleTemplate(
@@ -43,7 +44,7 @@ export class RoleTemplatesController {
   ) {
     return this.roleTemplatesService.updateRoleTemplate(id, dto);
   }
-
+  @Auth()
   @Patch('assign')
   @HttpCode(HttpStatus.OK)
   assignRoleTemplate(
@@ -55,7 +56,7 @@ export class RoleTemplatesController {
       roleTemplatesId,
     );
   }
-
+  @Auth()
   @Patch('revoke')
   @HttpCode(HttpStatus.OK)
   revokeRoleTemplate(
@@ -67,13 +68,13 @@ export class RoleTemplatesController {
       roleTemplatesId,
     );
   }
-
+  @Auth()
   @Get('all')
   @HttpCode(HttpStatus.OK)
   allRoleTemplates() {
     return this.roleTemplatesService.allRoleTemplates();
   }
-
+  @Auth()
   @Get('all-by/:id')
   @HttpCode(HttpStatus.OK)
   allRoleTemplatesById(@Param('id') id: string) {
