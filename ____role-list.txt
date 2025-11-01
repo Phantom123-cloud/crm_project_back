@@ -1,4 +1,0 @@
-view
-update
-delete
-create

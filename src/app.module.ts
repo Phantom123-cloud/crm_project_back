@@ -12,6 +12,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RoleTypesModule } from './role-types/role-types.module';
 import { RoleTemplatesModule } from './role-templates/role-templates.module';
 import { RolesModule } from './roles/roles.module';
+import { CitizenshipsModule } from './citizenships/citizenships.module';
+import { LanguagesModule } from './languages/languages.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { RolesModule } from './roles/roles.module';
     LoggerModule,
     RoleTypesModule,
     RoleTemplatesModule,
+    CitizenshipsModule,
+    LanguagesModule,
   ],
 
   controllers: [AppController],
