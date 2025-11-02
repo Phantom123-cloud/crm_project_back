@@ -9,6 +9,7 @@ import { buildResponse } from 'src/utils/build-response';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
 import { UsersService } from 'src/users/users.service';
+import { RolesData } from './interfaces/roles-data.interface';
 
 @Injectable()
 export class RoleTemplatesService {
@@ -26,7 +27,7 @@ export class RoleTemplatesService {
     });
 
     if (isExistTemplate) {
-      throw new ConflictException('Даное имя уже присвоенно');
+      throw new ConflictException('Такой шаблон уже существует');
     }
 
     const isExistsRoleAll = await this.prismaService.role.findMany({
@@ -36,8 +37,13 @@ export class RoleTemplatesService {
     });
 
     if (isExistsRoleAll.length !== array.length) {
+      const notFountRoles = isExistsRoleAll
+        .filter((r) => array.some((id) => r.id !== id))
+        .map((r) => r.name)
+        .join('; ');
+
       throw new NotFoundException(
-        'Некоторые роли не обнаружены на сервере, проверьте правильность данных и попробуйте ещё раз',
+        `Роли переданные вами отсутствуют на сервере '${notFountRoles}'`,
       );
     }
 
@@ -49,7 +55,7 @@ export class RoleTemplatesService {
         },
       },
     });
-    return buildResponse('Шаблон создан');
+    return buildResponse('Новый шаблон создан');
   }
   // получение списка всех типов роли
   async allRoleTemplates() {
@@ -94,8 +100,8 @@ export class RoleTemplatesService {
       ],
     );
 
-    const roles = this.roleData(types, rolesData);
-    return buildResponse('Список шаблонов', { data: { templates, roles } });
+    const roles = this.roleData({ types, rolesData });
+    return buildResponse('Данные', { data: { templates, roles } });
   }
   async allRoleTemplatesById(id: string) {
     const [rolesData, types] = await this.prismaService.$transaction([
@@ -147,27 +153,13 @@ export class RoleTemplatesService {
       }),
     ]);
 
-    const roles = this.roleData(types, rolesData);
+    const roles = this.roleData({ types, rolesData });
 
-    return buildResponse('Список шаблонов', { data: { roles } });
+    return buildResponse('Данные', { data: { roles } });
   }
 
-  private roleData(
-    types: {
-      name: string;
-      id: string;
-      descriptions: string;
-    }[],
-    rolesData: {
-      name: string;
-      id: string;
-      descriptions: string;
-      type: {
-        name: string;
-        id: string;
-      };
-    }[],
-  ) {
+  private roleData(props: RolesData) {
+    const { types, rolesData } = props;
     const roles = types.reduce(
       (acc, val) => {
         acc.push({
@@ -213,11 +205,13 @@ export class RoleTemplatesService {
     });
 
     if (!isExistTemplate) {
-      throw new ConflictException('Такого шаблона не существует');
+      throw new ConflictException('Шаблон не найден');
     }
 
-    if (isExistTemplate.users.length > 0) {
-      throw new ConflictException('Данный шаблон используется пользователями');
+    if (isExistTemplate.users?.length) {
+      throw new ConflictException(
+        'Невозможно удалить: шаблон связан с другими данными',
+      );
     }
 
     await this.prismaService.roleTemplates.delete({
@@ -226,27 +220,29 @@ export class RoleTemplatesService {
       },
     });
 
-    return buildResponse('Успешно удалено');
+    return buildResponse('Шаблон удалён');
   }
   async updateRoleTemplate(id: string, dto: UpdateRoleTemplateDto) {
     const isExistTemplate = await this.prismaService.roleTemplates.findUnique({
       where: { id },
-      select: { roles: { select: { id: true } } },
+      select: { roles: { select: { id: true, name: true } } },
     });
 
     if (!isExistTemplate) {
-      throw new ConflictException('Такого шаблона не существует');
+      throw new ConflictException('Шаблон не найден');
     }
 
     const { arrayConnect, arrayDisconnect, name } = dto;
 
     if (arrayConnect?.length) {
-      const alreadyExists = isExistTemplate.roles.some((r) =>
-        arrayConnect.includes(r.id),
-      );
+      const alreadyExists = isExistTemplate.roles
+        .filter((r) => arrayConnect.includes(r.id))
+        .map((r) => r.name)
+        .join('; ');
+
       if (alreadyExists) {
         throw new BadRequestException(
-          'Вы пытаетесь добавить уже существующую роль',
+          `Роли переданные вами уже добавлены в шаблон ${alreadyExists}`,
         );
       }
     }
@@ -283,7 +279,7 @@ export class RoleTemplatesService {
   // назначить шаблон юзеру
   async assignRoleTemplate(userId: string, roleTemplatesId: string) {
     if (!userId || !roleTemplatesId) {
-      throw new BadRequestException('Ошибка получения данных');
+      throw new BadRequestException('Все данные обязательны');
     }
 
     const user = await this.usersService.findUser(userId);
@@ -320,7 +316,7 @@ export class RoleTemplatesService {
   // удалить шаблон у юзера
   async revokeRoleTemplate(userId: string, roleTemplatesId: string) {
     if (!userId || !roleTemplatesId) {
-      throw new BadRequestException('Ошибка получения данных');
+      throw new BadRequestException('Все данные обязательны');
     }
 
     const user = await this.usersService.findUser(userId);

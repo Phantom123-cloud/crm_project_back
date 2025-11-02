@@ -35,7 +35,7 @@ export class AuthService {
     const { email, password, full_name } = dto;
 
     if (!email || !password || !full_name) {
-      throw new BadRequestException('Все данные должны быть заполнены');
+      throw new BadRequestException('Все данные обязательны');
     }
 
     const isUser = await this.prismaService.user.findUnique({
@@ -43,9 +43,7 @@ export class AuthService {
     });
 
     if (isUser) {
-      throw new ConflictException(
-        'Пользователь с такой почтой уже зарегистирован',
-      );
+      throw new ConflictException('Эта почта уже используется');
     }
 
     const hashPassword = await argon2.hash(password);
@@ -67,7 +65,7 @@ export class AuthService {
     const { email, password, remember } = dto;
 
     if (!email || !password) {
-      throw new BadRequestException('Отсутствует email или пароль');
+      throw new BadRequestException('Все данные обязательны');
     }
 
     const user = await this.prismaService.user.findUnique({
@@ -124,7 +122,7 @@ export class AuthService {
     const now = Math.floor(Date.now() / 1000);
     if (user.token?.hash && now < user.token?.exp) {
       throw new ConflictException(
-        'Ваша сессия активна, что бы выполнить вход заново выйдите из системы',
+        'Ваша сессия активна, что бы выполнить вход заново, выйдите из системы',
       );
     }
 

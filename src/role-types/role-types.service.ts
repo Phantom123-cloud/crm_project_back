@@ -5,18 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RolesDto } from 'src/roles/dto/roles.dto';
+import { CreateRoleDto } from 'src/roles/dto/create-role.dto';
 import { buildResponse } from 'src/utils/build-response';
+import { UpdateRoleTypeDto } from './dto/update-role-type.dto';
 
 @Injectable()
 export class RoleTypesService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    // @Inject(forwardRef(() => UsersService))
-    // private readonly usersService: UsersService,
-  ) {}
-  // создать тип роли
-  async createRoleType(dto: Required<RolesDto>) {
+  constructor(private readonly prismaService: PrismaService) {}
+  async createRoleType(dto: CreateRoleDto) {
     const { name, descriptions } = dto;
 
     const isExist = await this.prismaService.roleTypes.findUnique({
@@ -26,11 +22,11 @@ export class RoleTypesService {
     });
 
     if (isExist) {
-      throw new ConflictException('Тип роли с таким именем уже существует');
+      throw new ConflictException('Такой тип роли уже существует');
     }
 
     if (!name || !descriptions) {
-      throw new BadRequestException('Имя и описание обязательны');
+      throw new BadRequestException('Все данные обязательны');
     }
 
     await this.prismaService.roleTypes.create({
@@ -52,12 +48,12 @@ export class RoleTypesService {
     });
 
     if (!roleType) {
-      throw new NotFoundException('Переданный тип роли не найден');
+      throw new NotFoundException('Тип роли не найден');
     }
 
-    if (roleType.roles.length > 0) {
+    if (roleType.roles?.length) {
       throw new ConflictException(
-        'Удаление невозможно, к данному типу прикреплены роли',
+        'Невозможно удалить: тип роли связан с другими данными',
       );
     }
 
@@ -65,10 +61,10 @@ export class RoleTypesService {
       where: { id },
     });
 
-    return buildResponse('Тип роли был удалён');
+    return buildResponse('Тип роли удалён');
   }
   // смена имени типа роли, если к нему ничего не прикреплено
-  async updateRoleType(id: string, dto: RolesDto) {
+  async updateRoleType(id: string, dto: UpdateRoleTypeDto) {
     const roleType = await this.prismaService.roleTypes.findUnique({
       where: {
         id,
@@ -80,24 +76,25 @@ export class RoleTypesService {
     });
 
     if (!roleType) {
-      throw new NotFoundException('Переданный тип роли не найден');
+      throw new NotFoundException('Тип роли не найден');
     }
+    const { name, descriptions } = dto;
 
-    if (dto.name && roleType.roles.length > 0) {
+    if (name && roleType.roles?.length) {
       throw new ConflictException(
-        'Редактирование невозможно, к данному типу прикреплены роли',
+        'Невозможно редактировать: тип роли связан с другими данными',
       );
     }
 
     await this.prismaService.roleTypes.update({
       where: { id },
       data: {
-        name: dto.name || undefined,
-        descriptions: dto.descriptions || undefined,
+        name,
+        descriptions,
       },
     });
 
-    return buildResponse('Имя типа роли было изменено');
+    return buildResponse('Тип роли изменён');
   }
 
   async allRoleTypes() {
@@ -109,6 +106,6 @@ export class RoleTypesService {
       },
     });
 
-    return buildResponse('Список типов', { data });
+    return buildResponse('Данные', { data });
   }
 }

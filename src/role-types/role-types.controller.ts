@@ -10,9 +10,10 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { RolesDto } from 'src/roles/dto/roles.dto';
 import { RoleTypesService } from './role-types.service';
 import { Auth } from 'src/auth/decorators/auth.decorator';
+import { CreateRoleDto } from 'src/roles/dto/create-role.dto';
+import { UpdateRoleTypeDto } from './dto/update-role-type.dto';
 
 @Controller('role-types')
 export class RoleTypesController {
@@ -20,7 +21,7 @@ export class RoleTypesController {
   @Auth()
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
-  createRoleType(@Body() dto: Required<RolesDto>) {
+  createRoleType(@Body() dto: CreateRoleDto) {
     return this.roleTypesService.createRoleType(dto);
   }
   @Auth()
@@ -32,7 +33,7 @@ export class RoleTypesController {
   @Auth()
   @Put('update/:id')
   @HttpCode(HttpStatus.OK)
-  updateRoleType(@Param('id') id: string, @Body() dto: RolesDto) {
+  updateRoleType(@Param('id') id: string, @Body() dto: UpdateRoleTypeDto) {
     return this.roleTypesService.updateRoleType(id, dto);
   }
   @Auth()

@@ -7,9 +7,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
-import { RolesDto } from './dto/roles.dto';
 import { IndividualRulesDto } from './dto/individual-rules.dto';
 import { UsersService } from 'src/users/users.service';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Injectable()
 export class RolesService {
@@ -19,8 +20,7 @@ export class RolesService {
     private readonly usersService: UsersService,
   ) {}
 
-  // создание роли
-  async createRole(dto: Required<RolesDto>, roleTypeId: string) {
+  async createRole(dto: CreateRoleDto, roleTypeId: string) {
     const isExist = await this.prismaService.role.findUnique({
       where: {
         name: dto.name,
@@ -28,7 +28,7 @@ export class RolesService {
     });
 
     if (isExist) {
-      throw new ConflictException('Данная роль уже существует');
+      throw new ConflictException('Такая роль уже существует');
     }
 
     const isExistType = await this.prismaService.roleTypes.findUnique({
@@ -36,7 +36,7 @@ export class RolesService {
     });
 
     if (!isExistType) {
-      throw new NotFoundException('Такого типа роли не существует');
+      throw new NotFoundException('Роль не найдена');
     }
 
     await this.prismaService.role.create({
@@ -45,7 +45,6 @@ export class RolesService {
 
     return buildResponse('Новая роль создана');
   }
-  // удаление роли, если не используется
   async deleteRole(id: string) {
     const role = await this.prismaService.role.findUnique({
       where: {
@@ -59,22 +58,22 @@ export class RolesService {
     });
 
     if (!role) {
-      throw new NotFoundException('Переданный тип роли не найден');
+      throw new NotFoundException('Роль не найдена');
     }
 
-    if (role.individualRules.length > 0 || role.roleTemplates.length > 0) {
+    if (role.individualRules?.length || role.roleTemplates?.length) {
       throw new ConflictException(
-        'Удаление роли невозможно, она используется для других пользователей',
+        'Невозможно удалить: роль связан с другими данными',
       );
     }
     await this.prismaService.role.delete({
       where: { id },
     });
 
-    return buildResponse('Роль была удалена');
+    return buildResponse('Роль удалена');
   }
-  // редактирование имени роли
-  async updateRole(id: string, dto: RolesDto & { roleTypeId?: string }) {
+  async updateRole(id: string, dto: UpdateRoleDto) {
+    const { roleTypeId, name, descriptions } = dto;
     const role = await this.prismaService.role.findUnique({
       where: {
         id,
@@ -87,30 +86,31 @@ export class RolesService {
     });
 
     if (!role) {
-      throw new NotFoundException('Переданный тип роли не найден');
+      throw new NotFoundException('Роль не найдена');
     }
 
     if (
-      (role.individualRules.length > 0 || role.roleTemplates.length > 0) &&
-      !dto.descriptions
+      (role.individualRules?.length || role.roleTemplates?.length) &&
+      (name || roleTypeId)
     ) {
       throw new ConflictException(
-        'Редактирование роли невозможно, она используется для других пользователей',
+        descriptions
+          ? 'Вы можете отредактировать только описание '
+          : 'Невозможно редактировать: роль связана с другими данными',
       );
     }
 
     await this.prismaService.role.update({
       where: { id },
       data: {
-        name: dto.name || undefined,
-        descriptions: dto.descriptions || undefined,
-        roleTypeId: dto.roleTypeId || undefined,
+        roleTypeId,
+        name,
+        descriptions,
       },
     });
 
-    return buildResponse('Изменения были внесены');
+    return buildResponse('Роль изменена');
   }
-  // список ролей
   async allRoles(page: number, limit: number) {
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
@@ -160,23 +160,21 @@ export class RolesService {
         typeId: string;
       }[],
     );
-    // .sort((a, b) => {
-    //   return String(a).localeCompare(String(b));
-    // });
 
     const countPages = Math.ceil(total / limit);
 
-    return buildResponse('Список ролей', {
+    return buildResponse('Данные', {
       data: { roles, total, countPages, page, limit },
     });
   }
-  // добавить индивидуал права
+
+  // В ПРОЦЕССЕ
   async createIndividualRules(dto: IndividualRulesDto, userId: string) {
     const { array, type } = dto;
     const user = await this.usersService.findUser(userId);
 
     if (!user) {
-      throw new NotFoundException('Пользователь не обнаружен');
+      throw new NotFoundException('Пользователь не найден');
     }
 
     if (user.roleTemplate?.roles.length) {
@@ -223,7 +221,6 @@ export class RolesService {
 
     return buildResponse('Индивидуальные ролевые связи добавлены');
   }
-  // ограничить права из шаблонных прав
   async deleteIndividualRule(id: string) {
     const isExistRule = await this.prismaService.individualRules.findUnique({
       where: { id },

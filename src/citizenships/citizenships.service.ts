@@ -88,7 +88,7 @@ export class CitizenshipsService {
       throw new NotFoundException('Такой страны на сервере не обнаружено');
     }
 
-    if (isExist.employees.length > 0) {
+    if (isExist.employees?.length) {
       throw new ConflictException(
         'Удаление невозможно, эта страна назначена некоторым пользователям',
       );

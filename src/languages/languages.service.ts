@@ -88,7 +88,7 @@ export class LanguagesService {
       throw new NotFoundException('Такой страны на сервере не обнаружено');
     }
 
-    if (isExist.foreignLanguages.length > 0) {
+    if (isExist.foreignLanguages?.length) {
       throw new ConflictException(
         'Удаление невозможно, этот язык назначен некоторым пользователям',
       );

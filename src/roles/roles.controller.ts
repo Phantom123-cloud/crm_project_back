@@ -13,9 +13,10 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
-import { RolesDto } from './dto/roles.dto';
 import { IndividualRulesDto } from './dto/individual-rules.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Controller('roles')
 export class RolesController {
@@ -25,7 +26,7 @@ export class RolesController {
   // create_roles
   @HttpCode(HttpStatus.OK)
   createRole(
-    @Body() dto: Required<RolesDto>,
+    @Body() dto: CreateRoleDto,
     @Query('roleTypeId') roleTypeId: string,
   ) {
     return this.RolesService.createRole(dto, roleTypeId);
@@ -41,7 +42,7 @@ export class RolesController {
   @Put('update/:id')
   // update_roles
   @HttpCode(HttpStatus.OK)
-  updateRole(@Param('id') id: string, @Body() dto: RolesDto) {
+  updateRole(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
     return this.RolesService.updateRole(id, dto);
   }
 

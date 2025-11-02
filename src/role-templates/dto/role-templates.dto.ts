@@ -1,14 +1,13 @@
 import {
+  ArrayMinSize,
   IsArray,
   IsString,
-  Length,
   MaxLength,
-  Min,
   MinLength,
 } from 'class-validator';
 export class RoleTemplatesDto {
   @IsArray({ message: 'Данные должны быть массивом' })
-  // @Length(1, 10, { message: 'Минимальная длина массив - 1' })
+  @ArrayMinSize(1, { message: 'Минимальная длина массив - 1' })
   array: string[];
 
   @IsString({ message: 'Имя - строка' })

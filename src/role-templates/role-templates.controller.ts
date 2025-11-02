@@ -14,7 +14,6 @@ import {
 import { RoleTemplatesService } from './role-templates.service';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
-import { RolesDto } from 'src/roles/dto/roles.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @Controller('role-templates')
