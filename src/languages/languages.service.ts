@@ -28,7 +28,7 @@ export class LanguagesService {
     });
 
     if (isExist) {
-      throw new ConflictException('Такие данные уже были добавлены');
+      throw new ConflictException('Такой язык уже существует');
     }
 
     await this.prismaService.languages.create({
@@ -51,7 +51,7 @@ export class LanguagesService {
         code: true,
       },
     });
-    return buildResponse('Список языков', { data });
+    return buildResponse('Данные', { data });
   }
 
   async update(id: string, dto: UpdateLanguageDto) {
@@ -62,7 +62,23 @@ export class LanguagesService {
     });
 
     if (!isExist) {
-      throw new NotFoundException('Такой страны на сервере не обнаружено');
+      throw new NotFoundException('Такого языка на сервере не обнаружено');
+    }
+
+    const isExistNewData = await this.prismaService.languages.findFirst({
+      where: {
+        OR: [
+          {
+            localeEn,
+          },
+          { localeRu },
+          { code },
+        ],
+      },
+    });
+
+    if (!isExistNewData) {
+      throw new ConflictException('Язык с такими данными уже существует');
     }
 
     await this.prismaService.languages.update({
@@ -85,12 +101,12 @@ export class LanguagesService {
     });
 
     if (!isExist) {
-      throw new NotFoundException('Такой страны на сервере не обнаружено');
+      throw new NotFoundException('Такой языка на сервере не обнаружено');
     }
 
     if (isExist.foreignLanguages?.length) {
       throw new ConflictException(
-        'Удаление невозможно, этот язык назначен некоторым пользователям',
+        'Невозможно удалить: язык связан с другими данными',
       );
     }
 

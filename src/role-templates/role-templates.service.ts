@@ -234,6 +234,16 @@ export class RoleTemplatesService {
 
     const { arrayConnect, arrayDisconnect, name } = dto;
 
+    if (name) {
+      const isExistName = await this.prismaService.roleTemplates.findUnique({
+        where: { name },
+      });
+
+      if (isExistName) {
+        throw new ConflictException('Шаблон с таким именем уже существует');
+      }
+    }
+
     if (arrayConnect?.length) {
       const alreadyExists = isExistTemplate.roles
         .filter((r) => arrayConnect.includes(r.id))

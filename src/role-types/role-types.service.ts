@@ -86,6 +86,18 @@ export class RoleTypesService {
       );
     }
 
+    if (name) {
+      const isExistName = await this.prismaService.roleTypes.findUnique({
+        where: {
+          name,
+        },
+      });
+
+      if (isExistName) {
+        throw new ConflictException('Тип роли с таким именем уже существует');
+      }
+    }
+
     await this.prismaService.roleTypes.update({
       where: { id },
       data: {

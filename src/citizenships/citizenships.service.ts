@@ -28,7 +28,7 @@ export class CitizenshipsService {
     });
 
     if (isExist) {
-      throw new ConflictException('Такие данные уже были добавлены');
+      throw new ConflictException('Такая страна уже существует');
     }
 
     await this.prismaService.citizenships.create({
@@ -41,7 +41,6 @@ export class CitizenshipsService {
 
     return buildResponse('Страна добавлена');
   }
-
   async update(id: string, dto: UpdateCitizenshipsDto) {
     const { localeEn, localeRu, code } = dto;
 
@@ -50,7 +49,23 @@ export class CitizenshipsService {
     });
 
     if (!isExist) {
-      throw new NotFoundException('Такой страны на сервере не обнаружено');
+      throw new NotFoundException('Страна не найдена');
+    }
+
+    const isExistNewData = await this.prismaService.citizenships.findFirst({
+      where: {
+        OR: [
+          {
+            localeEn,
+          },
+          { localeRu },
+          { code },
+        ],
+      },
+    });
+
+    if (!isExistNewData) {
+      throw new ConflictException('Страна с такими данными уже существует');
     }
 
     await this.prismaService.citizenships.update({
@@ -63,7 +78,6 @@ export class CitizenshipsService {
     });
     return buildResponse('Страна обновлена');
   }
-
   async countries() {
     const data = await this.prismaService.citizenships.findMany({
       select: {
@@ -73,9 +87,8 @@ export class CitizenshipsService {
         code: true,
       },
     });
-    return buildResponse('Список стран', { data });
+    return buildResponse('Данные', { data });
   }
-
   async delete(id: string) {
     const isExist = await this.prismaService.citizenships.findUnique({
       where: { id },
@@ -90,7 +103,7 @@ export class CitizenshipsService {
 
     if (isExist.employees?.length) {
       throw new ConflictException(
-        'Удаление невозможно, эта страна назначена некоторым пользователям',
+        'Невозможно удалить: страна связана с другими данными',
       );
     }
 

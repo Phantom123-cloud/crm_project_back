@@ -100,6 +100,18 @@ export class RolesService {
       );
     }
 
+    if (name) {
+      const isExistName = await this.prismaService.role.findUnique({
+        where: {
+          name,
+        },
+      });
+
+      if (isExistName) {
+        throw new ConflictException('Роль с таким именем уже существует');
+      }
+    }
+
     await this.prismaService.role.update({
       where: { id },
       data: {
