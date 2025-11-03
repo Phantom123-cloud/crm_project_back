@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// АККАУНТЫ
 model User {
   id              String            @id @default(uuid())
   email           String            @unique
@@ -93,30 +94,9 @@ enum IndividualRulesType {
   @@map("individual_rules_type")
 }
 
-model Citizenships {
-  id        String      @id @default(uuid())
-  code      String      @unique
-  localeRu  String      @unique @map("locale_ru")
-  localeEn  String      @unique @map("locale_en")
-  employees Employees[] @relation("citizenship_of_employees")
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt @map("updated_at")
+// АККАУНТЫ
 
-  @@map("citizenships")
-}
-
-model Languages {
-  id               String             @id @default(uuid())
-  code             String             @unique
-  localeRu         String             @unique @map("locale_ru")
-  localeEn         String             @unique @map("locale_en")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-  foreignLanguages ForeignLanguages[]
-
-  @@map("languages")
-}
-
+// СОТРУДНИКИ
 model Employees {
   id                  String             @id @default(uuid())
   code                String?            @unique
@@ -140,6 +120,43 @@ model Employees {
   Files               Files[]
 
   @@map("employees")
+}
+
+model Citizenships {
+  id        String      @id @default(uuid())
+  code      String      @unique
+  localeRu  String      @unique @map("locale_ru")
+  localeEn  String      @unique @map("locale_en")
+  employees Employees[] @relation("citizenship_of_employees")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  @@map("citizenships")
+}
+
+model ForeignLanguages {
+  id          String    @id @default(uuid())
+  phone       String
+  employees   Employees @relation(fields: [employeesId], references: [id])
+  employeesId String    @map("employees_id")
+  language    Languages @relation(fields: [languageId], references: [id])
+  languageId  String    @map("language_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("foreign_languages")
+}
+
+model Languages {
+  id               String             @id @default(uuid())
+  code             String             @unique
+  localeRu         String             @unique @map("locale_ru")
+  localeEn         String             @unique @map("locale_en")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  foreignLanguages ForeignLanguages[]
+
+  @@map("languages")
 }
 
 model Files {
@@ -166,19 +183,6 @@ model Phones {
   @@map("phones")
 }
 
-model ForeignLanguages {
-  id          String    @id @default(uuid())
-  phone       String
-  employees   Employees @relation(fields: [employeesId], references: [id])
-  employeesId String    @map("employees_id")
-  language    Languages @relation(fields: [languageId], references: [id])
-  languageId  String    @map("language_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  @@map("foreign_languages")
-}
-
 enum PhoneSelection {
   mobile
   whatsapp
@@ -199,3 +203,5 @@ enum LanguageLevel {
 enum FilesType {
   PASSPORT
 }
+
+// СОТРУДНИКИ

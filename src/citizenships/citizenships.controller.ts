@@ -28,8 +28,8 @@ export class CitizenshipsController {
   // @Auth()
   @Get('all')
   @HttpCode(HttpStatus.CREATED)
-  async countries() {
-    return await this.citizenshipsService.countries();
+  async all() {
+    return await this.citizenshipsService.all();
   }
 
   @Put('update/:id')

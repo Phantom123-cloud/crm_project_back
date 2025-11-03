@@ -64,7 +64,7 @@ export class CitizenshipsService {
       },
     });
 
-    if (!isExistNewData) {
+    if (isExistNewData) {
       throw new ConflictException('Страна с такими данными уже существует');
     }
 
@@ -78,7 +78,7 @@ export class CitizenshipsService {
     });
     return buildResponse('Страна обновлена');
   }
-  async countries() {
+  async all() {
     const data = await this.prismaService.citizenships.findMany({
       select: {
         id: true,

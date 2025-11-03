@@ -21,8 +21,8 @@ export class LanguagesController {
   }
 
   @Get('all')
-  async findAll() {
-    return await this.languagesService.languages();
+  async all() {
+    return await this.languagesService.all();
   }
 
   @Put('update/:id')

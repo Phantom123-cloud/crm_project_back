@@ -42,7 +42,7 @@ export class LanguagesService {
     return buildResponse('Язык добавлен');
   }
 
-  async languages() {
+  async all() {
     const data = await this.prismaService.languages.findMany({
       select: {
         id: true,
@@ -77,7 +77,7 @@ export class LanguagesService {
       },
     });
 
-    if (!isExistNewData) {
+    if (isExistNewData) {
       throw new ConflictException('Язык с такими данными уже существует');
     }
 
