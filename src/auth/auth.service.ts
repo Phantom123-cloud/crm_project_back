@@ -19,6 +19,7 @@ import { JwtService } from '@nestjs/jwt';
 import { buildResponse } from 'src/utils/build-response';
 import { UsersService } from 'src/users/users.service';
 import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
+import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
 
 @Injectable()
 export class AuthService {
@@ -32,11 +33,7 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto, roleTemplatesId: string) {
-    const { email, password, full_name } = dto;
-
-    if (!email || !password || !full_name) {
-      throw new BadRequestException('Все данные обязательны');
-    }
+    const { email, password, fullName, arrayBlockedRoles, arrayAddRoles } = dto;
 
     const isUser = await this.prismaService.user.findUnique({
       where: { email },
@@ -46,17 +43,96 @@ export class AuthService {
       throw new ConflictException('Эта почта уже используется');
     }
 
-    const hashPassword = await argon2.hash(password);
-    await this.prismaService.user.create({
-      data: {
-        email,
-        full_name,
-        password: hashPassword,
-        roleTemplatesId,
-        token: {
-          create: {},
+    const template = await this.prismaService.roleTemplates.findUnique({
+      where: { id: roleTemplatesId },
+      select: {
+        roles: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
       },
+    });
+
+    if (!template) {
+      throw new NotFoundException('Шаблон не найден');
+    }
+
+    const templateRoleIds = new Set(template.roles.map((r) => r.id));
+
+    if (arrayBlockedRoles?.length) {
+      ensureAllExist(
+        arrayBlockedRoles,
+        templateRoleIds,
+        'Не все роли для блокировки переданные вами соответствуют текущим ролям шаблона',
+      );
+      // if (arrayBlockedRoles?.some((id) => !templateRoleIds.has(id))) {
+      //   throw new BadRequestException(
+      //     'Не все роли для блокировки переданные вами соответствуют текущим ролям шаблона',
+      //   );
+      // }
+    }
+    if (arrayAddRoles?.length) {
+      const existingRoles = await this.prismaService.role.findMany({
+        where: {
+          id: {
+            in: arrayAddRoles,
+          },
+        },
+      });
+
+      if (!existingRoles.length) {
+        throw new NotFoundException('Некоторые указанные роли не найдены');
+      }
+
+      ensureNoDuplicates(
+        arrayAddRoles,
+        templateRoleIds,
+        'Некоторые роли переданные вами для добавления дополнительных прав, уже присутствуют в текущем шаблоне',
+      );
+      // if (arrayAddRoles?.some((id) => templateRoleIds.has(id))) {
+      //   throw new ConflictException(
+      //     'Некоторые роли переданные вами для добавления дополнительных прав, уже присутствуют в текущем шаблоне',
+      //   );
+      // }
+    }
+
+    const hashPassword = await argon2.hash(password);
+    await this.prismaService.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email,
+          fullName,
+          password: hashPassword,
+          roleTemplatesId,
+          token: {
+            create: {},
+          },
+        },
+      });
+
+      if (arrayBlockedRoles?.length) {
+        await tx.individualRules.createMany({
+          data: arrayBlockedRoles.map((roleId) => ({
+            roleId,
+            userId: user.id,
+            type: 'REMOVE',
+          })),
+        });
+      }
+
+      if (arrayAddRoles?.length) {
+        await tx.individualRules.createMany({
+          data: arrayAddRoles.map((roleId) => ({
+            roleId,
+            userId: user.id,
+            type: 'ADD',
+          })),
+        });
+      }
+
+      return user;
     });
 
     return buildResponse('Новый пользователь добавлен');
@@ -78,7 +154,7 @@ export class AuthService {
         password: true,
         isActive: true,
         email: true,
-        full_name: true,
+        fullName: true,
         token: true,
 
         roleTemplate: {
@@ -129,7 +205,7 @@ export class AuthService {
     const payload = {
       id: user.id,
       email: user.email,
-      full_name: user.full_name,
+      fullName: user.fullName,
     };
     return this.tokenService.auth(res, payload, remember);
   }
@@ -141,7 +217,7 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
-      full_name: user.full_name,
+      fullName: user.fullName,
     };
   }
 }

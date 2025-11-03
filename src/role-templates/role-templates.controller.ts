@@ -43,30 +43,30 @@ export class RoleTemplatesController {
   ) {
     return this.roleTemplatesService.updateRoleTemplate(id, dto);
   }
-  @Auth()
-  @Patch('assign')
-  @HttpCode(HttpStatus.OK)
-  assignRoleTemplate(
-    @Query('userId') userId: string,
-    @Query('roleTemplatesId') roleTemplatesId: string,
-  ) {
-    return this.roleTemplatesService.assignRoleTemplate(
-      userId,
-      roleTemplatesId,
-    );
-  }
-  @Auth()
-  @Patch('revoke')
-  @HttpCode(HttpStatus.OK)
-  revokeRoleTemplate(
-    @Query('userId') userId: string,
-    @Query('roleTemplatesId') roleTemplatesId: string,
-  ) {
-    return this.roleTemplatesService.revokeRoleTemplate(
-      userId,
-      roleTemplatesId,
-    );
-  }
+  // @Auth()
+  // @Patch('assign')
+  // @HttpCode(HttpStatus.OK)
+  // assignRoleTemplate(
+  //   @Query('userId') userId: string,
+  //   @Query('roleTemplatesId') roleTemplatesId: string,
+  // ) {
+  //   return this.roleTemplatesService.assignRoleTemplate(
+  //     userId,
+  //     roleTemplatesId,
+  //   );
+  // }
+  // @Auth()
+  // @Patch('revoke')
+  // @HttpCode(HttpStatus.OK)
+  // revokeRoleTemplate(
+  //   @Query('userId') userId: string,
+  //   @Query('roleTemplatesId') roleTemplatesId: string,
+  // ) {
+  //   return this.roleTemplatesService.revokeRoleTemplate(
+  //     userId,
+  //     roleTemplatesId,
+  //   );
+  // }
   @Auth()
   @Get('all')
   @HttpCode(HttpStatus.OK)

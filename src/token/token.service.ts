@@ -40,7 +40,7 @@ export class TokenService {
   }
 
   async auth(res: Response, payload: JwtPayload, remember: boolean) {
-    const { id, email, full_name } = payload;
+    const { id, email, fullName } = payload;
     const user = await this.usersService.findUser(id);
 
     if (!user || !user.token) {
@@ -59,7 +59,7 @@ export class TokenService {
     const ttl = this[remember ? 'TOKEN_TTL_L' : 'TOKEN_TTL_S'];
     const exp = now + ttl;
 
-    const { hash } = this.generateTokens(id, email, full_name, ttl);
+    const { hash } = this.generateTokens(id, email, fullName, ttl);
     this.setTokenCookie(res, hash, ttl * 1000);
     await this.prismaService.token.update({
       where: { id: tokenId },
@@ -79,10 +79,10 @@ export class TokenService {
   private generateTokens(
     id: string,
     email: string,
-    full_name: string,
+    fullName: string,
     ttl: number,
   ) {
-    const payload: JwtPayload = { id, email, full_name };
+    const payload: JwtPayload = { id, email, fullName };
     const hash = this.signToken(payload, ttl);
     return { hash };
   }

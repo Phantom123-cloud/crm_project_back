@@ -10,6 +10,7 @@ import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
 import { UsersService } from 'src/users/users.service';
 import { RolesData } from './interfaces/roles-data.interface';
+import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
 
 @Injectable()
 export class RoleTemplatesService {
@@ -37,14 +38,7 @@ export class RoleTemplatesService {
     });
 
     if (isExistsRoleAll.length !== array.length) {
-      const notFountRoles = isExistsRoleAll
-        .filter((r) => array.some((id) => r.id !== id))
-        .map((r) => r.name)
-        .join('; ');
-
-      throw new NotFoundException(
-        `Роли переданные вами отсутствуют на сервере '${notFountRoles}'`,
-      );
+      throw new NotFoundException('Некоторые указанные роли не найдены');
     }
 
     await this.prismaService.roleTemplates.create({
@@ -243,29 +237,22 @@ export class RoleTemplatesService {
         throw new ConflictException('Шаблон с таким именем уже существует');
       }
     }
-
+    
+    const roleIds = new Set(isExistTemplate.roles.map((r) => r.id));
     if (arrayConnect?.length) {
-      const alreadyExists = isExistTemplate.roles
-        .filter((r) => arrayConnect.includes(r.id))
-        .map((r) => r.name)
-        .join('; ');
-
-      if (alreadyExists) {
-        throw new BadRequestException(
-          `Роли переданные вами уже добавлены в шаблон ${alreadyExists}`,
-        );
-      }
+      ensureNoDuplicates(
+        arrayConnect,
+        roleIds,
+        'Некоторые роли из переданного списка, уже добавлены в шаблон',
+      );
     }
 
     if (arrayDisconnect?.length) {
-      const missingRole = arrayDisconnect.some(
-        (id) => !isExistTemplate.roles.some((r) => r.id === id),
+      ensureAllExist(
+        arrayDisconnect,
+        roleIds,
+        'Вы пытаетесь удалить роль, отсутствующую в шаблоне',
       );
-      if (missingRole) {
-        throw new BadRequestException(
-          'Вы пытаетесь удалить роль, отсутствующую в шаблоне',
-        );
-      }
     }
 
     await this.prismaService.roleTemplates.update({
@@ -273,91 +260,97 @@ export class RoleTemplatesService {
       data: {
         name,
         roles: {
-          ...(arrayDisconnect?.length
-            ? { disconnect: arrayDisconnect.map((id) => ({ id })) }
-            : {}),
-          ...(arrayConnect?.length
-            ? { connect: arrayConnect.map((id) => ({ id })) }
-            : {}),
+          ...(arrayDisconnect?.length && {
+            disconnect: arrayDisconnect.map((id) => ({ id })),
+          }),
+          ...(arrayConnect?.length && {
+            connect: arrayConnect.map((id) => ({ id })),
+          }),
         },
+
+        ...(arrayDisconnect?.length && {
+          individualRules: {
+            deleteMany: { roleTemplatesId: id, type: 'REMOVE' },
+          },
+        }),
       },
     });
 
     return buildResponse('Роли обновлены');
   }
 
-  // назначить шаблон юзеру
-  async assignRoleTemplate(userId: string, roleTemplatesId: string) {
-    if (!userId || !roleTemplatesId) {
-      throw new BadRequestException('Все данные обязательны');
-    }
+  // // назначить шаблон юзеру
+  // async assignRoleTemplate(userId: string, roleTemplatesId: string) {
+  //   if (!userId || !roleTemplatesId) {
+  //     throw new BadRequestException('Все данные обязательны');
+  //   }
 
-    const user = await this.usersService.findUser(userId);
+  //   const user = await this.usersService.findUser(userId);
 
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
-    }
+  //   if (!user) {
+  //     throw new NotFoundException('Пользователь не найден');
+  //   }
 
-    if (user?.roleTemplate?.id === roleTemplatesId) {
-      throw new ConflictException('Пользователь уже владеет данными ролями');
-    }
+  //   if (user?.roleTemplate?.id === roleTemplatesId) {
+  //     throw new ConflictException('Пользователь уже владеет данными ролями');
+  //   }
 
-    const isExistTemplate = this.prismaService.roleTemplates.findUnique({
-      where: {
-        id: roleTemplatesId,
-      },
-    });
+  //   const isExistTemplate = this.prismaService.roleTemplates.findUnique({
+  //     where: {
+  //       id: roleTemplatesId,
+  //     },
+  //   });
 
-    if (!isExistTemplate) {
-      throw new NotFoundException('Пользователь не найден');
-    }
+  //   if (!isExistTemplate) {
+  //     throw new NotFoundException('Пользователь не найден');
+  //   }
 
-    await this.prismaService.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        roleTemplatesId,
-      },
-    });
+  //   await this.prismaService.user.update({
+  //     where: {
+  //       id: userId,
+  //     },
+  //     data: {
+  //       roleTemplatesId,
+  //     },
+  //   });
 
-    return buildResponse('Шаблон добавлен');
-  }
-  // удалить шаблон у юзера
-  async revokeRoleTemplate(userId: string, roleTemplatesId: string) {
-    if (!userId || !roleTemplatesId) {
-      throw new BadRequestException('Все данные обязательны');
-    }
+  //   return buildResponse('Шаблон добавлен');
+  // }
+  // // удалить шаблон у юзера
+  // async revokeRoleTemplate(userId: string, roleTemplatesId: string) {
+  //   if (!userId || !roleTemplatesId) {
+  //     throw new BadRequestException('Все данные обязательны');
+  //   }
 
-    const user = await this.usersService.findUser(userId);
+  //   const user = await this.usersService.findUser(userId);
 
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
-    }
+  //   if (!user) {
+  //     throw new NotFoundException('Пользователь не найден');
+  //   }
 
-    if (user?.roleTemplate?.id !== roleTemplatesId) {
-      throw new ConflictException('Пользователь не владеет данными ролями');
-    }
+  //   if (user?.roleTemplate?.id !== roleTemplatesId) {
+  //     throw new ConflictException('Пользователь не владеет данными ролями');
+  //   }
 
-    const isExistTemplate = this.prismaService.roleTemplates.findUnique({
-      where: {
-        id: roleTemplatesId,
-      },
-    });
+  //   const isExistTemplate = this.prismaService.roleTemplates.findUnique({
+  //     where: {
+  //       id: roleTemplatesId,
+  //     },
+  //   });
 
-    if (!isExistTemplate) {
-      throw new NotFoundException('Пользователь не найден');
-    }
+  //   if (!isExistTemplate) {
+  //     throw new NotFoundException('Пользователь не найден');
+  //   }
 
-    await this.prismaService.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        roleTemplatesId: null,
-      },
-    });
+  //   await this.prismaService.user.update({
+  //     where: {
+  //       id: userId,
+  //     },
+  //     data: {
+  //       roleTemplatesId: null,
+  //     },
+  //   });
 
-    return buildResponse('Шаблон откреплён');
-  }
+  //   return buildResponse('Шаблон откреплён');
+  // }
 }

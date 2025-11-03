@@ -57,19 +57,19 @@ export class RolesController {
     return this.RolesService.allRoles(page, limit);
   }
 
-  @Auth()
-  @Post('create-individual-rules')
-  @HttpCode(HttpStatus.CREATED)
-  createIndividualRules(
-    @Body() dto: IndividualRulesDto,
-    @Query('userId') userId: string,
-  ) {
-    return this.RolesService.createIndividualRules(dto, userId);
-  }
-  @Auth()
-  @Delete('delete-individual-rule/:id')
-  @HttpCode(HttpStatus.OK)
-  deleteIndividualRule(@Param('id') id: string) {
-    return this.RolesService.deleteIndividualRule(id);
-  }
+  // @Auth()
+  // @Post('create-individual-rules')
+  // @HttpCode(HttpStatus.CREATED)
+  // createIndividualRules(
+  //   @Body() dto: IndividualRulesDto,
+  //   @Query('userId') userId: string,
+  // ) {
+  //   return this.RolesService.createIndividualRules(dto, userId);
+  // }
+  // @Auth()
+  // @Delete('delete-individual-rule/:id')
+  // @HttpCode(HttpStatus.OK)
+  // deleteIndividualRule(@Param('id') id: string) {
+  //   return this.RolesService.deleteIndividualRule(id);
+  // }
 }

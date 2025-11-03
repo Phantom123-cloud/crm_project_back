@@ -11,7 +11,7 @@ datasource db {
 model User {
   id              String            @id @default(uuid())
   email           String            @unique
-  full_name       String
+  fullName        String            @map("full_name")
   password        String
   isActive        Boolean           @default(true) @map("is_active")
   isOnline        Boolean           @default(false) @map("is_online")
@@ -64,25 +64,28 @@ model RoleTypes {
 }
 
 model RoleTemplates {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  roles     Role[]   @relation("role_connections")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  users     User[]
+  id              String            @id @default(uuid())
+  name            String            @unique
+  roles           Role[]            @relation("role_connections")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  users           User[]
+  individualRules IndividualRules[]
 
   @@map("role_templates")
 }
 
 model IndividualRules {
-  id        String              @id @default(uuid())
-  userId    String              @map("user_id")
-  user      User                @relation(fields: [userId], references: [id])
-  roleId    String              @map("role_id")
-  role      Role                @relation(fields: [roleId], references: [id])
-  type      IndividualRulesType
-  createdAt DateTime            @default(now()) @map("created_at")
-  updatedAt DateTime            @updatedAt @map("updated_at")
+  id              String              @id @default(uuid())
+  userId          String              @map("user_id")
+  user            User                @relation(fields: [userId], references: [id])
+  roleId          String              @map("role_id")
+  role            Role                @relation(fields: [roleId], references: [id])
+  type            IndividualRulesType
+  templateId      RoleTemplates?      @relation(fields: [roleTemplatesId], references: [id])
+  roleTemplatesId String?             @map("role_templates_id")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
 
   @@map("individual_rules")
 }

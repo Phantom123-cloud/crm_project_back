@@ -32,7 +32,7 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async register(
     @Body() dto: RegisterDto,
-    @Param('roleTemplatesId') roleTemplatesId: string,
+    @Query('roleTemplatesId') roleTemplatesId: string,
   ) {
     return await this.authService.register(dto, roleTemplatesId);
   }

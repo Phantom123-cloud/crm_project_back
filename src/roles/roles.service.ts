@@ -181,75 +181,75 @@ export class RolesService {
   }
 
   // В ПРОЦЕССЕ
-  async createIndividualRules(dto: IndividualRulesDto, userId: string) {
-    const { array, type } = dto;
-    const user = await this.usersService.findUser(userId);
+  // async createIndividualRules(dto: IndividualRulesDto, userId: string) {
+  //   const { array, type } = dto;
+  //   const user = await this.usersService.findUser(userId);
 
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
-    }
+  //   if (!user) {
+  //     throw new NotFoundException('Пользователь не найден');
+  //   }
 
-    if (user.roleTemplate?.roles.length) {
-      const findRoles = user.roleTemplate.roles.filter(({ id }) => {
-        array.includes(id);
-      });
+  //   if (user.roleTemplate?.roles.length) {
+  //     const findRoles = user.roleTemplate.roles.filter(({ id }) => {
+  //       array.includes(id);
+  //     });
 
-      switch (type) {
-        case 'ADD':
-          if (findRoles.length !== 0) {
-            throw new ConflictException(
-              'В шаблоне уже присутствует роль которую вы пытаетесь присвоить как индивидуальную',
-            );
-          }
-          break;
-        case 'REMOVE':
-          if (findRoles.length !== array.length) {
-            throw new ConflictException(
-              'Роль которую вы пытаетесь ограничить должна быть в шаблоне',
-            );
-          }
-          break;
+  //     switch (type) {
+  //       case 'ADD':
+  //         if (findRoles.length !== 0) {
+  //           throw new ConflictException(
+  //             'В шаблоне уже присутствует роль которую вы пытаетесь присвоить как индивидуальную',
+  //           );
+  //         }
+  //         break;
+  //       case 'REMOVE':
+  //         if (findRoles.length !== array.length) {
+  //           throw new ConflictException(
+  //             'Роль которую вы пытаетесь ограничить должна быть в шаблоне',
+  //           );
+  //         }
+  //         break;
 
-        default:
-          break;
-      }
-    }
+  //       default:
+  //         break;
+  //     }
+  //   }
 
-    if (user.individualRules.length) {
-      const isExistCurrentIndovRules = user.individualRules.some(({ role }) => {
-        array.includes(role.id);
-      });
+  //   if (user.individualRules.length) {
+  //     const isExistCurrentIndovRules = user.individualRules.some(({ role }) => {
+  //       array.includes(role.id);
+  //     });
 
-      if (isExistCurrentIndovRules) {
-        throw new ConflictException(
-          'Вы не можете переприсваивать права доступа в такой способ',
-        );
-      }
-    }
+  //     if (isExistCurrentIndovRules) {
+  //       throw new ConflictException(
+  //         'Вы не можете переприсваивать права доступа в такой способ',
+  //       );
+  //     }
+  //   }
 
-    await this.prismaService.individualRules.createMany({
-      data: array.map((roleId) => ({ roleId, type, userId })),
-    });
+  //   await this.prismaService.individualRules.createMany({
+  //     data: array.map((roleId) => ({ roleId, type, userId })),
+  //   });
 
-    return buildResponse('Индивидуальные ролевые связи добавлены');
-  }
-  async deleteIndividualRule(id: string) {
-    const isExistRule = await this.prismaService.individualRules.findUnique({
-      where: { id },
-    });
+  //   return buildResponse('Индивидуальные ролевые связи добавлены');
+  // }
+  // async deleteIndividualRule(id: string) {
+  //   const isExistRule = await this.prismaService.individualRules.findUnique({
+  //     where: { id },
+  //   });
 
-    if (!isExistRule) {
-      throw new NotFoundException('Не найдено');
-    }
+  //   if (!isExistRule) {
+  //     throw new NotFoundException('Не найдено');
+  //   }
 
-    await this.prismaService.individualRules.delete({
-      where: {
-        id,
-      },
-    });
+  //   await this.prismaService.individualRules.delete({
+  //     where: {
+  //       id,
+  //     },
+  //   });
 
-    return buildResponse('Успешно удалено');
-  }
+  //   return buildResponse('Успешно удалено');
+  // }
   async getRolesByUserId(userId: string) {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },

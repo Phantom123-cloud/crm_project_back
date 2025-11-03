@@ -39,7 +39,7 @@ export class UsersService {
         id: true,
         password: true,
         isActive: true,
-        full_name: true,
+        fullName: true,
         email: true,
 
         token: {
