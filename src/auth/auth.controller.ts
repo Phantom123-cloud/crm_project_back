@@ -30,11 +30,8 @@ export class AuthController {
   // @AuthRoles('register_users')
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(
-    @Body() dto: RegisterDto,
-    @Query('roleTemplatesId') roleTemplatesId: string,
-  ) {
-    return await this.authService.register(dto, roleTemplatesId);
+  async register(@Body() dto: RegisterDto) {
+    return await this.authService.register(dto);
   }
 
   @Post('login')

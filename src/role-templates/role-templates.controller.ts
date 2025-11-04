@@ -74,9 +74,30 @@ export class RoleTemplatesController {
     return this.roleTemplatesService.allRoleTemplates();
   }
   @Auth()
-  @Get('all-by/:id')
+  @Get('all-select')
+  @HttpCode(HttpStatus.OK)
+  getSelectTeamplates() {
+    return this.roleTemplatesService.getSelectTeamplates();
+  }
+
+  // @Auth()
+  // @Get('/:id')
+  // @HttpCode(HttpStatus.OK)
+  // getTemplateById(@Param('id') id: string) {
+  //   return this.roleTemplatesService.getTemplateById(id);
+  // }
+
+  @Auth()
+  @Get('/:id')
   @HttpCode(HttpStatus.OK)
   allRoleTemplatesById(@Param('id') id: string) {
-    return this.roleTemplatesService.allRoleTemplatesById(id);
+    return this.roleTemplatesService.roleTemplatesById(id);
+  }
+
+  @Auth()
+  @Get('by-not-id/:id')
+  @HttpCode(HttpStatus.OK)
+  getRolesNotInTemplate(@Param('id') id: string) {
+    return this.roleTemplatesService.getRolesNotInTemplate(id);
   }
 }

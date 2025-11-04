@@ -97,7 +97,19 @@ export class RoleTemplatesService {
     const roles = this.roleData({ types, rolesData });
     return buildResponse('Данные', { data: { templates, roles } });
   }
-  async allRoleTemplatesById(id: string) {
+
+  async getSelectTeamplates() {
+    const data = await this.prismaService.roleTemplates.findMany({
+      select: {
+        name: true,
+        id: true,
+      },
+    });
+
+    return buildResponse('Данные', { data });
+  }
+
+  async roleTemplatesById(id: string) {
     const [rolesData, types] = await this.prismaService.$transaction([
       this.prismaService.role.findMany({
         where: {
@@ -152,6 +164,67 @@ export class RoleTemplatesService {
     return buildResponse('Данные', { data: { roles } });
   }
 
+  async getRolesNotInTemplate(id: string) {
+    const isExistTemplate = await this.prismaService.roleTemplates.findUnique({
+      where: { id },
+      select: {
+        roles: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!isExistTemplate) {
+      throw new NotFoundException('Шаблон не найден');
+    }
+    const transaction = await this.prismaService.$transaction(async (tx) => {
+      const idsDelete = isExistTemplate.roles.map(({ id }) => id);
+
+      const rolesData = await this.prismaService.role.findMany({
+        where: {
+          id: { notIn: idsDelete },
+        },
+        select: {
+          name: true,
+          id: true,
+          descriptions: true,
+          type: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+
+        orderBy: {
+          type: {
+            name: 'asc',
+          },
+        },
+      });
+      const types = await this.prismaService.roleTypes.findMany({
+        select: {
+          name: true,
+          descriptions: true,
+          id: true,
+        },
+
+        orderBy: {
+          name: 'asc',
+        },
+      });
+
+      return { rolesData, types };
+    });
+
+    const { types, rolesData } = transaction;
+    const roles = this.roleData({ types, rolesData });
+
+    return buildResponse('Данные', { data: { roles } });
+  }
+
   private roleData(props: RolesData) {
     const { types, rolesData } = props;
     const roles = types.reduce(
@@ -186,7 +259,9 @@ export class RoleTemplatesService {
       });
     }
 
-    return roles;
+    const filteredData = roles.filter((item) => item.roles.length);
+
+    return filteredData
   }
   // удалить шабуло
   async deleteRoleTemplate(id: string) {
@@ -237,7 +312,7 @@ export class RoleTemplatesService {
         throw new ConflictException('Шаблон с таким именем уже существует');
       }
     }
-    
+
     const roleIds = new Set(isExistTemplate.roles.map((r) => r.id));
     if (arrayConnect?.length) {
       ensureNoDuplicates(

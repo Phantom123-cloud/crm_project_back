@@ -32,8 +32,15 @@ export class AuthService {
     private readonly userService: UsersService,
   ) {}
 
-  async register(dto: RegisterDto, roleTemplatesId: string) {
-    const { email, password, fullName, arrayBlockedRoles, arrayAddRoles } = dto;
+  async register(dto: RegisterDto) {
+    const {
+      email,
+      password,
+      fullName,
+      arrayBlockedRoles,
+      arrayAddRoles,
+      roleTemplatesId,
+    } = dto;
 
     const isUser = await this.prismaService.user.findUnique({
       where: { email },
@@ -112,12 +119,13 @@ export class AuthService {
         },
       });
 
-      if (arrayBlockedRoles?.length) {
+      if (arrayBlockedRoles?.length && roleTemplatesId) {
         await tx.individualRules.createMany({
           data: arrayBlockedRoles.map((roleId) => ({
             roleId,
             userId: user.id,
             type: 'REMOVE',
+            roleTemplatesId,
           })),
         });
       }

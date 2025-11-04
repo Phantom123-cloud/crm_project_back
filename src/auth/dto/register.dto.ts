@@ -5,7 +5,6 @@ import {
   IsString,
   Length,
   IsArray,
-  ArrayMinSize,
 } from 'class-validator';
 
 export class RegisterDto {
@@ -20,7 +19,7 @@ export class RegisterDto {
 
   @IsString({ message: 'Полное имя - это строка' })
   @IsNotEmpty({ message: 'Обязательное поле' })
-  @Length(5, 100, { message: 'Длина имени от 5 до 100 символов' })
+  @Length(3, 50, { message: 'Длина имени от 5 до 50 символов' })
   fullName: string;
 
   @IsOptional()
@@ -30,4 +29,8 @@ export class RegisterDto {
   @IsOptional()
   @IsArray()
   arrayAddRoles?: string[];
+
+  @IsString({ message: 'Шаблон - это строка' })
+  @IsNotEmpty({ message: 'Обязательное поле' })
+  roleTemplatesId: string;
 }
