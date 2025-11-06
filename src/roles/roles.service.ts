@@ -259,7 +259,7 @@ export class RolesService {
             type: true,
             role: {
               select: {
-                name: true,
+                id: true,
               },
             },
           },
@@ -292,14 +292,16 @@ export class RolesService {
           },
         },
       },
-      select: { name: true },
+      select: {
+        id: true,
+      },
     });
 
     const individualRoles = user.individualRules
       .filter((rule) => rule.type === 'ADD')
-      .map((rule) => rule.role.name);
+      .map((rule) => rule.role.id);
 
-    const allRoles = [...templateRoles.map((r) => r.name), ...individualRoles];
+    const allRoles = [...templateRoles.map((r) => r.id), ...individualRoles];
     const data = [...new Set(allRoles)];
     return data;
   }

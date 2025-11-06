@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { TokenModule } from 'src/token/token.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { RolesModule } from 'src/roles/roles.module';
+import { RoleTemplatesModule } from 'src/role-templates/role-templates.module';
 
 @Module({
   controllers: [UsersController],
@@ -13,6 +14,7 @@ import { RolesModule } from 'src/roles/roles.module';
     forwardRef(() => AuthModule),
     forwardRef(() => TokenModule),
     forwardRef(() => RolesModule),
+    RoleTemplatesModule,
   ],
 })
 export class UsersModule {}

@@ -21,7 +21,6 @@ model User {
   individualRules IndividualRules[]
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
-  employees       Employees[]
 
   @@map("users")
 }
@@ -96,7 +95,6 @@ enum IndividualRulesType {
 
   @@map("individual_rules_type")
 }
-
 // АККАУНТЫ
 
 // СОТРУДНИКИ
@@ -108,7 +106,6 @@ model Employees {
   birthDate           String             @map("birth_date")
   phone               Phones[]
   email               String
-  account             User?              @relation(fields: [userId], references: [id])
   userId              String?
   dateFirstTrip       String             @map("date_first_trip")
   isInMarriage        Boolean            @default(false) @map("is_in_marriage")

@@ -8,15 +8,8 @@ export class PaginationDto {
   limit: number;
 
   @IsOptional()
-  @IsNumber()
-  active?: boolean;
-
+  isActive?: boolean;
+  
   @IsOptional()
-  my?: boolean;
-
-  @IsOptional()
-  userId?: string;
-
-  @IsOptional()
-  isRead?: boolean;
+  isOnline?: boolean;
 }

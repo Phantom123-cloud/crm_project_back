@@ -1,22 +1,20 @@
 import {
   Controller,
-  // Body,
-  // Get,
-  // HttpCode,
-  // HttpStatus,
-  // Param,
-  // ParseBoolPipe,
-  // ParseIntPipe,
-  // Patch,
-  // Put,
-  // Query,
-  // Req,
-  // UploadedFiles,
+  DefaultValuePipe,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseBoolPipe,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-// import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
-// import { Auth } from 'src/auth/decorators/auth.decorator';
-// import type { Request } from 'express';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import type { Request } from 'express';
 
 // import { UseUploadFiles } from 'src/uploads/decorators/upload-file.decorator';
 // import { UpdateUserByIdDto } from './dto/update-user-by-id.dto';
@@ -25,24 +23,38 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @Auth()
-  // @Get('')
-  // @HttpCode(HttpStatus.OK)
-  // async users(
-  //   @Query('page', ParseIntPipe) page: number,
-  //   @Query('limit', ParseIntPipe) limit: number,
-  //   @Query('active', ParseBoolPipe) active: boolean,
-  //   @Req() req: Request,
-  // ) {
-  //   return await this.usersService.users({ page, limit, active }, req);
-  // }
+  @Auth()
+  @Get('all')
+  @HttpCode(HttpStatus.OK)
+  async allUsers(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+    @Query('isActive', new ParseBoolPipe({ optional: true }))
+    isActive?: boolean,
+    @Query('isOnline', new ParseBoolPipe({ optional: true }))
+    isOnline?: boolean,
+  ) {
+    return await this.usersService.allUsers({
+      page,
+      limit,
+      isActive,
+      isOnline,
+    });
+  }
 
-  // @Auth()
-  // @Get('user/:id')
-  // @HttpCode(HttpStatus.OK)
-  // async user(@Param('id') id: string, @Req() req: Request) {
-  //   return await this.usersService.user(id, req);
-  // }
+  @Auth()
+  @Post('logout-user/:id')
+  @HttpCode(HttpStatus.OK)
+  async user(@Param('id') id: string, @Req() req: Request) {
+    return await this.usersService.logoutByUserId(id, req);
+  }
+
+  @Auth()
+  @Put('is-active/:id')
+  @HttpCode(HttpStatus.OK)
+  async isActiveUser(@Param('id') id: string, @Req() req: Request) {
+    return await this.usersService.isActiveUser(id, req);
+  }
 
   // @AuthRoles('ADMIN')
   // @Patch('is-active/:id')

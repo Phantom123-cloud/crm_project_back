@@ -182,10 +182,11 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Не верный логин или пароль');
     }
+    console.log(user.roleTemplate?.roles.length);
 
     if (
       !user.roleTemplate?.roles.length ||
-      !user.individualRules.some((r) => r.type === 'ADD')
+      user.individualRules.some((r) => r.type !== 'ADD')
     ) {
       throw new ForbiddenException(
         'Данный аккаунт не обладает правами доступа. Обратитесь к администратору',

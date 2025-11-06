@@ -8,16 +8,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
-import { UsersService } from 'src/users/users.service';
 import { RolesData } from './interfaces/roles-data.interface';
 import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
 
 @Injectable()
 export class RoleTemplatesService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   // создать шаблог
   async createRoleTemplate(dto: RoleTemplatesDto) {
@@ -53,49 +49,14 @@ export class RoleTemplatesService {
   }
   // получение списка всех типов роли
   async allRoleTemplates() {
-    const [templates, rolesData, types] = await this.prismaService.$transaction(
-      [
-        this.prismaService.roleTemplates.findMany({
-          select: {
-            name: true,
-            id: true,
-          },
-        }),
-        this.prismaService.role.findMany({
-          select: {
-            name: true,
-            id: true,
-            descriptions: true,
-            type: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
+    const templates = await this.prismaService.roleTemplates.findMany({
+      select: {
+        name: true,
+        id: true,
+      },
+    });
 
-          orderBy: {
-            type: {
-              name: 'asc',
-            },
-          },
-        }),
-        this.prismaService.roleTypes.findMany({
-          select: {
-            name: true,
-            descriptions: true,
-            id: true,
-          },
-
-          orderBy: {
-            name: 'asc',
-          },
-        }),
-      ],
-    );
-
-    const roles = this.roleData({ types, rolesData });
-    return buildResponse('Данные', { data: { templates, roles } });
+    return buildResponse('Данные', { data: { templates } });
   }
 
   async getSelectTeamplates() {
@@ -225,23 +186,23 @@ export class RoleTemplatesService {
     return buildResponse('Данные', { data: { roles } });
   }
 
-  private roleData(props: RolesData) {
+  roleData(props: RolesData) {
     const { types, rolesData } = props;
     const roles = types.reduce(
       (acc, val) => {
         acc.push({
           id: val.id,
           type: val.name,
-          roles: [],
           descriptions: val.descriptions,
+          roles: [],
         });
         return acc;
       },
       [] as {
         id: string;
         type: string;
-        roles: { name: string; descriptions: string; id: string }[];
         descriptions: string;
+        roles: { name: string; descriptions: string; id: string }[];
       }[],
     );
 
@@ -249,6 +210,7 @@ export class RoleTemplatesService {
       const index = roles.findIndex((t) => t.id === role.type.id);
 
       if (index < 0) {
+        console.log(role.type, roles);
         throw new BadRequestException('Что то пошло не так при сборе данных');
       }
 
@@ -261,7 +223,7 @@ export class RoleTemplatesService {
 
     const filteredData = roles.filter((item) => item.roles.length);
 
-    return filteredData
+    return filteredData;
   }
   // удалить шабуло
   async deleteRoleTemplate(id: string) {
