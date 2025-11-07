@@ -95,6 +95,7 @@ enum IndividualRulesType {
 
   @@map("individual_rules_type")
 }
+
 // АККАУНТЫ
 
 // СОТРУДНИКИ
@@ -106,7 +107,6 @@ model Employees {
   birthDate           String             @map("birth_date")
   phone               Phones[]
   email               String
-  userId              String?
   dateFirstTrip       String             @map("date_first_trip")
   isInMarriage        Boolean            @default(false) @map("is_in_marriage")
   isHaveChildren      Boolean            @default(false) @map("is_have_children")

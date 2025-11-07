@@ -73,6 +73,13 @@ export class RoleTemplatesController {
   allRoleTemplates() {
     return this.roleTemplatesService.allRoleTemplates();
   }
+
+  @Auth()
+  @Get('all-roles')
+  @HttpCode(HttpStatus.OK)
+  allRolesByType() {
+    return this.roleTemplatesService.allRolesByType();
+  }
   @Auth()
   @Get('all-select')
   @HttpCode(HttpStatus.OK)

@@ -58,6 +58,43 @@ export class RoleTemplatesService {
 
     return buildResponse('Данные', { data: { templates } });
   }
+  async allRolesByType() {
+    const [rolesData, types] = await this.prismaService.$transaction([
+      this.prismaService.role.findMany({
+        select: {
+          name: true,
+          id: true,
+          descriptions: true,
+          type: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+
+        orderBy: {
+          type: {
+            name: 'asc',
+          },
+        },
+      }),
+      this.prismaService.roleTypes.findMany({
+        select: {
+          name: true,
+          descriptions: true,
+          id: true,
+        },
+
+        orderBy: {
+          name: 'asc',
+        },
+      }),
+    ]);
+
+    const roles = this.roleData({ types, rolesData });
+    return buildResponse('Данные', { data: { roles } });
+  }
 
   async getSelectTeamplates() {
     const data = await this.prismaService.roleTemplates.findMany({
