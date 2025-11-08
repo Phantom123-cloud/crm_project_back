@@ -10,12 +10,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response, Request } from 'express';
-import parse from 'parse-duration';
 import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { isDev } from 'src/utils/is-dev.utils';
-import type { StringValue } from 'ms';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -32,9 +30,8 @@ export class TokenService {
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {
-    // секунды, а не миллисекунды!
-    this.TOKEN_TTL_S = 1 * 24 * 60 * 60; // 1 день
-    this.TOKEN_TTL_L = 7 * 24 * 60 * 60; // 7 дней
+    this.TOKEN_TTL_S = 1 * 24 * 60 * 60;
+    this.TOKEN_TTL_L = 7 * 24 * 60 * 60;
     this.COOKIE_DOMAIN = configService.getOrThrow<string>('COOKIE_DOMAIN');
     this.JWT_SECRET = configService.getOrThrow<string>('JWT_SECRET');
   }
@@ -68,14 +65,12 @@ export class TokenService {
 
     return buildResponse('Вы вошли в систему');
   }
-
   private signToken(payload: JwtPayload, ttl: number) {
     return this.jwtService.sign(payload, {
       expiresIn: ttl,
       secret: this.JWT_SECRET,
     });
   }
-
   private generateTokens(
     id: string,
     email: string,

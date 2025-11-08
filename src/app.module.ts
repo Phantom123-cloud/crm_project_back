@@ -14,6 +14,7 @@ import { RoleTemplatesModule } from './role-templates/role-templates.module';
 import { RolesModule } from './roles/roles.module';
 import { CitizenshipsModule } from './citizenships/citizenships.module';
 import { LanguagesModule } from './languages/languages.module';
+import { EmployeesModule } from './employees/employees.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { LanguagesModule } from './languages/languages.module';
     RoleTemplatesModule,
     CitizenshipsModule,
     LanguagesModule,
+    EmployeesModule,
   ],
 
   controllers: [AppController],

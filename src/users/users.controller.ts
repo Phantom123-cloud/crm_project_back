@@ -29,6 +29,7 @@ export class UsersController {
   async allUsers(
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
+    @Query('isFullData', ParseBoolPipe) isFullData: boolean,
     @Query('isActive', new ParseBoolPipe({ optional: true }))
     isActive?: boolean,
     @Query('isOnline', new ParseBoolPipe({ optional: true }))
@@ -39,7 +40,14 @@ export class UsersController {
       limit,
       isActive,
       isOnline,
+      isFullData,
     });
+  }
+  @Auth()
+  @Get('/:id')
+  @HttpCode(HttpStatus.OK)
+  async userById(@Param('id') id: string) {
+    return await this.usersService.userById(id);
   }
 
   @Auth()
@@ -55,31 +63,4 @@ export class UsersController {
   async isActiveUser(@Param('id') id: string, @Req() req: Request) {
     return await this.usersService.isActiveUser(id, req);
   }
-
-  // @AuthRoles('ADMIN')
-  // @Patch('is-active/:id')
-  // @HttpCode(HttpStatus.OK)
-  // async isActive(@Param('id') id: string, @Req() req: Request) {
-  //   return await this.usersService.isActive(id, req);
-  // }
-
-  // @Auth()
-  // @Put('update-user/:id')
-  // @HttpCode(HttpStatus.OK)
-  // @UseUploadFiles(1, 1, 'avatars', ['image/jpeg', 'image/png', 'image/webp'])
-  // async updateUserById(
-  //   @Body() dto: UpdateUserByIdDto,
-  //   @Param('id') id: string,
-  //   @Req() req: Request,
-  //   @UploadedFiles() files: Array<Express.Multer.File>,
-  // ) {
-  //   return await this.usersService.updateUserById(dto, id, req, files);
-  // }
-
-  // @Auth()
-  // @Get('for-project')
-  // @HttpCode(HttpStatus.OK)
-  // async usersForProject(@Req() req: Request) {
-  //   return await this.usersService.usersForProject(req);
-  // }
 }

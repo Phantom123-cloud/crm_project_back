@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
 
 export class PaginationDto {
   @IsNumber()
@@ -9,7 +9,10 @@ export class PaginationDto {
 
   @IsOptional()
   isActive?: boolean;
-  
+
   @IsOptional()
   isOnline?: boolean;
+
+  @IsBoolean()
+  isFullData: boolean;
 }

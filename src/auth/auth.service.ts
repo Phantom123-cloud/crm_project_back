@@ -14,20 +14,18 @@ import * as argon2 from 'argon2';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { TokenService } from 'src/token/token.service';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { buildResponse } from 'src/utils/build-response';
 import { UsersService } from 'src/users/users.service';
 import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
 import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly tokenService: TokenService,
-    private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
+    private readonly rolesService: RolesService,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
   ) {}
@@ -74,11 +72,6 @@ export class AuthService {
         templateRoleIds,
         'Не все роли для блокировки переданные вами соответствуют текущим ролям шаблона',
       );
-      // if (arrayBlockedRoles?.some((id) => !templateRoleIds.has(id))) {
-      //   throw new BadRequestException(
-      //     'Не все роли для блокировки переданные вами соответствуют текущим ролям шаблона',
-      //   );
-      // }
     }
     if (arrayAddRoles?.length) {
       const existingRoles = await this.prismaService.role.findMany({
@@ -98,11 +91,6 @@ export class AuthService {
         templateRoleIds,
         'Некоторые роли переданные вами для добавления дополнительных прав, уже присутствуют в текущем шаблоне',
       );
-      // if (arrayAddRoles?.some((id) => templateRoleIds.has(id))) {
-      //   throw new ConflictException(
-      //     'Некоторые роли переданные вами для добавления дополнительных прав, уже присутствуют в текущем шаблоне',
-      //   );
-      // }
     }
 
     const hashPassword = await argon2.hash(password);
@@ -114,6 +102,10 @@ export class AuthService {
           password: hashPassword,
           roleTemplatesId,
           token: {
+            create: {},
+          },
+
+          employee: {
             create: {},
           },
         },
@@ -158,36 +150,22 @@ export class AuthService {
       },
 
       select: {
-        id: true,
+        token: true,
         password: true,
         isActive: true,
+        id: true,
         email: true,
         fullName: true,
-        token: true,
-
-        roleTemplate: {
-          select: {
-            roles: true,
-          },
-        },
-        individualRules: {
-          select: {
-            type: true,
-            role: true,
-          },
-        },
       },
     });
 
     if (!user) {
       throw new UnauthorizedException('Не верный логин или пароль');
     }
-    console.log(user.roleTemplate?.roles.length);
 
-    if (
-      !user.roleTemplate?.roles.length ||
-      user.individualRules.some((r) => r.type !== 'ADD')
-    ) {
+    const userData = await this.rolesService.getRolesByUserId(user.id);
+
+    if (!userData.length) {
       throw new ForbiddenException(
         'Данный аккаунт не обладает правами доступа. Обратитесь к администратору',
       );

@@ -1,24 +1,16 @@
 import {
   ConflictException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
-import { IndividualRulesDto } from './dto/individual-rules.dto';
-import { UsersService } from 'src/users/users.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Injectable()
 export class RolesService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async createRole(dto: CreateRoleDto, roleTypeId: string) {
     const isExist = await this.prismaService.role.findUnique({
@@ -179,77 +171,6 @@ export class RolesService {
       data: { roles, total, countPages, page, limit },
     });
   }
-
-  // В ПРОЦЕССЕ
-  // async createIndividualRules(dto: IndividualRulesDto, userId: string) {
-  //   const { array, type } = dto;
-  //   const user = await this.usersService.findUser(userId);
-
-  //   if (!user) {
-  //     throw new NotFoundException('Пользователь не найден');
-  //   }
-
-  //   if (user.roleTemplate?.roles.length) {
-  //     const findRoles = user.roleTemplate.roles.filter(({ id }) => {
-  //       array.includes(id);
-  //     });
-
-  //     switch (type) {
-  //       case 'ADD':
-  //         if (findRoles.length !== 0) {
-  //           throw new ConflictException(
-  //             'В шаблоне уже присутствует роль которую вы пытаетесь присвоить как индивидуальную',
-  //           );
-  //         }
-  //         break;
-  //       case 'REMOVE':
-  //         if (findRoles.length !== array.length) {
-  //           throw new ConflictException(
-  //             'Роль которую вы пытаетесь ограничить должна быть в шаблоне',
-  //           );
-  //         }
-  //         break;
-
-  //       default:
-  //         break;
-  //     }
-  //   }
-
-  //   if (user.individualRules.length) {
-  //     const isExistCurrentIndovRules = user.individualRules.some(({ role }) => {
-  //       array.includes(role.id);
-  //     });
-
-  //     if (isExistCurrentIndovRules) {
-  //       throw new ConflictException(
-  //         'Вы не можете переприсваивать права доступа в такой способ',
-  //       );
-  //     }
-  //   }
-
-  //   await this.prismaService.individualRules.createMany({
-  //     data: array.map((roleId) => ({ roleId, type, userId })),
-  //   });
-
-  //   return buildResponse('Индивидуальные ролевые связи добавлены');
-  // }
-  // async deleteIndividualRule(id: string) {
-  //   const isExistRule = await this.prismaService.individualRules.findUnique({
-  //     where: { id },
-  //   });
-
-  //   if (!isExistRule) {
-  //     throw new NotFoundException('Не найдено');
-  //   }
-
-  //   await this.prismaService.individualRules.delete({
-  //     where: {
-  //       id,
-  //     },
-  //   });
-
-  //   return buildResponse('Успешно удалено');
-  // }
   async getRolesByUserId(userId: string) {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },

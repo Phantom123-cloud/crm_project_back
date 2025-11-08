@@ -16,6 +16,7 @@ model User {
   isActive        Boolean           @default(true) @map("is_active")
   isOnline        Boolean           @default(false) @map("is_online")
   token           Token?
+  employee        Employees?
   roleTemplate    RoleTemplates?    @relation(fields: [roleTemplatesId], references: [id], onDelete: SetNull)
   roleTemplatesId String?           @map("role_templates_id")
   individualRules IndividualRules[]
@@ -101,23 +102,23 @@ enum IndividualRulesType {
 // СОТРУДНИКИ
 model Employees {
   id                  String             @id @default(uuid())
-  code                String?            @unique
-  fullName            String             @map("full_name")
+  tradingСode        String?            @unique @map("trading_сode")
   citizenships        Citizenships[]     @relation("citizenship_of_employees")
-  birthDate           String             @map("birth_date")
-  phone               Phones[]
-  email               String
-  dateFirstTrip       String             @map("date_first_trip")
+  birthDate           String?            @map("birth_date")
+  phones              Phones[]
+  dateFirstTrip       String?            @map("date_first_trip")
   isInMarriage        Boolean            @default(false) @map("is_in_marriage")
   isHaveChildren      Boolean            @default(false) @map("is_have_children")
   isHaveDriverLicense Boolean            @default(false) @map("is_have_driver_license")
   drivingExperience   Int                @default(0) @map("driving_experience")
   isHaveInterPassport Boolean            @default(false) @map("is_have_inter_passport")
+  foreignLanguages    ForeignLanguages[]
+  notes               String?
+  Files               Files[]
+  user                User               @relation(fields: [userId], references: [id])
+  userId              String             @unique @map("user_id")
   createdAt           DateTime           @default(now()) @map("created_at")
   updatedAt           DateTime           @updatedAt @map("updated_at")
-  foreignLanguages    ForeignLanguages[]
-  notes               String
-  Files               Files[]
 
   @@map("employees")
 }
@@ -135,14 +136,14 @@ model Citizenships {
 }
 
 model ForeignLanguages {
-  id          String    @id @default(uuid())
-  phone       String
-  employees   Employees @relation(fields: [employeesId], references: [id])
-  employeesId String    @map("employees_id")
-  language    Languages @relation(fields: [languageId], references: [id])
-  languageId  String    @map("language_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id          String        @id @default(uuid())
+  employees   Employees     @relation(fields: [employeesId], references: [id])
+  employeesId String        @map("employees_id")
+  language    Languages     @relation(fields: [languageId], references: [id])
+  languageId  String        @map("language_id")
+  level       LanguageLevel
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
 
   @@map("foreign_languages")
 }
@@ -173,7 +174,7 @@ model Files {
 
 model Phones {
   id          String         @id @default(uuid())
-  phone       String
+  number      String
   option      PhoneSelection
   employees   Employees      @relation(fields: [employeesId], references: [id])
   employeesId String

@@ -1,7 +1,5 @@
 import {
-  BadRequestException,
   ConflictException,
-  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -9,13 +7,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
-import * as argon2 from 'argon2';
 import type { Request, Response } from 'express';
 import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
 import { PaginationDto } from './dto/pagination.dto';
-import { UpdateUserByIdDto } from './dto/update-user-by-id.dto';
 import { TokenService } from 'src/token/token.service';
-import { AuthService } from 'src/auth/auth.service';
 import { RolesService } from 'src/roles/roles.service';
 import { RoleTemplatesService } from 'src/role-templates/role-templates.service';
 
@@ -25,9 +20,6 @@ export class UsersService {
     private readonly prismaService: PrismaService,
     @Inject(forwardRef(() => TokenService))
     private readonly tokenService: TokenService,
-    @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService,
-    @Inject(forwardRef(() => RolesService))
     private readonly rolesService: RolesService,
     private readonly roleTemplatesService: RoleTemplatesService,
   ) {}
@@ -80,9 +72,8 @@ export class UsersService {
 
     return user;
   }
-
   async allUsers(dto: PaginationDto) {
-    const { page, limit, isActive, isOnline } = dto;
+    const { page, limit, isActive, isOnline, isFullData } = dto;
 
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
@@ -105,6 +96,32 @@ export class UsersService {
           createdAt: true,
           isActive: true,
           isOnline: true,
+          ...(isFullData && {
+            employee: {
+              select: {
+                tradingСode: true,
+                citizenships: {
+                  select: {
+                    localeRu: true,
+                  },
+                },
+                birthDate: true,
+                phones: {
+                  select: {
+                    number: true,
+                    option: true,
+                  },
+                },
+                dateFirstTrip: true,
+                isInMarriage: true,
+                isHaveChildren: true,
+                isHaveDriverLicense: true,
+                drivingExperience: true,
+                isHaveInterPassport: true,
+                foreignLanguages: true,
+              },
+            },
+          }),
         },
       }),
       this.prismaService.user.count({
@@ -122,6 +139,55 @@ export class UsersService {
     });
   }
 
+  async userById(id: string) {
+    const user = await this.prismaService.user.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+
+      where: { id },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        createdAt: true,
+        isActive: true,
+        isOnline: true,
+        employee: {
+          select: {
+            tradingСode: true,
+            citizenships: {
+              select: {
+                localeRu: true,
+              },
+            },
+            birthDate: true,
+            phones: {
+              select: {
+                number: true,
+                option: true,
+              },
+            },
+            dateFirstTrip: true,
+            isInMarriage: true,
+            isHaveChildren: true,
+            isHaveDriverLicense: true,
+            drivingExperience: true,
+            isHaveInterPassport: true,
+            foreignLanguages: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    return buildResponse('Данные', {
+      data: { user },
+    });
+  }
   async meRoles(id: string) {
     const meIds = await this.rolesService.getRolesByUserId(id);
 
@@ -174,9 +240,8 @@ export class UsersService {
 
     const roles = this.roleTemplatesService.roleData({ types, rolesData });
 
-    return buildResponse('Данные', { data: { roles } });
+    return roles;
   }
-
   async logoutByUserId(id: string, req: Request) {
     const { id: meId } = req.user as JwtPayload;
     if (meId === id) {
@@ -185,7 +250,6 @@ export class UsersService {
 
     return await this.tokenService.logoutById(id);
   }
-
   async isActiveUser(id: string, req: Request) {
     const { id: meId } = req.user as JwtPayload;
     if (meId === id) {
@@ -225,10 +289,11 @@ export class UsersService {
       `Пользователь - ${user.isActive ? 'заблокирован' : 'разблокирован'}`,
     );
   }
-
   async me(req: Request, res: Response) {
-    const { id } = req.user as JwtPayload;
+    const user = req.user as JwtPayload;
     await this.tokenService.validateToken(req, res);
-    return await this.meRoles(id);
+    const roles = await this.meRoles(user.id);
+
+    return buildResponse('Данные', { data: { roles, meData: user } });
   }
 }
