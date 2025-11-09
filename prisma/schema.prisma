@@ -177,7 +177,7 @@ model Phones {
   number      String
   option      PhoneSelection
   employees   Employees      @relation(fields: [employeesId], references: [id])
-  employeesId String
+  employeesId String         @map("employees_id")
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")
 

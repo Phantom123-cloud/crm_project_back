@@ -15,6 +15,8 @@ import { RolesModule } from './roles/roles.module';
 import { CitizenshipsModule } from './citizenships/citizenships.module';
 import { LanguagesModule } from './languages/languages.module';
 import { EmployeesModule } from './employees/employees.module';
+import { UploadsModule } from './uploads/uploads.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { EmployeesModule } from './employees/employees.module';
     CitizenshipsModule,
     LanguagesModule,
     EmployeesModule,
+    UploadsModule,
+    FilesModule,
   ],
 
   controllers: [AppController],
