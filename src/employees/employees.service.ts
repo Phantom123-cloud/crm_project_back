@@ -5,10 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UploadsService } from 'src/uploads/uploads.service';
-import { UsersService } from 'src/users/users.service';
 import { EmployeeUpdateDto } from './dto/employee-update-dto';
-import { UpdateEmployeeData } from './interfaces/update-employee-data';
-import { LanguageLevel, PhoneSelection } from '@prisma/client';
 import { buildResponse } from 'src/utils/build-response';
 import { validateImportedField } from './utils/validateImportedField';
 import { buildUpdateData } from './utils/buildUpdateData';
@@ -27,20 +24,7 @@ export class EmployeesService {
     userId: string,
     files?: Array<Express.Multer.File>,
   ) {
-    const {
-      citizenships,
-      phones,
-      foreignLanguages,
-      tradingСode,
-      birthDate,
-      dateFirstTrip,
-      isInMarriage,
-      isHaveChildren,
-      isHaveDriverLicense,
-      drivingExperience,
-      isHaveInterPassport,
-      notes,
-    } = dto;
+    const { citizenships, phones, foreignLanguages } = dto;
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
@@ -75,6 +59,18 @@ export class EmployeesService {
       throw new ConflictException(
         'Аккаунт не владеет всеми необходимыми возможностями',
       );
+    }
+
+    if (dto.tradingСode) {
+      const checkUnique = await this.prismaService.employees.findUnique({
+        where: {
+          tradingСode: dto.tradingСode,
+        },
+      });
+
+      if (checkUnique) {
+        throw new ConflictException('Код торгового занят');
+      }
     }
     const employeesId = user.employee.id;
     if (citizenships?.length) {
@@ -157,18 +153,26 @@ export class EmployeesService {
         );
       }
 
-      await tx.employees.update({
+      await tx.user.update({
         where: {
-          id: employeesId,
+          id: userId,
         },
 
         data: {
-          ...buildUpdateData(dto),
-          ...(citizenships?.length && {
-            citizenships: {
-              connect: citizenships?.map((id) => ({ id })),
+          email: dto.email || undefined,
+          fullName: dto.fullName || undefined,
+          employee: {
+            update: {
+              data: {
+                ...buildUpdateData(dto),
+                ...(citizenships?.length && {
+                  citizenships: {
+                    connect: citizenships?.map((id) => ({ id })),
+                  },
+                }),
+              },
             },
-          }),
+          },
         },
       });
 

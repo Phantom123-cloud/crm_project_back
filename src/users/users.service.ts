@@ -103,6 +103,7 @@ export class UsersService {
                 citizenships: {
                   select: {
                     localeRu: true,
+                    localeEn: true,
                   },
                 },
                 birthDate: true,
@@ -118,7 +119,17 @@ export class UsersService {
                 isHaveDriverLicense: true,
                 drivingExperience: true,
                 isHaveInterPassport: true,
-                foreignLanguages: true,
+                foreignLanguages: {
+                  select: {
+                    level: true,
+                    language: {
+                      select: {
+                        localeRu: true,
+                        localeEn: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           }),
@@ -140,11 +151,7 @@ export class UsersService {
   }
 
   async userById(id: string) {
-    const user = await this.prismaService.user.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-
+    const user = await this.prismaService.user.findUnique({
       where: { id },
       select: {
         id: true,
@@ -159,6 +166,7 @@ export class UsersService {
             citizenships: {
               select: {
                 localeRu: true,
+                localeEn: true,
               },
             },
             birthDate: true,
@@ -174,7 +182,17 @@ export class UsersService {
             isHaveDriverLicense: true,
             drivingExperience: true,
             isHaveInterPassport: true,
-            foreignLanguages: true,
+            foreignLanguages: {
+              select: {
+                level: true,
+                language: {
+                  select: {
+                    localeRu: true,
+                    localeEn: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
