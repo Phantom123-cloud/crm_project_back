@@ -19,6 +19,7 @@ import { UsersService } from 'src/users/users.service';
 import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
 import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
 import { RolesService } from 'src/roles/roles.service';
+import { UpdateAccountCredentialsDto } from './dto/update-account-credentials.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,6 @@ export class AuthService {
     const {
       email,
       password,
-      fullName,
       arrayBlockedRoles,
       arrayAddRoles,
       roleTemplatesId,
@@ -98,7 +98,6 @@ export class AuthService {
       const user = await tx.user.create({
         data: {
           email,
-          fullName,
           password: hashPassword,
           roleTemplatesId,
           token: {
@@ -155,7 +154,6 @@ export class AuthService {
         isActive: true,
         id: true,
         email: true,
-        fullName: true,
       },
     });
 
@@ -192,9 +190,43 @@ export class AuthService {
     const payload = {
       id: user.id,
       email: user.email,
-      fullName: user.fullName,
     };
     return this.tokenService.auth(res, payload, remember);
+  }
+  async updateAccountCredentials(
+    dto: Partial<UpdateAccountCredentialsDto>,
+    userId: string,
+  ) {
+    const user = await this.userService.findUser(userId);
+    if (!user) throw new NotFoundException('Пользователь не найден');
+    const { oldPassword, newPassword, email } = dto;
+    if ((oldPassword && !newPassword) || (!oldPassword && newPassword)) {
+      throw new BadRequestException(
+        'Некорректно переданные данные для смены пароля',
+      );
+    }
+
+    let hashNewPassword: string | undefined = undefined;
+    if (oldPassword && newPassword) {
+      const isMatch = await argon2.verify(user.password, oldPassword);
+
+      if (!isMatch) {
+        throw new ConflictException('Не верный пароль');
+      }
+
+      hashNewPassword = await argon2.hash(newPassword);
+    }
+
+    await this.prismaService.user.update({
+      where: { id: userId },
+
+      data: {
+        email,
+        password: hashNewPassword,
+      },
+    });
+
+    return buildResponse('Данные обновлены');
   }
   async validate(id: string): Promise<JwtPayload> {
     const user = await this.userService.findUser(id);
@@ -204,7 +236,6 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
-      fullName: user.fullName,
     };
   }
 }

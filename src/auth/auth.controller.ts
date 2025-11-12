@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -18,6 +19,7 @@ import { TokenService } from 'src/token/token.service';
 import { Auth } from './decorators/auth.decorator';
 import { AuthRoles } from './decorators/auth-roles.decorator';
 import { UsersService } from 'src/users/users.service';
+import { UpdateAccountCredentialsDto } from './dto/update-account-credentials.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -58,6 +60,15 @@ export class AuthController {
     @Req() req: Request,
   ) {
     return await this.usersService.me(req, res);
+  }
+
+  @Put('update-account-credentials/:id')
+  @HttpCode(HttpStatus.OK)
+  async updateAccountCredentials(
+    @Param('id') id: string,
+    @Body() dto: Partial<UpdateAccountCredentialsDto>,
+  ) {
+    return await this.authService.updateAccountCredentials(dto, id);
   }
 
   @AuthRoles('logout_users')

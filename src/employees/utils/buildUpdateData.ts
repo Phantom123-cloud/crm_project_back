@@ -1,8 +1,7 @@
-import { UpdateEmployeeData } from '../interfaces/update-employee-data';
+import { UpdateEmployeeFormDto } from '../dto/update-employee-form.dto';
 
-export const buildUpdateData = (dto: UpdateEmployeeData) => ({
+export const buildUpdateData = (dto: Partial<UpdateEmployeeFormDto>) => ({
   ...(dto.tradingСode && { tradingСode: dto.tradingСode }),
-  ...(dto.birthDate && { birthDate: dto.birthDate }),
   ...(dto.dateFirstTrip && { dateFirstTrip: dto.dateFirstTrip }),
   ...(typeof dto.isInMarriage === 'boolean' && {
     isInMarriage: dto.isInMarriage,

@@ -11,7 +11,6 @@ datasource db {
 model User {
   id              String            @id @default(uuid())
   email           String            @unique
-  fullName        String            @map("full_name")
   password        String
   isActive        Boolean           @default(true) @map("is_active")
   isOnline        Boolean           @default(false) @map("is_online")
@@ -102,6 +101,9 @@ enum IndividualRulesType {
 // СОТРУДНИКИ
 model Employees {
   id                  String             @id @default(uuid())
+  fullName            String?            @map("full_name")
+  actualAddress       String?            @map("actual_address")
+  registrationAddress String?            @map("registration_address")
   tradingСode        String?            @unique @map("trading_сode")
   citizenships        Citizenships[]     @relation("citizenship_of_employees")
   birthDate           String?            @map("birth_date")
@@ -110,7 +112,7 @@ model Employees {
   isInMarriage        Boolean            @default(false) @map("is_in_marriage")
   isHaveChildren      Boolean            @default(false) @map("is_have_children")
   isHaveDriverLicense Boolean            @default(false) @map("is_have_driver_license")
-  drivingExperience   Int                @default(0) @map("driving_experience")
+  drivingExperience   String?            @map("driving_experience")
   isHaveInterPassport Boolean            @default(false) @map("is_have_inter_passport")
   foreignLanguages    ForeignLanguages[]
   notes               String?

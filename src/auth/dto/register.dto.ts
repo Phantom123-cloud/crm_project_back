@@ -17,11 +17,6 @@ export class RegisterDto {
   @Length(5, 20, { message: 'Длина пароля от 5 до 20 символов' })
   password: string;
 
-  @IsString({ message: 'Полное имя - это строка' })
-  @IsNotEmpty({ message: 'Обязательное поле' })
-  @Length(3, 50, { message: 'Длина имени от 5 до 50 символов' })
-  fullName: string;
-
   @IsOptional()
   @IsArray()
   arrayBlockedRoles?: string[];

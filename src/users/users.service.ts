@@ -33,7 +33,6 @@ export class UsersService {
         id: true,
         password: true,
         isActive: true,
-        fullName: true,
         email: true,
 
         token: {
@@ -91,7 +90,6 @@ export class UsersService {
         },
         select: {
           id: true,
-          fullName: true,
           email: true,
           createdAt: true,
           isActive: true,
@@ -99,6 +97,7 @@ export class UsersService {
           ...(isFullData && {
             employee: {
               select: {
+                fullName: true,
                 tradingСode: true,
                 citizenships: {
                   select: {
@@ -106,6 +105,8 @@ export class UsersService {
                     localeEn: true,
                   },
                 },
+                registrationAddress: true,
+                actualAddress: true,
                 birthDate: true,
                 phones: {
                   select: {
@@ -155,16 +156,20 @@ export class UsersService {
       where: { id },
       select: {
         id: true,
-        fullName: true,
         email: true,
         createdAt: true,
         isActive: true,
         isOnline: true,
         employee: {
           select: {
+            fullName: true,
             tradingСode: true,
+            notes: true,
+            registrationAddress: true,
+            actualAddress: true,
             citizenships: {
               select: {
+                id: true,
                 localeRu: true,
                 localeEn: true,
               },
@@ -186,10 +191,7 @@ export class UsersService {
               select: {
                 level: true,
                 language: {
-                  select: {
-                    localeRu: true,
-                    localeEn: true,
-                  },
+                  select: { id: true, localeRu: true, localeEn: true },
                 },
               },
             },
