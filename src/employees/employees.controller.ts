@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
+  Post,
   Put,
   Query,
   UploadedFiles,
@@ -13,6 +15,8 @@ import { EmployeesService } from './employees.service';
 import { UseUploadFiles } from 'src/uploads/decorators/upload-file.decorator';
 import { UpdateEmployeeFormDto } from './dto/update-employee-form.dto';
 import { UpdateEmployeePassportDto } from './dto/update-employee-passport.dto';
+import { AddContactNumberToEmployeeDto } from './dto/add-contact-number-to-employee.dto';
+import { AddLanguageToEmployeeDto } from './dto/add-language-to-employee.dto';
 
 @Controller('employees')
 export class EmployeesController {
@@ -48,5 +52,41 @@ export class EmployeesController {
     @Query('userId') userId: string,
   ) {
     return this.employeesService.disconnectCitizenship(citizenshipId, userId);
+  }
+
+  @Post('add-contact/:id')
+  @HttpCode(HttpStatus.OK)
+  addContactNumberToEmployee(
+    @Param('id') id: string,
+    @Body() dto: AddContactNumberToEmployeeDto,
+  ) {
+    return this.employeesService.addContactNumberToEmployee(id, dto);
+  }
+
+  @Post('add-language/:id')
+  @HttpCode(HttpStatus.OK)
+  addLanguageToEmployee(
+    @Param('id') id: string,
+    @Body() dto: AddLanguageToEmployeeDto,
+  ) {
+    return this.employeesService.addLanguageToEmployee(id, dto);
+  }
+
+  @Delete('delete-language')
+  @HttpCode(HttpStatus.OK)
+  deleteLanguageToEmployee(
+    @Query('userId') userId: string,
+    @Query('languageId') languageId: string,
+  ) {
+    return this.employeesService.deleteLanguageToEmployee(userId, languageId);
+  }
+
+  @Delete('delete-contact')
+  @HttpCode(HttpStatus.OK)
+  deleteContactNumberToEmployee(
+    @Query('userId') userId: string,
+    @Query('phoneId') phoneId: string,
+  ) {
+    return this.employeesService.deleteContactNumberToEmployee(userId, phoneId);
   }
 }

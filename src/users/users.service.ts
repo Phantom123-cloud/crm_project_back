@@ -177,6 +177,7 @@ export class UsersService {
             birthDate: true,
             phones: {
               select: {
+                id: true,
                 number: true,
                 option: true,
               },
@@ -189,6 +190,7 @@ export class UsersService {
             isHaveInterPassport: true,
             foreignLanguages: {
               select: {
+                id: true,
                 level: true,
                 language: {
                   select: { id: true, localeRu: true, localeEn: true },
