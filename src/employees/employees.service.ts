@@ -149,6 +149,7 @@ export class EmployeesService {
 
     return buildResponse('Данные обновлены');
   }
+  
   async disconnectCitizenship(citizenshipId: string, userId: string) {
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -278,8 +279,6 @@ export class EmployeesService {
       (item) => item.id,
     );
 
-    console.log(currentLanguages, languageId);
-
     if (!currentLanguages.some((id) => languageId === id)) {
       throw new ConflictException('Язык не найден у данного пользователя');
     }
@@ -299,6 +298,7 @@ export class EmployeesService {
     });
     return buildResponse('Данные удалены');
   }
+
   async addContactNumberToEmployee(
     userId: string,
     dto: AddContactNumberToEmployeeDto,
@@ -346,7 +346,6 @@ export class EmployeesService {
     });
     return buildResponse('Данные добавдены');
   }
-
   async deleteContactNumberToEmployee(userId: string, phoneId: string) {
     console.log(phoneId);
 

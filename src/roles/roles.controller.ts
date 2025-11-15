@@ -57,6 +57,12 @@ export class RolesController {
     return this.RolesService.allRoles(page, limit);
   }
 
+  @Get('full-info-roles-by-user/:id')
+  @HttpCode(HttpStatus.OK)
+  fullInformationOnRoles(@Param('id') id: string) {
+    return this.RolesService.fullInformationOnRoles(id);
+  }
+
   // @Auth()
   // @Post('create-individual-rules')
   // @HttpCode(HttpStatus.CREATED)

@@ -7,10 +7,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { RoleTemplatesService } from 'src/role-templates/role-templates.service';
 
 @Injectable()
 export class RolesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly roleTemplatesService: RoleTemplatesService,
+  ) {}
 
   async createRole(dto: CreateRoleDto, roleTypeId: string) {
     const isExist = await this.prismaService.role.findUnique({
@@ -225,5 +229,152 @@ export class RolesService {
     const allRoles = [...templateRoles.map((r) => r.id), ...individualRoles];
     const data = [...new Set(allRoles)];
     return data;
+  }
+
+  async fullInformationOnRoles(userId: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: {
+        roleTemplate: true,
+        individualRules: {
+          select: {
+            type: true,
+            role: {
+              select: {
+                name: true,
+                id: true,
+                descriptions: true,
+                type: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не обнаружен');
+    }
+
+    const [types, rolesData] = await this.prismaService.$transaction([
+      this.prismaService.roleTypes.findMany({
+        where: {
+          roles: {
+            some: {
+              roleTemplates: {
+                some: { id: user.roleTemplate?.id },
+              },
+            },
+          },
+        },
+        select: {
+          name: true,
+          descriptions: true,
+          id: true,
+        },
+
+        orderBy: {
+          name: 'asc',
+        },
+      }),
+      this.prismaService.role.findMany({
+        where: {
+          roleTemplates: {
+            some: {
+              users: {
+                some: {
+                  id: userId,
+                },
+              },
+            },
+          },
+
+          NOT: {
+            individualRules: {
+              some: {
+                userId,
+                type: 'REMOVE',
+              },
+            },
+          },
+        },
+        select: {
+          name: true,
+          id: true,
+          descriptions: true,
+          type: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+
+        orderBy: {
+          type: {
+            name: 'asc',
+          },
+        },
+      }),
+    ]);
+
+    const templateAvailableRoles = this.roleTemplatesService.roleData({
+      types,
+      rolesData,
+    });
+
+    const { indivRolesAdd, indivRolesRemove } = user.individualRules.reduce(
+      (acc, val) => {
+        if (val.type === 'REMOVE') {
+          acc.indivRolesRemove.push(val.role);
+        } else {
+          acc.indivRolesAdd.push(val.role);
+        }
+        return acc;
+      },
+      { indivRolesAdd: [], indivRolesRemove: [] } as {
+        indivRolesAdd: Array<{
+          id: string;
+          name: string;
+          descriptions: string;
+          type: {
+            id: string;
+            name: string;
+          };
+        }>;
+        indivRolesRemove: Array<{
+          id: string;
+          name: string;
+          descriptions: string;
+          type: {
+            id: string;
+            name: string;
+          };
+        }>;
+      },
+    );
+
+    const blockedTemplateRoles = this.roleTemplatesService.roleData({
+      types,
+      rolesData: indivRolesRemove,
+    });
+
+    const individualAvailableRoles = this.roleTemplatesService.roleData({
+      types,
+      rolesData: indivRolesAdd,
+    });
+
+    return buildResponse('Данные', {
+      data: {
+        templateAvailableRoles,
+        blockedTemplateRoles,
+        individualAvailableRoles,
+      },
+    });
   }
 }

@@ -95,7 +95,7 @@ export class RoleTemplatesService {
     const roles = this.roleData({ types, rolesData });
     return buildResponse('Данные', { data: { roles } });
   }
-
+// 3b173b5e-842f-482a-a924-bd91f75de2c0
   async getSelectTeamplates() {
     const data = await this.prismaService.roleTemplates.findMany({
       select: {

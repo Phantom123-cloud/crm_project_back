@@ -7,7 +7,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getJwtConfig } from 'src/common/config/jwt.config';
 import { UsersModule } from 'src/users/users.module';
 import { JwtStrategy } from './strategy/jwt.strategy';
-import { RolesService } from 'src/roles/roles.service';
 import { RolesModule } from 'src/roles/roles.module';
 
 @Module({
@@ -18,11 +17,11 @@ import { RolesModule } from 'src/roles/roles.module';
       useFactory: getJwtConfig,
     }),
     TokenModule,
-    forwardRef(() => UsersModule),
     RolesModule,
+    forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RolesService],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
