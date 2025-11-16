@@ -369,11 +369,69 @@ export class RolesService {
       rolesData: indivRolesAdd,
     });
 
+    const notIn = new Set([
+      ...rolesData.map((item) => item.id),
+      ...indivRolesAdd.map((item) => item.id),
+      ...indivRolesRemove.map((item) => item.id),
+    ]);
+
+    const unusedRolesData = await this.prismaService.role.findMany({
+      where: {
+        id: { notIn: [...notIn] },
+      },
+      select: {
+        name: true,
+        id: true,
+        descriptions: true,
+        type: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+
+      orderBy: {
+        type: {
+          name: 'asc',
+        },
+      },
+    });
+
+    const unusedIds = unusedRolesData.map((u) => u.id);
+    const typesForUnusedRoles = await this.prismaService.roleTypes.findMany({
+      where: {
+        roles: {
+          some: {
+            id: {
+              in: unusedIds,
+            },
+          },
+        },
+      },
+      select: {
+        name: true,
+        descriptions: true,
+        id: true,
+      },
+
+      orderBy: {
+        name: 'asc',
+      },
+    });
+
+    const unusedRoles = this.roleTemplatesService.roleData({
+      types: typesForUnusedRoles,
+      rolesData: unusedRolesData,
+    });
+
     return buildResponse('Данные', {
       data: {
         templateAvailableRoles,
         blockedTemplateRoles,
         individualAvailableRoles,
+        unusedRoles,
+        roleTemplate: user.roleTemplate?.name,
       },
     });
   }

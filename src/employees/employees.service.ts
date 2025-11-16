@@ -6,13 +6,13 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { buildResponse } from 'src/utils/build-response';
-import { validateImportedField } from './utils/validateImportedField';
-import { buildUpdateData } from './utils/buildUpdateData';
+import { buildUpdateData } from './utils/build-update-data';
 import { FilesService } from 'src/files/files.service';
 import { UpdateEmployeeFormDto } from './dto/update-employee-form.dto';
 import { UpdateEmployeePassportDto } from './dto/update-employee-passport.dto';
 import { AddLanguageToEmployeeDto } from './dto/add-language-to-employee.dto';
 import { AddContactNumberToEmployeeDto } from './dto/add-contact-number-to-employee.dto';
+import { validateImportedField } from './utils/validate-imported-field';
 
 @Injectable()
 export class EmployeesService {
@@ -111,7 +111,7 @@ export class EmployeesService {
 
     if (citizenships?.length) {
       const existing = user.employee.citizenships.map((c) => c.id);
-      await validateImportedField('citizen', {
+      validateImportedField('citizen', {
         existing,
         incoming: citizenships,
       });
@@ -149,7 +149,7 @@ export class EmployeesService {
 
     return buildResponse('Данные обновлены');
   }
-  
+
   async disconnectCitizenship(citizenshipId: string, userId: string) {
     const user = await this.prismaService.user.findUnique({
       where: {

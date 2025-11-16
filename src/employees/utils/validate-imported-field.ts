@@ -8,7 +8,7 @@ interface ValidationContext {
   incoming: any[];
 }
 
-export const validateImportedField = async (
+export const validateImportedField = (
   type: ImportType,
   { existing, incoming }: ValidationContext,
 ) => {

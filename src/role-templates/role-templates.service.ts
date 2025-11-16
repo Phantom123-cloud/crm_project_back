@@ -95,7 +95,7 @@ export class RoleTemplatesService {
     const roles = this.roleData({ types, rolesData });
     return buildResponse('Данные', { data: { roles } });
   }
-// 3b173b5e-842f-482a-a924-bd91f75de2c0
+  // 3b173b5e-842f-482a-a924-bd91f75de2c0
   async getSelectTeamplates() {
     const data = await this.prismaService.roleTemplates.findMany({
       select: {
@@ -352,79 +352,4 @@ export class RoleTemplatesService {
 
     return buildResponse('Роли обновлены');
   }
-
-  // // назначить шаблон юзеру
-  // async assignRoleTemplate(userId: string, roleTemplatesId: string) {
-  //   if (!userId || !roleTemplatesId) {
-  //     throw new BadRequestException('Все данные обязательны');
-  //   }
-
-  //   const user = await this.usersService.findUser(userId);
-
-  //   if (!user) {
-  //     throw new NotFoundException('Пользователь не найден');
-  //   }
-
-  //   if (user?.roleTemplate?.id === roleTemplatesId) {
-  //     throw new ConflictException('Пользователь уже владеет данными ролями');
-  //   }
-
-  //   const isExistTemplate = this.prismaService.roleTemplates.findUnique({
-  //     where: {
-  //       id: roleTemplatesId,
-  //     },
-  //   });
-
-  //   if (!isExistTemplate) {
-  //     throw new NotFoundException('Пользователь не найден');
-  //   }
-
-  //   await this.prismaService.user.update({
-  //     where: {
-  //       id: userId,
-  //     },
-  //     data: {
-  //       roleTemplatesId,
-  //     },
-  //   });
-
-  //   return buildResponse('Шаблон добавлен');
-  // }
-  // // удалить шаблон у юзера
-  // async revokeRoleTemplate(userId: string, roleTemplatesId: string) {
-  //   if (!userId || !roleTemplatesId) {
-  //     throw new BadRequestException('Все данные обязательны');
-  //   }
-
-  //   const user = await this.usersService.findUser(userId);
-
-  //   if (!user) {
-  //     throw new NotFoundException('Пользователь не найден');
-  //   }
-
-  //   if (user?.roleTemplate?.id !== roleTemplatesId) {
-  //     throw new ConflictException('Пользователь не владеет данными ролями');
-  //   }
-
-  //   const isExistTemplate = this.prismaService.roleTemplates.findUnique({
-  //     where: {
-  //       id: roleTemplatesId,
-  //     },
-  //   });
-
-  //   if (!isExistTemplate) {
-  //     throw new NotFoundException('Пользователь не найден');
-  //   }
-
-  //   await this.prismaService.user.update({
-  //     where: {
-  //       id: userId,
-  //     },
-  //     data: {
-  //       roleTemplatesId: null,
-  //     },
-  //   });
-
-  //   return buildResponse('Шаблон откреплён');
-  // }
 }
