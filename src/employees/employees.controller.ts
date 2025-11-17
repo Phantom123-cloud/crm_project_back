@@ -2,13 +2,16 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Put,
   Query,
+  Res,
   UploadedFiles,
 } from '@nestjs/common';
 import { EmployeesService } from './employees.service';

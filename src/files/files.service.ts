@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -10,6 +11,7 @@ import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
 import * as path from 'path';
 import * as fs from 'fs';
 import { FilesType } from '@prisma/client';
+import { buildResponse } from 'src/utils/build-response';
 
 @Injectable()
 export class FilesService {
@@ -41,6 +43,34 @@ export class FilesService {
       ),
     );
   }
+
+  // async getPassportsByUserId(userId: string) {
+  //   const user = await this.prismaService.user.findUnique({
+  //     where: { id: userId },
+  //     select: {
+  //       token: true,
+  //       employee: { select: { id: true } },
+  //     },
+  //   });
+
+  //   if (!user) throw new NotFoundException('Пользователь не найден');
+  //   if (!user.employee || !user.token)
+  //     throw new ConflictException('Нет доступа');
+
+  //   const files = await this.prismaService.files.findMany({
+  //     where: {
+  //       employeesId: user.employee.id,
+  //       type: 'PASSPORT',
+  //     },
+  //     select: {
+  //       fileName: true,
+  //     },
+  //   });
+
+  //   const data = files.map((f) => f.fileName);
+
+  //   return buildResponse('Данные', { data });
+  // }
 
   // async downloadsFile(req: Request, res: Response, fileName: string) {
   //   const { id, roles } = req.user as JwtPayload;

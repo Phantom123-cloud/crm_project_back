@@ -162,6 +162,7 @@ export class UsersService {
         isOnline: true,
         employee: {
           select: {
+            id: true,
             fullName: true,
             tradingСode: true,
             notes: true,
@@ -205,9 +206,21 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
     }
+    const filesName = await this.prismaService.files.findMany({
+      where: {
+        employeesId: user?.employee?.id,
+        type: 'PASSPORT',
+      },
+
+      select: {
+        fileName: true,
+      },
+    });
+
+    const passports = filesName.map((file) => file.fileName);
 
     return buildResponse('Данные', {
-      data: { user },
+      data: { user, passports },
     });
   }
   async meRoles(id: string) {

@@ -247,7 +247,7 @@ export class RoleTemplatesService {
       const index = roles.findIndex((t) => t.id === role.type.id);
 
       if (index < 0) {
-        console.log(role.type, roles);
+        // console.log(role.type, roles);
         throw new BadRequestException('Что то пошло не так при сборе данных');
       }
 

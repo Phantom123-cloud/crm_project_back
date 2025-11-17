@@ -8,6 +8,9 @@ import { buildResponse } from 'src/utils/build-response';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { RoleTemplatesService } from 'src/role-templates/role-templates.service';
+import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
+import { Roles } from './interfaces';
+import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
 
 @Injectable()
 export class RolesService {
@@ -230,7 +233,6 @@ export class RolesService {
     const data = [...new Set(allRoles)];
     return data;
   }
-
   async fullInformationOnRoles(userId: string) {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
@@ -323,11 +325,6 @@ export class RolesService {
       }),
     ]);
 
-    const templateAvailableRoles = this.roleTemplatesService.roleData({
-      types,
-      rolesData,
-    });
-
     const { indivRolesAdd, indivRolesRemove } = user.individualRules.reduce(
       (acc, val) => {
         if (val.type === 'REMOVE') {
@@ -338,34 +335,35 @@ export class RolesService {
         return acc;
       },
       { indivRolesAdd: [], indivRolesRemove: [] } as {
-        indivRolesAdd: Array<{
-          id: string;
-          name: string;
-          descriptions: string;
-          type: {
-            id: string;
-            name: string;
-          };
-        }>;
-        indivRolesRemove: Array<{
-          id: string;
-          name: string;
-          descriptions: string;
-          type: {
-            id: string;
-            name: string;
-          };
-        }>;
+        indivRolesAdd: Array<Roles>;
+        indivRolesRemove: Array<Roles>;
       },
     );
+
+    const templateAvailableRoles = this.roleTemplatesService.roleData({
+      types,
+      rolesData,
+    });
 
     const blockedTemplateRoles = this.roleTemplatesService.roleData({
       types,
       rolesData: indivRolesRemove,
     });
 
+    const indivRolesAddTypes = await this.prismaService.roleTypes.findMany({
+      where: {
+        roles: {
+          some: {
+            id: {
+              in: indivRolesAdd.map((role) => role.id),
+            },
+          },
+        },
+      },
+    });
+
     const individualAvailableRoles = this.roleTemplatesService.roleData({
-      types,
+      types: indivRolesAddTypes,
       rolesData: indivRolesAdd,
     });
 
@@ -434,5 +432,157 @@ export class RolesService {
         roleTemplate: user.roleTemplate?.name,
       },
     });
+  }
+
+  async updateUserRoles(userId: string, dto: UpdateUserRolesDto) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: {
+        roleTemplate: {
+          select: {
+            id: true,
+            roles: true,
+          },
+        },
+
+        individualRules: {
+          select: {
+            role: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не обнаружен');
+    }
+
+    const { unlock, removeIndividual, blockCurrent, addUnused } = dto;
+
+    await this.prismaService.$transaction(async (tx) => {
+      if (unlock?.length) {
+        const isExistBlockRoles = await tx.individualRules.findMany({
+          where: {
+            roleId: {
+              in: unlock,
+            },
+            userId,
+            type: 'REMOVE',
+          },
+        });
+
+        if (isExistBlockRoles.length !== unlock.length) {
+          throw new ConflictException(
+            'Преданный массив ролей не совпадает с данными из сервера',
+          );
+        }
+
+        await tx.individualRules.deleteMany({
+          where: {
+            roleId: {
+              in: unlock,
+            },
+            userId,
+          },
+        });
+      }
+      if (removeIndividual?.length) {
+        const isExistCurrentIndivRoles = await tx.individualRules.findMany({
+          where: {
+            roleId: {
+              in: removeIndividual,
+            },
+            userId,
+            type: 'ADD',
+          },
+        });
+
+        if (isExistCurrentIndivRoles.length !== removeIndividual.length) {
+          throw new ConflictException(
+            'Преданный массив ролей не совпадает с данными из сервера',
+          );
+        }
+        await tx.individualRules.deleteMany({
+          where: {
+            roleId: {
+              in: removeIndividual,
+            },
+            userId,
+          },
+        });
+      }
+      if (blockCurrent?.length) {
+        const isExistCurrentTemplatesRoles = await tx.role.findMany({
+          where: {
+            id: {
+              in: blockCurrent,
+            },
+
+            roleTemplates: {
+              some: {
+                id: user.roleTemplate?.id,
+              },
+            },
+          },
+        });
+
+        if (isExistCurrentTemplatesRoles.length !== blockCurrent.length) {
+          throw new ConflictException(
+            'Преданный массив ролей не совпадает с данными из сервера',
+          );
+        }
+
+        await tx.individualRules.createMany({
+          data: blockCurrent.map((roleId) => ({
+            roleId,
+            userId,
+            type: 'REMOVE',
+            roleTemplatesId: user.roleTemplate?.id,
+          })),
+        });
+      }
+      if (addUnused?.length) {
+        const isExistRoles = await tx.role.findMany({
+          where: {
+            id: {
+              in: addUnused,
+            },
+          },
+        });
+
+        if (isExistRoles.length !== addUnused.length) {
+          throw new ConflictException(
+            'Преданный массив ролей не совпадает с данными из сервера',
+          );
+        }
+
+        const userRoles = new Set([
+          ...(user?.roleTemplate?.roles?.map((item) => item.id) ?? []),
+          ...(user.individualRules?.map((item) => item.role.id) ?? []),
+        ]);
+
+        if (addUnused.some((role) => userRoles.has(role))) {
+          throw new ConflictException(
+            'Вы не можете добавлять в индивидуальные правила, роли которые уже там или в шаблоне присутствуют',
+          );
+        }
+
+        await tx.individualRules.createMany({
+          data: addUnused.map((roleId) => ({
+            roleId,
+            userId,
+            type: 'ADD',
+          })),
+        });
+      }
+
+      return;
+    });
+
+    return buildResponse('Правила доступа обновлены');
   }
 }

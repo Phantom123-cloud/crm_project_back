@@ -17,10 +17,11 @@ import { IndividualRulesDto } from './dto/individual-rules.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
 
 @Controller('roles')
 export class RolesController {
-  constructor(private readonly RolesService: RolesService) {}
+  constructor(private readonly rolesService: RolesService) {}
   @Auth()
   @Post('create')
   // create_roles
@@ -29,21 +30,21 @@ export class RolesController {
     @Body() dto: CreateRoleDto,
     @Query('roleTypeId') roleTypeId: string,
   ) {
-    return this.RolesService.createRole(dto, roleTypeId);
+    return this.rolesService.createRole(dto, roleTypeId);
   }
   @Auth()
   @Delete('delete/:id')
   // delete_roles
   @HttpCode(HttpStatus.OK)
   deleteRole(@Param('id') id: string) {
-    return this.RolesService.deleteRole(id);
+    return this.rolesService.deleteRole(id);
   }
   @Auth()
   @Put('update/:id')
   // update_roles
   @HttpCode(HttpStatus.OK)
   updateRole(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
-    return this.RolesService.updateRole(id, dto);
+    return this.rolesService.updateRole(id, dto);
   }
 
   @Auth()
@@ -54,28 +55,20 @@ export class RolesController {
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
   ) {
-    return this.RolesService.allRoles(page, limit);
+    return this.rolesService.allRoles(page, limit);
   }
 
   @Get('full-info-roles-by-user/:id')
   @HttpCode(HttpStatus.OK)
   fullInformationOnRoles(@Param('id') id: string) {
-    return this.RolesService.fullInformationOnRoles(id);
+    return this.rolesService.fullInformationOnRoles(id);
   }
 
   // @Auth()
-  // @Post('create-individual-rules')
-  // @HttpCode(HttpStatus.CREATED)
-  // createIndividualRules(
-  //   @Body() dto: IndividualRulesDto,
-  //   @Query('userId') userId: string,
-  // ) {
-  //   return this.RolesService.createIndividualRules(dto, userId);
-  // }
-  // @Auth()
-  // @Delete('delete-individual-rule/:id')
-  // @HttpCode(HttpStatus.OK)
-  // deleteIndividualRule(@Param('id') id: string) {
-  //   return this.RolesService.deleteIndividualRule(id);
-  // }
+  @Put('update-roles-by-user/:id')
+  // update_roles
+  @HttpCode(HttpStatus.OK)
+  updateUserRoles(@Param('id') id: string, @Body() dto: UpdateUserRolesDto) {
+    return this.rolesService.updateUserRoles(id, dto);
+  }
 }
