@@ -164,7 +164,7 @@ model Languages {
 
 model Files {
   id          String    @id @default(uuid())
-  fileName    String    @map("file_name")
+  fileName    String    @unique @map("file_name")
   type        FilesType
   employees   Employees @relation(fields: [employeesId], references: [id])
   employeesId String    @map("employees_id")

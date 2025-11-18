@@ -4,10 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UploadsService } from 'src/uploads/uploads.service';
 import { buildResponse } from 'src/utils/build-response';
 import { buildUpdateData } from './utils/build-update-data';
-import { FilesService } from 'src/files/files.service';
 import { UpdateEmployeeFormDto } from './dto/update-employee-form.dto';
 import { UpdateEmployeePassportDto } from './dto/update-employee-passport.dto';
 import { AddLanguageToEmployeeDto } from './dto/add-language-to-employee.dto';
@@ -16,11 +14,7 @@ import { validateImportedField } from './utils/validate-imported-field';
 
 @Injectable()
 export class EmployeesService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly filesService: FilesService,
-    private readonly uploadsService: UploadsService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async updateEmployeeForm(
     dto: Partial<UpdateEmployeeFormDto>,
@@ -149,7 +143,6 @@ export class EmployeesService {
 
     return buildResponse('Данные обновлены');
   }
-
   async disconnectCitizenship(citizenshipId: string, userId: string) {
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -195,7 +188,6 @@ export class EmployeesService {
 
     return buildResponse('Данные обновлены');
   }
-
   async addLanguageToEmployee(userId: string, dto: AddLanguageToEmployeeDto) {
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -298,7 +290,6 @@ export class EmployeesService {
     });
     return buildResponse('Данные удалены');
   }
-
   async addContactNumberToEmployee(
     userId: string,
     dto: AddContactNumberToEmployeeDto,

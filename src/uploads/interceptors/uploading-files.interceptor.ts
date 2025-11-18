@@ -11,6 +11,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { randomUUID } from 'crypto';
 
 export function UploadFilesInterceptor(
   sizeMax: number,
@@ -26,7 +27,7 @@ export function UploadFilesInterceptor(
         storage: diskStorage({
           destination: `./uploads/${folder}`,
           filename: (_req, file, cb) => {
-            const uniqueSuffix = Date.now();
+            const uniqueSuffix = randomUUID();
             cb(null, `${uniqueSuffix}_file${extname(file.originalname)}`);
           },
         }),
@@ -34,13 +35,10 @@ export function UploadFilesInterceptor(
         limits: { fileSize: sizeMax * 1024 * 1024 },
 
         fileFilter: (_req, file, cb) => {
-          if (
-            mimetypes &&
-            mimetypes.length &&
-            !mimetypes.includes(file.mimetype)
-          ) {
-            cb(new BadRequestException('Неподдерживаемый формат'), false);
+          if (mimetypes && !mimetypes.includes(file.mimetype)) {
+            return cb(new Error('Неподдерживаемый формат'), false);
           }
+
           cb(null, true);
         },
       });
@@ -57,7 +55,8 @@ export function UploadFilesInterceptor(
             `Размер файла превышает допустимый (${sizeMax}MB)`,
           );
         }
-        throw new BadRequestException('Ошибка имфорта файла(ов)');
+
+        throw new BadRequestException(error.message);
       }
     }
   }
