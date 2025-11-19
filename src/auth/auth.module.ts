@@ -1,13 +1,11 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { TokenModule } from 'src/token/token.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getJwtConfig } from 'src/common/config/jwt.config';
-import { UsersModule } from 'src/users/users.module';
-import { JwtStrategy } from './strategy/jwt.strategy';
 import { RolesModule } from 'src/roles/roles.module';
+import { providers } from './providers';
 
 @Module({
   imports: [
@@ -16,12 +14,10 @@ import { RolesModule } from 'src/roles/roles.module';
       inject: [ConfigService],
       useFactory: getJwtConfig,
     }),
-    TokenModule,
     RolesModule,
-    forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers,
   exports: [AuthService],
 })
 export class AuthModule {}

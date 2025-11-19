@@ -433,7 +433,6 @@ export class RolesService {
       },
     });
   }
-
   async updateUserRoles(userId: string, dto: UpdateUserRolesDto) {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
@@ -584,5 +583,60 @@ export class RolesService {
     });
 
     return buildResponse('Правила доступа обновлены');
+  }
+
+  async meRoles(id: string) {
+    const meIds = await this.getRolesByUserId(id);
+
+    const [rolesData, types] = await this.prismaService.$transaction([
+      this.prismaService.role.findMany({
+        where: {
+          id: {
+            in: meIds,
+          },
+        },
+        select: {
+          name: true,
+          id: true,
+          descriptions: true,
+          type: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+
+        orderBy: {
+          type: {
+            name: 'asc',
+          },
+        },
+      }),
+      this.prismaService.roleTypes.findMany({
+        where: {
+          roles: {
+            some: {
+              id: {
+                in: meIds,
+              },
+            },
+          },
+        },
+        select: {
+          name: true,
+          descriptions: true,
+          id: true,
+        },
+
+        orderBy: {
+          name: 'asc',
+        },
+      }),
+    ]);
+
+    const roles = this.roleTemplatesService.roleData({ types, rolesData });
+
+    return roles;
   }
 }

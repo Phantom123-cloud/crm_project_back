@@ -1,8 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -10,14 +8,14 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response, Request } from 'express';
-import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { isDev } from 'src/utils/is-dev.utils';
-import { UsersService } from 'src/users/users.service';
+import { UsersRepository } from 'src/users/users.repository';
+import { TokenRepository } from '../repositories/token.repository';
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
-export class TokenService {
+export class CreateSessionBuilder {
   private readonly TOKEN_TTL_S: number;
   private readonly TOKEN_TTL_L: number;
   private readonly COOKIE_DOMAIN: string;
@@ -26,9 +24,8 @@ export class TokenService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly prismaService: PrismaService,
-    @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService,
+    private readonly tokenRepository: TokenRepository,
+    private readonly usersRepository: UsersRepository,
   ) {
     this.TOKEN_TTL_S = 1 * 24 * 60 * 60;
     this.TOKEN_TTL_L = 7 * 24 * 60 * 60;
@@ -36,9 +33,9 @@ export class TokenService {
     this.JWT_SECRET = configService.getOrThrow<string>('JWT_SECRET');
   }
 
-  async auth(res: Response, payload: JwtPayload, remember: boolean) {
+  async tokenAuth(res: Response, payload: JwtPayload, remember: boolean) {
     const { id, email } = payload;
-    const user = await this.usersService.findUser(id);
+    const user = await this.usersRepository.findByUserId(id);
 
     if (!user || !user.token) {
       throw new NotFoundException('Пользователь не обнаружен');
@@ -56,53 +53,15 @@ export class TokenService {
     const ttl = this[remember ? 'TOKEN_TTL_L' : 'TOKEN_TTL_S'];
     const exp = now + ttl;
 
-    const { hash } = this.generateTokens(id, email, ttl);
+    const { hash } = this.generateTokens(tokenId, email, ttl);
     this.setTokenCookie(res, hash, ttl * 1000);
-    await this.prismaService.token.update({
-      where: { id: tokenId },
-      data: { exp, hash },
-    });
 
+    await this.tokenRepository.createSession(id, exp, hash);
     return buildResponse('Вы вошли в систему');
   }
-  private signToken(payload: JwtPayload, ttl: number) {
-    return this.jwtService.sign(payload, {
-      expiresIn: ttl,
-      secret: this.JWT_SECRET,
-    });
-  }
-  private generateTokens(
-    id: string,
-    email: string,
-    ttl: number,
-  ) {
-    const payload: JwtPayload = { id, email };
-    const hash = this.signToken(payload, ttl);
-    return { hash };
-  }
-  private setTokenCookie(res: Response, value: string, maxAgeMs: number) {
-    res.cookie('token', value, {
-      httpOnly: true,
-      domain: this.COOKIE_DOMAIN,
-      secure: !isDev(this.configService),
-      sameSite: 'lax',
-      maxAge: maxAgeMs,
-    });
-  }
-  async logout(res: Response, req: Request) {
-    const token = req.cookies['token'];
-    const payload: JwtPayload = await this.jwtService.verifyAsync(token);
-    await this.deactivateTokens(payload.id);
-    this.setTokenCookie(res, '', 0);
 
-    return buildResponse('Выполнен выход из системы');
-  }
-  async logoutById(id: string) {
-    await this.deactivateTokens(id);
-    return buildResponse('Выполнен выход из системы');
-  }
   async deactivateTokens(id: string) {
-    const user = await this.usersService.findUser(id);
+    const user = await this.usersRepository.findByUserId(id);
 
     if (!user || !user.token) {
       throw new NotFoundException('Пользователь не обнаружен');
@@ -114,29 +73,14 @@ export class TokenService {
       throw new BadRequestException('Пользователь не имеет активной сессии');
     }
 
-    await this.prismaService.user.update({
-      where: {
-        id,
-      },
-
-      data: {
-        isOnline: false,
-
-        token: {
-          update: {
-            exp: 0,
-            hash: null,
-          },
-        },
-      },
-    });
+    await this.tokenRepository.resetSession(id);
 
     return true;
   }
   async validateToken(req: Request, res: Response) {
     const tokenHash = req.cookies['token'];
     const { id } = req.user as JwtPayload;
-    const user = await this.usersService.findUser(id);
+    const user = await this.usersRepository.findByUserId(id);
 
     if (!user || !user.token) {
       throw new NotFoundException('Пользователь не обнаружен');
@@ -149,5 +93,26 @@ export class TokenService {
       this.setTokenCookie(res, '', 0);
       throw new UnauthorizedException('Сессия просрочена, войдите снова');
     }
+  }
+
+  signToken(payload: JwtPayload, ttl: number) {
+    return this.jwtService.sign(payload, {
+      expiresIn: ttl,
+      secret: this.JWT_SECRET,
+    });
+  }
+  generateTokens(id: string, email: string, ttl: number) {
+    const payload: JwtPayload = { id, email };
+    const hash = this.signToken(payload, ttl);
+    return { hash };
+  }
+  setTokenCookie(res: Response, value: string, maxAgeMs: number) {
+    res.cookie('token', value, {
+      httpOnly: true,
+      domain: this.COOKIE_DOMAIN,
+      secure: !isDev(this.configService),
+      sameSite: 'lax',
+      maxAge: maxAgeMs,
+    });
   }
 }

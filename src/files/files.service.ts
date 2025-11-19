@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { Request, Response } from 'express';
-import { JwtPayload } from 'src/token/interfaces/jwt-payload.interface';
 import * as path from 'path';
 import * as fs from 'fs';
 import { FilesType } from '@prisma/client';

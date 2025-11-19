@@ -51,13 +51,6 @@ export class UsersController {
   }
 
   @Auth()
-  @Post('logout-user/:id')
-  @HttpCode(HttpStatus.OK)
-  async user(@Param('id') id: string, @Req() req: Request) {
-    return await this.usersService.logoutByUserId(id, req);
-  }
-
-  @Auth()
   @Put('is-active/:id')
   @HttpCode(HttpStatus.OK)
   async isActiveUser(@Param('id') id: string, @Req() req: Request) {
