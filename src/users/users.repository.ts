@@ -23,6 +23,14 @@ export class UsersRepository {
             role: true,
           },
         },
+        employee: {
+          select: {
+            id: true,
+            citizenships: true,
+            foreignLanguages: true,
+            phones: true,
+          },
+        },
         roleTemplate: true,
       },
     });
@@ -49,6 +57,28 @@ export class UsersRepository {
       data: {
         email,
         password,
+      },
+    });
+  }
+
+  async findUserWithEmployeeAndCitizenship(
+    userId: string,
+    citizenshipId: string,
+  ) {
+    return this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: {
+        token: true,
+        employee: {
+          where: {
+            citizenships: {
+              some: { id: citizenshipId },
+            },
+          },
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }

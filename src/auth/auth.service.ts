@@ -1,11 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import type { Response, Request } from 'express';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { RolesService } from 'src/roles/roles.service';
 import { UpdateAccountCredentialsDto } from './dto/update-account-credentials.dto';
-import { JwtService } from '@nestjs/jwt';
 import { RegisterUseCase } from './use-cases/register.usecase';
 import { LoginUseCase } from './use-cases/login.usecase';
 import { JwtPayload } from './interfaces/jwt-payload.interface';

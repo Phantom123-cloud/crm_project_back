@@ -42,7 +42,7 @@ export class RegisterUseCase {
       ensureAllExist(
         arrayBlockedRoles,
         templateRoleIds,
-        'Не все роли для блокировки переданные вами соответствуют текущим ролям шаблона',
+        'Некоректный список для блокировки',
       );
     }
     if (arrayAddRoles?.length) {
@@ -56,7 +56,7 @@ export class RegisterUseCase {
       ensureNoDuplicates(
         arrayAddRoles,
         templateRoleIds,
-        'Некоторые роли переданные вами для добавления дополнительных прав, уже присутствуют в текущем шаблоне',
+        'Некоректный список для добавления',
       );
     }
 

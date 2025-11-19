@@ -9,7 +9,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import { LoginDto } from '../dto/login.dto';
 import { RolesByUserIdBuilder } from 'src/roles/domain/roles-by-user-id.builder';
 import * as argon2 from 'argon2';
-import { CreateSessionBuilder } from '../domain/create-session.builder';
+import { CreateSessionBuilder } from '../builders/create-session.builder';
 import type { Response } from 'express';
 
 @Injectable()

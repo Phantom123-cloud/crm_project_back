@@ -22,24 +22,24 @@ export class RoleTypesController {
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   createRoleType(@Body() dto: CreateRoleDto) {
-    return this.roleTypesService.createRoleType(dto);
+    return this.roleTypesService.create(dto);
   }
   @Auth()
   @Delete('delete/:id')
   @HttpCode(HttpStatus.OK)
   deleteRoleType(@Param('id') id: string) {
-    return this.roleTypesService.deleteRoleType(id);
+    return this.roleTypesService.delete(id);
   }
   @Auth()
   @Put('update/:id')
   @HttpCode(HttpStatus.OK)
   updateRoleType(@Param('id') id: string, @Body() dto: UpdateRoleTypeDto) {
-    return this.roleTypesService.updateRoleType(id, dto);
+    return this.roleTypesService.update(id, dto);
   }
   @Auth()
   @Get('all')
   @HttpCode(HttpStatus.OK)
   allRoleTypes() {
-    return this.roleTypesService.allRoleTypes();
+    return this.roleTypesService.all();
   }
 }

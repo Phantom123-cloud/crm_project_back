@@ -8,7 +8,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import { buildResponse } from 'src/utils/build-response';
 import type { Response, Request } from 'express';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { CreateSessionBuilder } from '../domain/create-session.builder';
+import { CreateSessionBuilder } from '../builders/create-session.builder';
 import { RolesByUserIdBuilder } from 'src/roles/domain/roles-by-user-id.builder';
 import { JwtService } from '@nestjs/jwt';
 
@@ -50,8 +50,8 @@ export class UserSessionUseCase {
   }
 
   async logoutById(id: string, req: Request) {
-    const { id: meId } = req.user as JwtPayload;
-    if (meId === id) {
+    const user = req.user as JwtPayload;
+    if (user.id === id) {
       throw new ConflictException('Вы не можете вылогинить сами себя');
     }
     await this.createSessionBuilder.deactivateTokens(id);

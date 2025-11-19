@@ -12,7 +12,7 @@ import { UpdateRoleTypeDto } from './dto/update-role-type.dto';
 @Injectable()
 export class RoleTypesService {
   constructor(private readonly prismaService: PrismaService) {}
-  async createRoleType(dto: CreateRoleDto) {
+  async create(dto: CreateRoleDto) {
     const { name, descriptions } = dto;
 
     const isExist = await this.prismaService.roleTypes.findUnique({
@@ -35,8 +35,7 @@ export class RoleTypesService {
 
     return buildResponse('Тип роли добавлен');
   }
-  // удалить тип роли, если к нему ничего не прикреплено
-  async deleteRoleType(id: string) {
+  async delete(id: string) {
     const roleType = await this.prismaService.roleTypes.findUnique({
       where: {
         id,
@@ -63,8 +62,7 @@ export class RoleTypesService {
 
     return buildResponse('Тип роли удалён');
   }
-  // смена имени типа роли, если к нему ничего не прикреплено
-  async updateRoleType(id: string, dto: UpdateRoleTypeDto) {
+  async update(id: string, dto: UpdateRoleTypeDto) {
     const roleType = await this.prismaService.roleTypes.findUnique({
       where: {
         id,
@@ -108,8 +106,7 @@ export class RoleTypesService {
 
     return buildResponse('Тип роли изменён');
   }
-
-  async allRoleTypes() {
+  async all() {
     const data = await this.prismaService.roleTypes.findMany({
       select: {
         id: true,

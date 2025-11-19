@@ -41,7 +41,6 @@ export class LanguagesService {
 
     return buildResponse('Язык добавлен');
   }
-
   async all() {
     const data = await this.prismaService.languages.findMany({
       select: {
@@ -53,7 +52,6 @@ export class LanguagesService {
     });
     return buildResponse('Данные', { data });
   }
-
   async update(id: string, dto: UpdateLanguageDto) {
     const { localeEn, localeRu, code } = dto;
 
@@ -91,7 +89,6 @@ export class LanguagesService {
     });
     return buildResponse('Язык обновлен');
   }
-
   async delete(id: string) {
     const isExist = await this.prismaService.languages.findUnique({
       where: { id },

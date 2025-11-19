@@ -1,11 +1,22 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getJwtConfig } from 'src/common/config/jwt.config';
 import { RolesModule } from 'src/roles/roles.module';
-import { providers } from './providers';
+
+// providers
+import { AuthService } from './auth.service';
+import { UsersRepository } from 'src/users/users.repository';
+import { CreateSessionBuilder } from './builders/create-session.builder';
+import { AuthRepository } from './repositories/auth.repository';
+import { JwtStrategy } from './strategy/jwt.strategy';
+import { LoginUseCase } from './use-cases/login.usecase';
+import { RegisterUseCase } from './use-cases/register.usecase';
+import { UpdateAccountCredentialsUseCase } from './use-cases/update-account-credentials.usecase';
+import { UserSessionUseCase } from './use-cases/user-session-usecase';
+import { RoleTemplatesRepository } from 'src/role-templates/role-templates.repository';
+import { TokenRepository } from './repositories/token.repository';
 
 @Module({
   imports: [
@@ -17,7 +28,19 @@ import { providers } from './providers';
     RolesModule,
   ],
   controllers: [AuthController],
-  providers,
+  providers: [
+    AuthService,
+    JwtStrategy,
+    AuthRepository,
+    RegisterUseCase,
+    LoginUseCase,
+    UserSessionUseCase,
+    CreateSessionBuilder,
+    UpdateAccountCredentialsUseCase,
+    UsersRepository,
+    RoleTemplatesRepository,
+    TokenRepository,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}
