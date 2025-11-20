@@ -7,7 +7,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   Req,
   Res,
 } from '@nestjs/common';
@@ -16,8 +15,6 @@ import type { Response, Request } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { Auth } from './decorators/auth.decorator';
-import { AuthRoles } from './decorators/auth-roles.decorator';
-import { UsersService } from 'src/users/users.service';
 import { UpdateAccountCredentialsDto } from './dto/update-account-credentials.dto';
 
 @Controller('auth')
@@ -48,6 +45,7 @@ export class AuthController {
   }
 
   @Auth()
+  // @AuthRoles('logout_users')
   @Post('logout-user/:id')
   @HttpCode(HttpStatus.OK)
   async user(@Param('id') id: string, @Req() req: Request) {
@@ -64,6 +62,7 @@ export class AuthController {
     return await this.authService.me(req, res);
   }
 
+  // @AuthRoles('update_accounts')
   @Put('update-account-credentials/:id')
   @HttpCode(HttpStatus.OK)
   async updateAccountCredentials(

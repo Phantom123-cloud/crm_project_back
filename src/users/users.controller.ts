@@ -23,6 +23,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Auth()
+  // @AuthRoles('view_users')
   @Get('all')
   @HttpCode(HttpStatus.OK)
   async allUsers(
@@ -42,6 +43,8 @@ export class UsersController {
       isFullData,
     });
   }
+
+  // @AuthRoles('view_user')
   @Auth()
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
@@ -49,6 +52,7 @@ export class UsersController {
     return await this.usersService.userById(id);
   }
 
+  // @AuthRoles('active_users')
   @Auth()
   @Put('is-active/:id')
   @HttpCode(HttpStatus.OK)
@@ -56,9 +60,8 @@ export class UsersController {
     return await this.usersService.isActiveUser(id, req);
   }
 
-  // @Auth()
+  // @AuthRoles('update_user_roles')
   @Put('update-roles-by-user/:id')
-  // update_roles
   @HttpCode(HttpStatus.OK)
   updateUserRoles(@Param('id') id: string, @Body() dto: UpdateUserRolesDto) {
     return this.usersService.updateUserRoles(id, dto);

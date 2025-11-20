@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Body,
-  Patch,
   Param,
   HttpCode,
   HttpStatus,
@@ -13,18 +12,16 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
-import { IndividualRulesDto } from './dto/individual-rules.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { UpdateUserRolesDto } from '../users/dto/update-user-roles.dto';
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
   @Auth()
   @Post('create')
-  // create_roles
+  // @AuthRoles('create_roles')
   @HttpCode(HttpStatus.OK)
   createRole(
     @Body() dto: CreateRoleDto,
@@ -34,14 +31,14 @@ export class RolesController {
   }
   @Auth()
   @Delete('delete/:id')
-  // delete_roles
+  // @AuthRoles('delete_roles')
   @HttpCode(HttpStatus.OK)
   deleteRole(@Param('id') id: string) {
     return this.rolesService.deleteRole(id);
   }
   @Auth()
   @Put('update/:id')
-  // update_roles
+  // @AuthRoles('update_roles')
   @HttpCode(HttpStatus.OK)
   updateRole(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
     return this.rolesService.updateRole(id, dto);
@@ -49,7 +46,7 @@ export class RolesController {
 
   @Auth()
   @Get('all')
-  // view_roles
+  // @AuthRoles('view_roles')
   @HttpCode(HttpStatus.OK)
   allRoles(
     @Query('page', ParseIntPipe) page: number,
@@ -58,6 +55,7 @@ export class RolesController {
     return this.rolesService.allRoles(page, limit);
   }
 
+  // @AuthRoles('view_roles_by_user')
   @Get('full-info-roles-by-user/:id')
   @HttpCode(HttpStatus.OK)
   fullInformationOnRoles(@Param('id') id: string) {
@@ -65,6 +63,7 @@ export class RolesController {
   }
 
   @Auth()
+  // @AuthRoles('view_roles_by_user')
   @Get('by-not-id/:id')
   @HttpCode(HttpStatus.OK)
   getRolesNotInTemplate(@Param('id') id: string) {
@@ -72,6 +71,7 @@ export class RolesController {
   }
 
   @Auth()
+  // @AuthRoles('view_roles_by_type')
   @Get('all-roles')
   @HttpCode(HttpStatus.OK)
   allRolesByType() {

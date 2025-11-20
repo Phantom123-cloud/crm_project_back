@@ -20,6 +20,7 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 export class RoleTemplatesController {
   constructor(private readonly roleTemplatesService: RoleTemplatesService) {}
 
+  // @AuthRoles('create_templates')
   @Auth()
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
@@ -27,6 +28,7 @@ export class RoleTemplatesController {
     return this.roleTemplatesService.createRoleTemplate(dto);
   }
 
+  // @AuthRoles('delete_templates')
   @Auth()
   @Delete('delete/:id')
   @HttpCode(HttpStatus.OK)
@@ -34,6 +36,7 @@ export class RoleTemplatesController {
     return this.roleTemplatesService.deleteRoleTemplate(id);
   }
 
+  // @AuthRoles('update_templates')
   @Auth()
   @Put('update/:id')
   @HttpCode(HttpStatus.OK)
@@ -44,6 +47,7 @@ export class RoleTemplatesController {
     return this.roleTemplatesService.updateRoleTemplate(id, dto);
   }
 
+  // @AuthRoles('view_templates')
   @Auth()
   @Get('all')
   @HttpCode(HttpStatus.OK)
@@ -51,6 +55,7 @@ export class RoleTemplatesController {
     return this.roleTemplatesService.allRoleTemplates();
   }
 
+  // @AuthRoles('view_template')
   @Auth()
   @Get('/:id')
   @HttpCode(HttpStatus.OK)

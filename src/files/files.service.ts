@@ -1,23 +1,23 @@
 import {
-  BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 import { FilesType } from '@prisma/client';
 import { buildResponse } from 'src/utils/build-response';
 import { UploadsService } from 'src/uploads/uploads.service';
+import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class FilesService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly uploadsService: UploadsService,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
   private async fileExists(filePath: string) {
@@ -42,19 +42,14 @@ export class FilesService {
       })),
     });
   }
+
   async downloadsFile(
     res: Response,
     fileName: string,
     userId: string,
     dir: string,
   ) {
-    const user = await this.prismaService.user.findUnique({
-      where: { id: userId },
-      select: {
-        token: true,
-        employee: { select: { id: true } },
-      },
-    });
+    const user = await this.usersRepository.findByUserId(userId);
 
     if (!user) throw new NotFoundException('Пользователь не найден');
     if (!user.employee || !user.token)
@@ -82,14 +77,9 @@ export class FilesService {
       if (err) console.error('Ошибка при скачивании файла:', err);
     });
   }
+
   async deleteFile(fileName: string, userId: string, dir: string) {
-    const user = await this.prismaService.user.findUnique({
-      where: { id: userId },
-      select: {
-        token: true,
-        employee: { select: { id: true } },
-      },
-    });
+    const user = await this.usersRepository.findByUserId(userId);
 
     if (!user) throw new NotFoundException('Пользователь не найден');
     if (!user.employee || !user.token)

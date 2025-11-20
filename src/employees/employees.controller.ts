@@ -5,17 +5,13 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Patch,
   Post,
   Put,
   Query,
-  Res,
-  UploadedFiles,
 } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
-import { UseUploadFiles } from 'src/uploads/decorators/upload-file.decorator';
 import { UpdateEmployeeFormDto } from './dto/update-employee-form.dto';
 import { UpdateEmployeePassportDto } from './dto/update-employee-passport.dto';
 import { AddContactNumberToEmployeeDto } from './dto/add-contact-number-to-employee.dto';
@@ -25,20 +21,17 @@ import { AddLanguageToEmployeeDto } from './dto/add-language-to-employee.dto';
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
-  // @UploadedFiles() files: Array<Express.Multer.File>,
-
-  // @Auth()
+  // @AuthRoles('update_employee_forms')
   @Put('update-form/:id')
   @HttpCode(HttpStatus.OK)
-  // @UseUploadFiles(1, 10, 'passports', ['image/jpeg', 'image/png', 'image/webp'])
   updateEmployeeForm(
     @Body() dto: Partial<UpdateEmployeeFormDto>,
     @Param('id') id: string,
-    // @UploadedFiles() files?: Array<Express.Multer.File>,
   ) {
     return this.employeesService.updateEmployeeForm(dto, id);
   }
 
+  // @AuthRoles('update_employee_passports')
   @Put('update-passport/:id')
   @HttpCode(HttpStatus.OK)
   updateEmployeePassport(
@@ -48,6 +41,7 @@ export class EmployeesController {
     return this.employeesService.updateEmployeePassport(dto, id);
   }
 
+  // @AuthRoles('disconnect_employee_citizenships')
   @Patch('disconnect-citizenship')
   @HttpCode(HttpStatus.OK)
   disconnectCitizenship(
@@ -57,6 +51,7 @@ export class EmployeesController {
     return this.employeesService.disconnectCitizenship(citizenshipId, userId);
   }
 
+  // @AuthRoles('add_contact_employee')
   @Post('add-contact/:id')
   @HttpCode(HttpStatus.OK)
   addContactNumberToEmployee(
@@ -66,6 +61,7 @@ export class EmployeesController {
     return this.employeesService.addContactNumberToEmployee(id, dto);
   }
 
+  // @AuthRoles('add_language_employee')
   @Post('add-language/:id')
   @HttpCode(HttpStatus.OK)
   addLanguageToEmployee(
@@ -75,6 +71,7 @@ export class EmployeesController {
     return this.employeesService.addLanguageToEmployee(id, dto);
   }
 
+  // @AuthRoles('delete_language_employee')
   @Delete('delete-language')
   @HttpCode(HttpStatus.OK)
   deleteLanguageToEmployee(
@@ -84,6 +81,7 @@ export class EmployeesController {
     return this.employeesService.deleteLanguageToEmployee(userId, languageId);
   }
 
+  // @AuthRoles('delete_contact_employee')
   @Delete('delete-contact')
   @HttpCode(HttpStatus.OK)
   deleteContactNumberToEmployee(

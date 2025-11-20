@@ -3,7 +3,6 @@ import {
   Get,
   Param,
   Res,
-  Req,
   HttpCode,
   HttpStatus,
   NotFoundException,
@@ -11,9 +10,8 @@ import {
   Post,
   Delete,
   UploadedFiles,
-  Body,
 } from '@nestjs/common';
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import { FilesService } from './files.service';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import path from 'path';
@@ -25,7 +23,8 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Auth()
-  @Get('download')
+  // @AuthRoles('download_employee_passports')
+  @Get('download/passports')
   @HttpCode(HttpStatus.OK)
   async downloadFile(
     @Res() res: Response,
@@ -35,6 +34,7 @@ export class FilesController {
     await this.filesService.downloadsFile(res, fileName, userId, 'passports');
   }
 
+  // @AuthRoles('import_employee_passports')
   @Post('import-passport/:id')
   @HttpCode(HttpStatus.CREATED)
   @UseUploadFiles(1, 10, 'passports', ['image/jpeg', 'image/png', 'image/webp'])
@@ -45,6 +45,7 @@ export class FilesController {
     return await this.filesService.importPasspostFiles(id, files);
   }
 
+  // @AuthRoles('delete_employee_passports')
   @Auth()
   @Delete('delete')
   @HttpCode(HttpStatus.OK)
@@ -54,6 +55,8 @@ export class FilesController {
   ) {
     return await this.filesService.deleteFile(fileName, userId, 'passports');
   }
+
+  // @AuthRoles('view_employee_passports')
   @Auth()
   @Get('passports/:filename')
   async getPassport(@Param('filename') filename: string, @Res() res: Response) {

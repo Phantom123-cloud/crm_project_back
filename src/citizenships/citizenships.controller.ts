@@ -18,26 +18,28 @@ import { UpdateCitizenshipsDto } from './dto/update-citizenships.dto';
 export class CitizenshipsController {
   constructor(private readonly citizenshipsService: CitizenshipsService) {}
 
-  // @Auth()
+  // @AuthRoles('create_citizenships')
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateCitizenshipsDto) {
     return await this.citizenshipsService.create(dto);
   }
 
-  // @Auth()
+  // @AuthRoles('view_citizenships')
   @Get('all')
   @HttpCode(HttpStatus.CREATED)
   async all() {
     return await this.citizenshipsService.all();
   }
 
+  // @AuthRoles('update_citizenships')
   @Put('update/:id')
   @HttpCode(HttpStatus.CREATED)
   async update(@Param('id') id: string, @Body() dto: UpdateCitizenshipsDto) {
     return await this.citizenshipsService.update(id, dto);
   }
 
+  // @AuthRoles('delete_citizenships')
   @Delete('delete/:id')
   @HttpCode(HttpStatus.CREATED)
   async delete(@Param('id') id: string) {
