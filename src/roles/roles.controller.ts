@@ -63,4 +63,18 @@ export class RolesController {
   fullInformationOnRoles(@Param('id') id: string) {
     return this.rolesService.fullInformationOnRoles(id);
   }
+
+  @Auth()
+  @Get('by-not-id/:id')
+  @HttpCode(HttpStatus.OK)
+  getRolesNotInTemplate(@Param('id') id: string) {
+    return this.rolesService.rolesByNotTemplate(id);
+  }
+
+  @Auth()
+  @Get('all-roles')
+  @HttpCode(HttpStatus.OK)
+  allRolesByType() {
+    return this.rolesService.allRolesByType();
+  }
 }

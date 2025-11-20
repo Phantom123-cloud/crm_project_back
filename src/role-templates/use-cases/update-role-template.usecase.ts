@@ -1,0 +1,52 @@
+import { ConflictException, Injectable } from '@nestjs/common';
+import { buildResponse } from 'src/utils/build-response';
+import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
+import { UpdateRoleTemplateDto } from '../dto/update-role-template.dto';
+import { RoleTemplatesRepository } from '../role-templates.repository';
+
+@Injectable()
+export class UpdateRoleTemplateUseCase {
+  constructor(
+    private readonly roleTemplatesRepository: RoleTemplatesRepository,
+  ) {}
+
+  async updateRoleTemplate(id: string, dto: UpdateRoleTemplateDto) {
+    const isExistTemplate =
+      await this.roleTemplatesRepository.roleTemplatesById(id);
+    if (!isExistTemplate) {
+      throw new ConflictException('Шаблон не найден');
+    }
+
+    const { arrayConnect, arrayDisconnect, name } = dto;
+
+    if (name) {
+      const isExistName =
+        await this.roleTemplatesRepository.roleTemplatesByName(name);
+
+      if (isExistName) {
+        throw new ConflictException('Шаблон с таким именем уже существует');
+      }
+    }
+
+    const roleIds = new Set(isExistTemplate.roles.map((r) => r.id));
+    if (arrayConnect?.length) {
+      ensureNoDuplicates(
+        arrayConnect,
+        roleIds,
+        'Некоторые роли из переданного списка, уже добавлены в шаблон',
+      );
+    }
+
+    if (arrayDisconnect?.length) {
+      ensureAllExist(
+        arrayDisconnect,
+        roleIds,
+        'Вы пытаетесь удалить роль, отсутствующую в шаблоне',
+      );
+    }
+
+    await this.roleTemplatesRepository.updateRoleTemplate(id, dto);
+
+    return buildResponse('Роли обновлены');
+  }
+}

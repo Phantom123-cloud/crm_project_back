@@ -9,6 +9,8 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { FullInformationOnRolesBuilder } from './builders/full-Information-on-roles.builder';
 import { RolesDataBuilder } from './builders/roles-data.builder';
+import { RolesByNotTemplateBuilder } from './builders/roles-by-not-templete';
+import { RolesByTypeBuilder } from './builders/roles-by-type.builder';
 
 @Injectable()
 export class RolesService {
@@ -16,6 +18,8 @@ export class RolesService {
     private readonly prismaService: PrismaService,
     private readonly fullInformationOnRolesBuilder: FullInformationOnRolesBuilder,
     private readonly rolesDataBuilder: RolesDataBuilder,
+    private readonly rolesByNotTemplateBuilder: RolesByNotTemplateBuilder,
+    private readonly rolesByTypeBuilder: RolesByTypeBuilder,
   ) {}
 
   async createRole(dto: CreateRoleDto, roleTypeId: string) {
@@ -121,11 +125,19 @@ export class RolesService {
 
     return buildResponse('Роль изменена');
   }
-  
+
   async allRoles(page: number, limit: number) {
     return this.rolesDataBuilder.allRoles(page, limit);
   }
   async fullInformationOnRoles(userId: string) {
     return this.fullInformationOnRolesBuilder.fullInformationOnRoles(userId);
+  }
+
+  async rolesByNotTemplate(roleId: string) {
+    return this.rolesByNotTemplateBuilder.rolesData(roleId);
+  }
+
+  async allRolesByType() {
+    return this.rolesByTypeBuilder.rolesData();
   }
 }

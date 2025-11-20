@@ -43,30 +43,7 @@ export class RoleTemplatesController {
   ) {
     return this.roleTemplatesService.updateRoleTemplate(id, dto);
   }
-  // @Auth()
-  // @Patch('assign')
-  // @HttpCode(HttpStatus.OK)
-  // assignRoleTemplate(
-  //   @Query('userId') userId: string,
-  //   @Query('roleTemplatesId') roleTemplatesId: string,
-  // ) {
-  //   return this.roleTemplatesService.assignRoleTemplate(
-  //     userId,
-  //     roleTemplatesId,
-  //   );
-  // }
-  // @Auth()
-  // @Patch('revoke')
-  // @HttpCode(HttpStatus.OK)
-  // revokeRoleTemplate(
-  //   @Query('userId') userId: string,
-  //   @Query('roleTemplatesId') roleTemplatesId: string,
-  // ) {
-  //   return this.roleTemplatesService.revokeRoleTemplate(
-  //     userId,
-  //     roleTemplatesId,
-  //   );
-  // }
+
   @Auth()
   @Get('all')
   @HttpCode(HttpStatus.OK)
@@ -75,36 +52,9 @@ export class RoleTemplatesController {
   }
 
   @Auth()
-  @Get('all-roles')
-  @HttpCode(HttpStatus.OK)
-  allRolesByType() {
-    return this.roleTemplatesService.allRolesByType();
-  }
-  @Auth()
-  @Get('all-select')
-  @HttpCode(HttpStatus.OK)
-  getSelectTeamplates() {
-    return this.roleTemplatesService.getSelectTeamplates();
-  }
-
-  // @Auth()
-  // @Get('/:id')
-  // @HttpCode(HttpStatus.OK)
-  // getTemplateById(@Param('id') id: string) {
-  //   return this.roleTemplatesService.getTemplateById(id);
-  // }
-
-  @Auth()
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   allRoleTemplatesById(@Param('id') id: string) {
     return this.roleTemplatesService.roleTemplatesById(id);
-  }
-
-  @Auth()
-  @Get('by-not-id/:id')
-  @HttpCode(HttpStatus.OK)
-  getRolesNotInTemplate(@Param('id') id: string) {
-    return this.roleTemplatesService.getRolesNotInTemplate(id);
   }
 }
