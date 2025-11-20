@@ -18,7 +18,14 @@ export class UpdateAccountCredentialsUseCase {
     userId: string,
   ) {
     const user = await this.usersRepository.findByUserId(userId);
-    if (!user) throw new NotFoundException('Пользователь не найден');
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+    if (!user.employee || !user.token) {
+      throw new ConflictException(
+        'Аккаунт не владеет всеми необходимыми возможностями',
+      );
+    }
 
     const { oldPassword, newPassword, email } = dto;
     if ((oldPassword && !newPassword) || (!oldPassword && newPassword)) {

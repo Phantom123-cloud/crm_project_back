@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { UsersRepository } from 'src/users/users.repository';
 import { RolesRepository } from 'src/roles/roles.repository';
 
@@ -13,7 +13,12 @@ export class RolesByUserIdBuilder {
     const user = await this.usersRepository.findByUserId(userId);
 
     if (!user) {
-      throw new NotFoundException('Пользователь не обнаружен');
+      throw new NotFoundException('Пользователь не найден');
+    }
+    if (!user.employee || !user.token) {
+      throw new ConflictException(
+        'Аккаунт не владеет всеми необходимыми возможностями',
+      );
     }
 
     const templateRoles = await this.rolesRepository.effectiveRoles(userId);

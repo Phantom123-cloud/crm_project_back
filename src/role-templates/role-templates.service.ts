@@ -8,7 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
-import { RolesData } from './interfaces/roles-data.interface';
+import { RolesData } from '../roles/interfaces/roles-data.interface';
 import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
 
 @Injectable()

@@ -37,11 +37,16 @@ export class CreateSessionBuilder {
     const { id, email } = payload;
     const user = await this.usersRepository.findByUserId(id);
 
-    if (!user || !user.token) {
-      throw new NotFoundException('Пользователь не обнаружен');
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+    if (!user.employee || !user.token) {
+      throw new ConflictException(
+        'Аккаунт не владеет всеми необходимыми возможностями',
+      );
     }
 
-    const { id: tokenId, exp: currentExp } = user.token;
+    const { exp: currentExp } = user.token;
     const now = Math.floor(Date.now() / 1000);
 
     if (user.token.hash && now < currentExp) {
@@ -53,7 +58,7 @@ export class CreateSessionBuilder {
     const ttl = this[remember ? 'TOKEN_TTL_L' : 'TOKEN_TTL_S'];
     const exp = now + ttl;
 
-    const { hash } = this.generateTokens(tokenId, email, ttl);
+    const { hash } = this.generateTokens(id, email, ttl);
     this.setTokenCookie(res, hash, ttl * 1000);
 
     await this.tokenRepository.createSession(id, exp, hash);
@@ -101,8 +106,8 @@ export class CreateSessionBuilder {
       secret: this.JWT_SECRET,
     });
   }
-  generateTokens(id: string, email: string, ttl: number) {
-    const payload: JwtPayload = { id, email };
+  generateTokens(userId: string, email: string, ttl: number) {
+    const payload: JwtPayload = { id: userId, email };
     const hash = this.signToken(payload, ttl);
     return { hash };
   }

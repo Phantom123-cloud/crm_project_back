@@ -7,7 +7,7 @@ export class TokenRepository {
 
   async createSession(id: string, exp: number, hash: string) {
     return this.prismaService.token.update({
-      where: { id },
+      where: { userId: id },
       data: { exp, hash },
     });
   }

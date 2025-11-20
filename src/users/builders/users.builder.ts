@@ -1,0 +1,162 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { PaginationDto } from '../dto/pagination.dto';
+import { buildResponse } from 'src/utils/build-response';
+
+@Injectable()
+export class AllUsersBuilder {
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async allUsers(dto: PaginationDto) {
+    const { page, limit, isActive, isOnline, isFullData } = dto;
+
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+    const [users, total] = await this.prismaService.$transaction([
+      this.prismaService.user.findMany({
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'desc',
+        },
+
+        where: {
+          ...(typeof isActive === 'boolean' && { isActive }),
+          ...(typeof isOnline === 'boolean' && { isOnline }),
+        },
+        select: {
+          id: true,
+          email: true,
+          createdAt: true,
+          isActive: true,
+          isOnline: true,
+          ...(isFullData && {
+            employee: {
+              select: {
+                fullName: true,
+                tradingСode: true,
+                citizenships: {
+                  select: {
+                    localeRu: true,
+                    localeEn: true,
+                  },
+                },
+                registrationAddress: true,
+                actualAddress: true,
+                birthDate: true,
+                phones: {
+                  select: {
+                    number: true,
+                    option: true,
+                  },
+                },
+                dateFirstTrip: true,
+                isInMarriage: true,
+                isHaveChildren: true,
+                isHaveDriverLicense: true,
+                drivingExperience: true,
+                isHaveInterPassport: true,
+                foreignLanguages: {
+                  select: {
+                    level: true,
+                    language: {
+                      select: {
+                        localeRu: true,
+                        localeEn: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          }),
+        },
+      }),
+      this.prismaService.user.count({
+        where: {
+          ...(typeof isActive === 'boolean' && { isActive }),
+          ...(typeof isOnline === 'boolean' && { isOnline }),
+        },
+      }),
+    ]);
+
+    const countPages = Math.ceil(total / limit);
+
+    return buildResponse('Данные', {
+      data: { users, total, countPages, page, limit },
+    });
+  }
+
+  async userById(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+        isActive: true,
+        isOnline: true,
+        employee: {
+          select: {
+            id: true,
+            fullName: true,
+            tradingСode: true,
+            notes: true,
+            registrationAddress: true,
+            actualAddress: true,
+            citizenships: {
+              select: {
+                id: true,
+                localeRu: true,
+                localeEn: true,
+              },
+            },
+            birthDate: true,
+            phones: {
+              select: {
+                id: true,
+                number: true,
+                option: true,
+              },
+            },
+            dateFirstTrip: true,
+            isInMarriage: true,
+            isHaveChildren: true,
+            isHaveDriverLicense: true,
+            drivingExperience: true,
+            isHaveInterPassport: true,
+            foreignLanguages: {
+              select: {
+                id: true,
+                level: true,
+                language: {
+                  select: { id: true, localeRu: true, localeEn: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+    const filesName = await this.prismaService.files.findMany({
+      where: {
+        employeesId: user?.employee?.id,
+        type: 'PASSPORT',
+      },
+
+      select: {
+        fileName: true,
+      },
+    });
+
+    const passports = filesName.map((file) => file.fileName);
+
+    return buildResponse('Данные', {
+      data: { user, passports },
+    });
+  }
+}

@@ -17,7 +17,7 @@ import { IndividualRulesDto } from './dto/individual-rules.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
+import { UpdateUserRolesDto } from '../users/dto/update-user-roles.dto';
 
 @Controller('roles')
 export class RolesController {
@@ -62,13 +62,5 @@ export class RolesController {
   @HttpCode(HttpStatus.OK)
   fullInformationOnRoles(@Param('id') id: string) {
     return this.rolesService.fullInformationOnRoles(id);
-  }
-
-  // @Auth()
-  @Put('update-roles-by-user/:id')
-  // update_roles
-  @HttpCode(HttpStatus.OK)
-  updateUserRoles(@Param('id') id: string, @Body() dto: UpdateUserRolesDto) {
-    return this.rolesService.updateUserRoles(id, dto);
   }
 }

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { buildUpdateData } from './helpers/build-update-data';
 import { UpdateEmployeeFormDto } from './dto/update-employee-form.dto';
 import { UpdateEmployeePassportDto } from './dto/update-employee-passport.dto';
+import { buildUpdateData } from './helpers/build-update-data.helper';
 
 @Injectable()
 export class EmployeesRepository {

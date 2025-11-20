@@ -20,7 +20,14 @@ export class UsersRepository {
           select: {
             id: true,
             type: true,
-            role: true,
+            role: {
+              select: {
+                name: true,
+                id: true,
+                descriptions: true,
+                type: true,
+              },
+            },
           },
         },
         employee: {
@@ -31,7 +38,19 @@ export class UsersRepository {
             phones: true,
           },
         },
-        roleTemplate: true,
+        roleTemplate: {
+          select: {
+            id: true,
+            name: true,
+            roles: {
+              select: {
+                id: true,
+                name: true,
+                descriptions: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -79,6 +98,31 @@ export class UsersRepository {
             id: true,
           },
         },
+      },
+    });
+  }
+
+  async blockUser(id: string) {
+    return this.prismaService.user.update({
+      where: { id },
+      data: {
+        isActive: false,
+        isOnline: false,
+
+        token: {
+          update: {
+            hash: null,
+            exp: 0,
+          },
+        },
+      },
+    });
+  }
+  async unlockUser(id: string) {
+    return this.prismaService.user.update({
+      where: { id },
+      data: {
+        isActive: true,
       },
     });
   }

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   DefaultValuePipe,
   Get,
@@ -15,9 +16,7 @@ import {
 import { UsersService } from './users.service';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import type { Request } from 'express';
-
-// import { UseUploadFiles } from 'src/uploads/decorators/upload-file.decorator';
-// import { UpdateUserByIdDto } from './dto/update-user-by-id.dto';
+import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
 
 @Controller('users')
 export class UsersController {
@@ -55,5 +54,13 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   async isActiveUser(@Param('id') id: string, @Req() req: Request) {
     return await this.usersService.isActiveUser(id, req);
+  }
+
+  // @Auth()
+  @Put('update-roles-by-user/:id')
+  // update_roles
+  @HttpCode(HttpStatus.OK)
+  updateUserRoles(@Param('id') id: string, @Body() dto: UpdateUserRolesDto) {
+    return this.usersService.updateUserRoles(id, dto);
   }
 }

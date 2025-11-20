@@ -17,6 +17,8 @@ import { UpdateAccountCredentialsUseCase } from './use-cases/update-account-cred
 import { UserSessionUseCase } from './use-cases/user-session-usecase';
 import { RoleTemplatesRepository } from 'src/role-templates/role-templates.repository';
 import { TokenRepository } from './repositories/token.repository';
+import { MeRolesBuilder } from 'src/roles/builders/me-roles.builder';
+import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { TokenRepository } from './repositories/token.repository';
     UsersRepository,
     RoleTemplatesRepository,
     TokenRepository,
+    MeRolesBuilder,
+    RolesDataBuilder,
   ],
   exports: [AuthService],
 })

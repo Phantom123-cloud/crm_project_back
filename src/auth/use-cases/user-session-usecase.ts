@@ -9,8 +9,9 @@ import { buildResponse } from 'src/utils/build-response';
 import type { Response, Request } from 'express';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { CreateSessionBuilder } from '../builders/create-session.builder';
-import { RolesByUserIdBuilder } from 'src/roles/domain/roles-by-user-id.builder';
+import { RolesByUserIdBuilder } from 'src/roles/builders/roles-by-user-id.builder';
 import { JwtService } from '@nestjs/jwt';
+import { MeRolesBuilder } from 'src/roles/builders/me-roles.builder';
 
 @Injectable()
 export class UserSessionUseCase {
@@ -18,14 +19,23 @@ export class UserSessionUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly createSessionBuilder: CreateSessionBuilder,
     private readonly rolesByUserIdBuilder: RolesByUserIdBuilder,
+    private readonly meRolesBuilder: MeRolesBuilder,
     private readonly jwtService: JwtService,
   ) {}
 
   async validate(id: string): Promise<JwtPayload> {
     const user = await this.usersRepository.findByUserId(id);
-    if (!user) throw new NotFoundException('Пользователь не найден');
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+    if (!user.employee || !user.token) {
+      throw new ConflictException(
+        'Аккаунт не владеет всеми необходимыми возможностями',
+      );
+    }
     if (!user.isActive)
       throw new BadRequestException('Пользователь заблокирован');
+
     return {
       id: user.id,
       email: user.email,
@@ -35,7 +45,7 @@ export class UserSessionUseCase {
   async me(req: Request, res: Response) {
     const user = req.user as JwtPayload;
     await this.createSessionBuilder.validateToken(req, res);
-    const roles = await this.rolesByUserIdBuilder.userRoleIds(user.id);
+    const roles = await this.meRolesBuilder.meRoles(user.id);
 
     return buildResponse('Данные', { data: { roles, meData: user } });
   }
