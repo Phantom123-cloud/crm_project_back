@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Global,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -70,7 +71,7 @@ export class RolesDataBuilder {
       data: { roles, total, countPages, page, limit },
     });
   }
-  async getRolesByUserId(userId: string) {
+  async getRolesIdsByUserId(userId: string) {
     const user = await this.usersRepository.findByUserId(userId);
 
     if (!user) {
@@ -113,6 +114,52 @@ export class RolesDataBuilder {
       .map((rule) => rule.role.id);
 
     const allRoles = [...templateRoles.map((r) => r.id), ...individualRoles];
+    const data = [...new Set(allRoles)];
+    return data;
+  }
+  async getRolesNameByUserId(userId: string) {
+    const user = await this.usersRepository.findByUserId(userId);
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+    if (!user.employee || !user.token) {
+      throw new ConflictException(
+        'Аккаунт не владеет всеми необходимыми возможностями',
+      );
+    }
+
+    const templateRoles = await this.prismaService.role.findMany({
+      where: {
+        roleTemplates: {
+          some: {
+            users: {
+              some: {
+                id: userId,
+              },
+            },
+          },
+        },
+
+        NOT: {
+          individualRules: {
+            some: {
+              userId,
+              type: 'REMOVE',
+            },
+          },
+        },
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    const individualRoles = user.individualRules
+      .filter((rule) => rule.type === 'ADD')
+      .map((rule) => rule.role.name);
+
+    const allRoles = [...templateRoles.map((r) => r.name), ...individualRoles];
     const data = [...new Set(allRoles)];
     return data;
   }

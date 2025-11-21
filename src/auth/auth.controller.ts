@@ -16,12 +16,13 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { Auth } from './decorators/auth.decorator';
 import { UpdateAccountCredentialsDto } from './dto/update-account-credentials.dto';
+import { AuthRoles } from './decorators/auth-roles.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // @AuthRoles('register_users')
+  @AuthRoles('register_users')
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
@@ -45,7 +46,7 @@ export class AuthController {
   }
 
   @Auth()
-  // @AuthRoles('logout_users')
+  @AuthRoles('logout_users')
   @Post('logout-user/:id')
   @HttpCode(HttpStatus.OK)
   async user(@Param('id') id: string, @Req() req: Request) {
@@ -62,7 +63,7 @@ export class AuthController {
     return await this.authService.me(req, res);
   }
 
-  // @AuthRoles('update_accounts')
+  @AuthRoles('update_accounts')
   @Put('update-account-credentials/:id')
   @HttpCode(HttpStatus.OK)
   async updateAccountCredentials(

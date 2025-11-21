@@ -2,7 +2,7 @@ import { IsOptional, Length } from 'class-validator';
 
 export class CreateRoleDto {
   @IsOptional()
-  @Length(5, 20, { message: 'длина названия от 5 до 20 символов' })
+  @Length(4, 30, { message: 'длина названия от 4 до 30 символов' })
   name: string;
 
   @IsOptional()

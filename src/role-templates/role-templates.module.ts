@@ -4,6 +4,8 @@ import { RoleTemplatesController } from './role-templates.controller';
 import { RoleTemplatesRepository } from './role-templates.repository';
 import { UpdateRoleTemplateUseCase } from './use-cases/update-role-template.usecase';
 import { RoleTemplatesBuilder } from './builders/role-templates-by-id.builder';
+import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
+import { UsersRepository } from 'src/users/users.repository';
 
 @Module({
   controllers: [RoleTemplatesController],
@@ -12,6 +14,8 @@ import { RoleTemplatesBuilder } from './builders/role-templates-by-id.builder';
     RoleTemplatesRepository,
     UpdateRoleTemplateUseCase,
     RoleTemplatesBuilder,
+    RolesDataBuilder,
+    UsersRepository,
   ],
   exports: [RoleTemplatesService, RoleTemplatesRepository],
 })

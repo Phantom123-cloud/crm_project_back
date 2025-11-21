@@ -16,12 +16,13 @@ import { UpdateEmployeeFormDto } from './dto/update-employee-form.dto';
 import { UpdateEmployeePassportDto } from './dto/update-employee-passport.dto';
 import { AddContactNumberToEmployeeDto } from './dto/add-contact-number-to-employee.dto';
 import { AddLanguageToEmployeeDto } from './dto/add-language-to-employee.dto';
+import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 
 @Controller('employees')
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
-  // @AuthRoles('update_employee_forms')
+  @AuthRoles('update_employee')
   @Put('update-form/:id')
   @HttpCode(HttpStatus.OK)
   updateEmployeeForm(
@@ -31,7 +32,7 @@ export class EmployeesController {
     return this.employeesService.updateEmployeeForm(dto, id);
   }
 
-  // @AuthRoles('update_employee_passports')
+  @AuthRoles('update_employee')
   @Put('update-passport/:id')
   @HttpCode(HttpStatus.OK)
   updateEmployeePassport(
@@ -41,7 +42,7 @@ export class EmployeesController {
     return this.employeesService.updateEmployeePassport(dto, id);
   }
 
-  // @AuthRoles('disconnect_employee_citizenships')
+  @AuthRoles('update_employee')
   @Patch('disconnect-citizenship')
   @HttpCode(HttpStatus.OK)
   disconnectCitizenship(
@@ -51,7 +52,7 @@ export class EmployeesController {
     return this.employeesService.disconnectCitizenship(citizenshipId, userId);
   }
 
-  // @AuthRoles('add_contact_employee')
+  @AuthRoles('update_employee')
   @Post('add-contact/:id')
   @HttpCode(HttpStatus.OK)
   addContactNumberToEmployee(
@@ -61,7 +62,7 @@ export class EmployeesController {
     return this.employeesService.addContactNumberToEmployee(id, dto);
   }
 
-  // @AuthRoles('add_language_employee')
+  @AuthRoles('update_employee')
   @Post('add-language/:id')
   @HttpCode(HttpStatus.OK)
   addLanguageToEmployee(
@@ -71,7 +72,7 @@ export class EmployeesController {
     return this.employeesService.addLanguageToEmployee(id, dto);
   }
 
-  // @AuthRoles('delete_language_employee')
+  @AuthRoles('update_employee')
   @Delete('delete-language')
   @HttpCode(HttpStatus.OK)
   deleteLanguageToEmployee(
@@ -81,7 +82,7 @@ export class EmployeesController {
     return this.employeesService.deleteLanguageToEmployee(userId, languageId);
   }
 
-  // @AuthRoles('delete_contact_employee')
+  @AuthRoles('update_employee')
   @Delete('delete-contact')
   @HttpCode(HttpStatus.OK)
   deleteContactNumberToEmployee(

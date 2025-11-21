@@ -23,7 +23,7 @@ export class MeRolesBuilder {
         'Аккаунт не владеет всеми необходимыми возможностями',
       );
     }
-    const meIds = await this.rolesDataBuilder.getRolesByUserId(id);
+    const meIds = await this.rolesDataBuilder.getRolesIdsByUserId(id);
 
     const [rolesData, types] = await this.prismaService.$transaction([
       this.prismaService.role.findMany({

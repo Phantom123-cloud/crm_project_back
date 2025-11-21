@@ -15,13 +15,13 @@ import { RolesService } from './roles.service';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
-  @Auth()
+  @AuthRoles('create_roles')
   @Post('create')
-  // @AuthRoles('create_roles')
   @HttpCode(HttpStatus.OK)
   createRole(
     @Body() dto: CreateRoleDto,
@@ -29,24 +29,21 @@ export class RolesController {
   ) {
     return this.rolesService.createRole(dto, roleTypeId);
   }
-  @Auth()
+  @AuthRoles('delete_roles')
   @Delete('delete/:id')
-  // @AuthRoles('delete_roles')
   @HttpCode(HttpStatus.OK)
   deleteRole(@Param('id') id: string) {
     return this.rolesService.deleteRole(id);
   }
-  @Auth()
+  @AuthRoles('update_roles')
   @Put('update/:id')
-  // @AuthRoles('update_roles')
   @HttpCode(HttpStatus.OK)
   updateRole(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
     return this.rolesService.updateRole(id, dto);
   }
 
-  @Auth()
+  @AuthRoles('view_roles')
   @Get('all')
-  // @AuthRoles('view_roles')
   @HttpCode(HttpStatus.OK)
   allRoles(
     @Query('page', ParseIntPipe) page: number,
@@ -55,23 +52,21 @@ export class RolesController {
     return this.rolesService.allRoles(page, limit);
   }
 
-  // @AuthRoles('view_roles_by_user')
+  @AuthRoles('view_roles_by_user')
   @Get('full-info-roles-by-user/:id')
   @HttpCode(HttpStatus.OK)
   fullInformationOnRoles(@Param('id') id: string) {
     return this.rolesService.fullInformationOnRoles(id);
   }
 
-  @Auth()
-  // @AuthRoles('view_roles_by_user')
+  @AuthRoles('view_roles')
   @Get('by-not-id/:id')
   @HttpCode(HttpStatus.OK)
   getRolesNotInTemplate(@Param('id') id: string) {
     return this.rolesService.rolesByNotTemplate(id);
   }
 
-  @Auth()
-  // @AuthRoles('view_roles_by_type')
+  @AuthRoles('view_roles')
   @Get('all-roles')
   @HttpCode(HttpStatus.OK)
   allRolesByType() {

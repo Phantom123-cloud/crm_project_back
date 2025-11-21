@@ -7,7 +7,6 @@ import { RolesModule } from 'src/roles/roles.module';
 
 // providers
 import { AuthService } from './auth.service';
-import { UsersRepository } from 'src/users/users.repository';
 import { CreateSessionBuilder } from './builders/create-session.builder';
 import { AuthRepository } from './repositories/auth.repository';
 import { JwtStrategy } from './strategy/jwt.strategy';
@@ -19,6 +18,9 @@ import { RoleTemplatesRepository } from 'src/role-templates/role-templates.repos
 import { TokenRepository } from './repositories/token.repository';
 import { MeRolesBuilder } from 'src/roles/builders/me-roles.builder';
 import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
+import { UsersRepository } from 'src/users/users.repository';
+import { RolesRepository } from 'src/roles/roles.repository';
+import { RolesByUserIdBuilder } from 'src/roles/builders/roles-by-user-id.builder';
 
 @Module({
   imports: [
@@ -39,11 +41,13 @@ import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
     UserSessionUseCase,
     CreateSessionBuilder,
     UpdateAccountCredentialsUseCase,
-    UsersRepository,
     RoleTemplatesRepository,
     TokenRepository,
     MeRolesBuilder,
     RolesDataBuilder,
+    UsersRepository,
+    RolesRepository,
+    RolesByUserIdBuilder,
   ],
   exports: [AuthService],
 })

@@ -17,13 +17,13 @@ import { UsersService } from './users.service';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import type { Request } from 'express';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
+import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Auth()
-  // @AuthRoles('view_users')
+  @AuthRoles('view_users')
   @Get('all')
   @HttpCode(HttpStatus.OK)
   async allUsers(
@@ -44,23 +44,21 @@ export class UsersController {
     });
   }
 
-  // @AuthRoles('view_user')
-  @Auth()
+  @AuthRoles('view_user')
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   async userById(@Param('id') id: string) {
     return await this.usersService.userById(id);
   }
 
-  // @AuthRoles('active_users')
-  @Auth()
+  @AuthRoles('change_account_status')
   @Put('is-active/:id')
   @HttpCode(HttpStatus.OK)
   async isActiveUser(@Param('id') id: string, @Req() req: Request) {
     return await this.usersService.isActiveUser(id, req);
   }
 
-  // @AuthRoles('update_user_roles')
+  @AuthRoles('update_user_roles')
   @Put('update-roles-by-user/:id')
   @HttpCode(HttpStatus.OK)
   updateUserRoles(@Param('id') id: string, @Body() dto: UpdateUserRolesDto) {

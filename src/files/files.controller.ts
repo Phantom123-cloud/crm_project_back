@@ -17,13 +17,14 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import path from 'path';
 import fs from 'fs';
 import { UseUploadFiles } from 'src/uploads/decorators/upload-file.decorator';
+import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Auth()
-  // @AuthRoles('download_employee_passports')
+  @AuthRoles('download_employee_passports')
   @Get('download/passports')
   @HttpCode(HttpStatus.OK)
   async downloadFile(
@@ -34,7 +35,7 @@ export class FilesController {
     await this.filesService.downloadsFile(res, fileName, userId, 'passports');
   }
 
-  // @AuthRoles('import_employee_passports')
+  @AuthRoles('import_employee_passports')
   @Post('import-passport/:id')
   @HttpCode(HttpStatus.CREATED)
   @UseUploadFiles(1, 10, 'passports', ['image/jpeg', 'image/png', 'image/webp'])
@@ -45,8 +46,7 @@ export class FilesController {
     return await this.filesService.importPasspostFiles(id, files);
   }
 
-  // @AuthRoles('delete_employee_passports')
-  @Auth()
+  @AuthRoles('delete_employee_passports')
   @Delete('delete')
   @HttpCode(HttpStatus.OK)
   async deleteFile(
@@ -56,8 +56,7 @@ export class FilesController {
     return await this.filesService.deleteFile(fileName, userId, 'passports');
   }
 
-  // @AuthRoles('view_employee_passports')
-  @Auth()
+  @AuthRoles('view_employee_passports')
   @Get('passports/:filename')
   async getPassport(@Param('filename') filename: string, @Res() res: Response) {
     const filePath = path.join(process.cwd(), 'uploads', 'passports', filename);
