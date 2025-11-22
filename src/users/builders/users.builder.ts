@@ -34,6 +34,7 @@ export class AllUsersBuilder {
             employee: {
               select: {
                 fullName: true,
+                passportNumber: true,
                 tradingСode: true,
                 citizenships: {
                   select: {
@@ -101,6 +102,7 @@ export class AllUsersBuilder {
             id: true,
             fullName: true,
             tradingСode: true,
+            passportNumber: true,
             notes: true,
             registrationAddress: true,
             actualAddress: true,

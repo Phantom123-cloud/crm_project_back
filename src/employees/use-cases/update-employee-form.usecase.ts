@@ -53,13 +53,7 @@ export class UpdateEmployeeUseCase {
     dto: Partial<UpdateEmployeePassportDto>,
     userId: string,
   ) {
-    const {
-      citizenships,
-      fullName,
-      birthDate,
-      registrationAddress,
-      actualAddress,
-    } = dto;
+    const { citizenships } = dto;
 
     const user = await this.usersRepository.findByUserId(userId);
     if (!user) {

@@ -5,7 +5,7 @@ import { RoleTemplatesModule } from 'src/role-templates/role-templates.module';
 import { RolesRepository } from './roles.repository';
 import { RolesByUserIdBuilder } from './builders/roles-by-user-id.builder';
 import { FullInformationOnRolesBuilder } from './builders/full-Information-on-roles.builder';
-import { MeRolesBuilder } from './builders/me-roles.builder';
+// import { MeRolesBuilder } from './builders/me-roles.builder';
 import { RolesByNotTemplateBuilder } from './builders/roles-by-not-templete';
 import { RolesByTypeBuilder } from './builders/roles-by-type.builder';
 import { RolesDataBuilder } from './builders/roles-data.builder';
@@ -18,7 +18,7 @@ import { UsersRepository } from 'src/users/users.repository';
     RolesRepository,
     RolesByUserIdBuilder,
     FullInformationOnRolesBuilder,
-    MeRolesBuilder,
+    // MeRolesBuilder,
     RolesByNotTemplateBuilder,
     RolesByTypeBuilder,
     RolesDataBuilder,

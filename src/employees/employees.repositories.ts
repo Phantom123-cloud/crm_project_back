@@ -39,6 +39,7 @@ export class EmployeesRepository {
       birthDate,
       registrationAddress,
       actualAddress,
+      passportNumber,
     } = dto;
 
     return this.prismaService.employees.update({
@@ -54,6 +55,7 @@ export class EmployeesRepository {
         },
         registrationAddress,
         actualAddress,
+        passportNumber,
       },
     });
   }

@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // АККАУНТЫ
@@ -104,6 +103,7 @@ model Employees {
   fullName            String?            @map("full_name")
   actualAddress       String?            @map("actual_address")
   registrationAddress String?            @map("registration_address")
+  passportNumber      String?            @map("passport_number")
   tradingСode        String?            @unique @map("trading_сode")
   citizenships        Citizenships[]     @relation("citizenship_of_employees")
   birthDate           String?            @map("birth_date")

@@ -4,4 +4,5 @@ export class UpdateEmployeePassportDto {
   birthDate: string;
   registrationAddress: string;
   actualAddress: string;
+  passportNumber: string;
 }

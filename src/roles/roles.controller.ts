@@ -12,7 +12,6 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
@@ -52,7 +51,7 @@ export class RolesController {
     return this.rolesService.allRoles(page, limit);
   }
 
-  @AuthRoles('view_roles_by_user')
+  @AuthRoles('update_accounts')
   @Get('full-info-roles-by-user/:id')
   @HttpCode(HttpStatus.OK)
   fullInformationOnRoles(@Param('id') id: string) {

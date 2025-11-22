@@ -1,20 +1,17 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   ParseBoolPipe,
   ParseIntPipe,
-  Post,
   Put,
   Query,
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
 import type { Request } from 'express';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
@@ -44,7 +41,7 @@ export class UsersController {
     });
   }
 
-  @AuthRoles('view_user')
+  @AuthRoles('view_users')
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   async userById(@Param('id') id: string) {
@@ -58,7 +55,7 @@ export class UsersController {
     return await this.usersService.isActiveUser(id, req);
   }
 
-  @AuthRoles('update_user_roles')
+  @AuthRoles('update_accounts')
   @Put('update-roles-by-user/:id')
   @HttpCode(HttpStatus.OK)
   updateUserRoles(@Param('id') id: string, @Body() dto: UpdateUserRolesDto) {

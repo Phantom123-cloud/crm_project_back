@@ -9,17 +9,17 @@ import { buildResponse } from 'src/utils/build-response';
 import type { Response, Request } from 'express';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { CreateSessionBuilder } from '../builders/create-session.builder';
-import { RolesByUserIdBuilder } from 'src/roles/builders/roles-by-user-id.builder';
 import { JwtService } from '@nestjs/jwt';
 import { MeRolesBuilder } from 'src/roles/builders/me-roles.builder';
+import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
 
 @Injectable()
 export class UserSessionUseCase {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly createSessionBuilder: CreateSessionBuilder,
-    private readonly rolesByUserIdBuilder: RolesByUserIdBuilder,
-    private readonly meRolesBuilder: MeRolesBuilder,
+    private readonly rolesDataBuilder: RolesDataBuilder,
+    // private readonly meRolesBuilder: MeRolesBuilder,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -45,7 +45,7 @@ export class UserSessionUseCase {
   async me(req: Request, res: Response) {
     const user = req.user as JwtPayload;
     await this.createSessionBuilder.validateToken(req, res);
-    const roles = await this.meRolesBuilder.meRoles(user.id);
+    const roles = await this.rolesDataBuilder.getRolesNameByUserId(user.id);
 
     return buildResponse('Данные', { data: { roles, meData: user } });
   }

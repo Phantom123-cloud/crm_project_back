@@ -16,7 +16,7 @@ import { UpdateAccountCredentialsUseCase } from './use-cases/update-account-cred
 import { UserSessionUseCase } from './use-cases/user-session-usecase';
 import { RoleTemplatesRepository } from 'src/role-templates/role-templates.repository';
 import { TokenRepository } from './repositories/token.repository';
-import { MeRolesBuilder } from 'src/roles/builders/me-roles.builder';
+// import { MeRolesBuilder } from 'src/roles/builders/me-roles.builder';
 import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
 import { UsersRepository } from 'src/users/users.repository';
 import { RolesRepository } from 'src/roles/roles.repository';
@@ -43,7 +43,7 @@ import { RolesByUserIdBuilder } from 'src/roles/builders/roles-by-user-id.builde
     UpdateAccountCredentialsUseCase,
     RoleTemplatesRepository,
     TokenRepository,
-    MeRolesBuilder,
+    // MeRolesBuilder,
     RolesDataBuilder,
     UsersRepository,
     RolesRepository,

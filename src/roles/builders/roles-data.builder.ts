@@ -71,52 +71,52 @@ export class RolesDataBuilder {
       data: { roles, total, countPages, page, limit },
     });
   }
-  async getRolesIdsByUserId(userId: string) {
-    const user = await this.usersRepository.findByUserId(userId);
+  // async getRolesIdsByUserId(userId: string) {
+  //   const user = await this.usersRepository.findByUserId(userId);
 
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
-    }
-    if (!user.employee || !user.token) {
-      throw new ConflictException(
-        'Аккаунт не владеет всеми необходимыми возможностями',
-      );
-    }
+  //   if (!user) {
+  //     throw new NotFoundException('Пользователь не найден');
+  //   }
+  //   if (!user.employee || !user.token) {
+  //     throw new ConflictException(
+  //       'Аккаунт не владеет всеми необходимыми возможностями',
+  //     );
+  //   }
 
-    const templateRoles = await this.prismaService.role.findMany({
-      where: {
-        roleTemplates: {
-          some: {
-            users: {
-              some: {
-                id: userId,
-              },
-            },
-          },
-        },
+  //   const templateRoles = await this.prismaService.role.findMany({
+  //     where: {
+  //       roleTemplates: {
+  //         some: {
+  //           users: {
+  //             some: {
+  //               id: userId,
+  //             },
+  //           },
+  //         },
+  //       },
 
-        NOT: {
-          individualRules: {
-            some: {
-              userId,
-              type: 'REMOVE',
-            },
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
+  //       NOT: {
+  //         individualRules: {
+  //           some: {
+  //             userId,
+  //             type: 'REMOVE',
+  //           },
+  //         },
+  //       },
+  //     },
+  //     select: {
+  //       id: true,
+  //     },
+  //   });
 
-    const individualRoles = user.individualRules
-      .filter((rule) => rule.type === 'ADD')
-      .map((rule) => rule.role.id);
+  //   const individualRoles = user.individualRules
+  //     .filter((rule) => rule.type === 'ADD')
+  //     .map((rule) => rule.role.id);
 
-    const allRoles = [...templateRoles.map((r) => r.id), ...individualRoles];
-    const data = [...new Set(allRoles)];
-    return data;
-  }
+  //   const allRoles = [...templateRoles.map((r) => r.id), ...individualRoles];
+  //   const data = [...new Set(allRoles)];
+  //   return data;
+  // }
   async getRolesNameByUserId(userId: string) {
     const user = await this.usersRepository.findByUserId(userId);
 
