@@ -1,6 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
@@ -18,7 +17,6 @@ import { UploadsModule } from './uploads/uploads.module';
 import { FilesModule } from './files/files.module';
 import { AppGateway } from 'gateway/app.gateway';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CronService } from './cron/cron.service';
 import { CronModule } from './cron/cron.module';
 
 @Module({
@@ -28,6 +26,7 @@ import { CronModule } from './cron/cron.module';
       wildcard: true,
       delimiter: '.',
     }),
+
     PrismaModule,
     AuthModule,
     RolesModule,
@@ -45,7 +44,7 @@ import { CronModule } from './cron/cron.module';
   ],
 
   controllers: [AppController],
-  providers: [AppService, AppGateway],
+  providers: [AppGateway],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

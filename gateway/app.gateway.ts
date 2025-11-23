@@ -65,6 +65,4 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
   }
-
-
 }

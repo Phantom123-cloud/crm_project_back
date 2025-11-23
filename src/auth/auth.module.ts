@@ -1,11 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getJwtConfig } from 'src/common/config/jwt.config';
-import { RolesModule } from 'src/roles/roles.module';
 
-// providers
 import { AuthService } from './auth.service';
 import { CreateSessionBuilder } from './builders/create-session.builder';
 import { AuthRepository } from './repositories/auth.repository';
@@ -14,13 +12,9 @@ import { LoginUseCase } from './use-cases/login.usecase';
 import { RegisterUseCase } from './use-cases/register.usecase';
 import { UpdateAccountCredentialsUseCase } from './use-cases/update-account-credentials.usecase';
 import { UserSessionUseCase } from './use-cases/user-session-usecase';
-import { RoleTemplatesRepository } from 'src/role-templates/role-templates.repository';
 import { TokenRepository } from './repositories/token.repository';
-// import { MeRolesBuilder } from 'src/roles/builders/me-roles.builder';
-import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
-import { UsersRepository } from 'src/users/users.repository';
-import { RolesRepository } from 'src/roles/roles.repository';
-import { RolesByUserIdBuilder } from 'src/roles/builders/roles-by-user-id.builder';
+import { RoleTemplatesModule } from 'src/role-templates/role-templates.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -29,7 +23,8 @@ import { RolesByUserIdBuilder } from 'src/roles/builders/roles-by-user-id.builde
       inject: [ConfigService],
       useFactory: getJwtConfig,
     }),
-    RolesModule,
+    RoleTemplatesModule,
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -41,13 +36,7 @@ import { RolesByUserIdBuilder } from 'src/roles/builders/roles-by-user-id.builde
     UserSessionUseCase,
     CreateSessionBuilder,
     UpdateAccountCredentialsUseCase,
-    RoleTemplatesRepository,
     TokenRepository,
-    // MeRolesBuilder,
-    RolesDataBuilder,
-    UsersRepository,
-    RolesRepository,
-    RolesByUserIdBuilder,
   ],
   exports: [AuthService],
 })

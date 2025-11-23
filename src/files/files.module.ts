@@ -2,14 +2,13 @@ import { Global, Module } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
 import { UploadsModule } from 'src/uploads/uploads.module';
-import { UsersRepository } from 'src/users/users.repository';
-import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
+import { UsersModule } from 'src/users/users.module';
 
 @Global()
 @Module({
   controllers: [FilesController],
-  providers: [FilesService, RolesDataBuilder, UsersRepository],
+  providers: [FilesService],
   exports: [FilesService],
-  imports: [UploadsModule],
+  imports: [UploadsModule, UsersModule],
 })
 export class FilesModule {}
