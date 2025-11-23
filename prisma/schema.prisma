@@ -13,6 +13,7 @@ model User {
   password        String
   isActive        Boolean           @default(true) @map("is_active")
   isOnline        Boolean           @default(false) @map("is_online")
+  lastConnections DateTime?          @default("2025-01-01T00:00:00.000Z") @map("last_connections")
   token           Token?
   employee        Employees?
   roleTemplate    RoleTemplates?    @relation(fields: [roleTemplatesId], references: [id], onDelete: SetNull)

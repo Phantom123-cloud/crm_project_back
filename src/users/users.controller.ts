@@ -55,7 +55,7 @@ export class UsersController {
     return await this.usersService.isActiveUser(id, req);
   }
 
-  @AuthRoles('update_accounts')
+  @AuthRoles('update_account_roles')
   @Put('update-roles-by-user/:id')
   @HttpCode(HttpStatus.OK)
   updateUserRoles(@Param('id') id: string, @Body() dto: UpdateUserRolesDto) {

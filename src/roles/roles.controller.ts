@@ -51,7 +51,7 @@ export class RolesController {
     return this.rolesService.allRoles(page, limit);
   }
 
-  @AuthRoles('update_accounts')
+  @AuthRoles('update_account_roles')
   @Get('full-info-roles-by-user/:id')
   @HttpCode(HttpStatus.OK)
   fullInformationOnRoles(@Param('id') id: string) {
