@@ -19,6 +19,7 @@ import { FilesModule } from './files/files.module';
 import { AppGateway } from 'gateway/app.gateway';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cron/cron.service';
+import { CronModule } from './cron/cron.module';
 
 @Module({
   imports: [
@@ -40,10 +41,11 @@ import { CronService } from './cron/cron.service';
     UploadsModule,
     FilesModule,
     ScheduleModule.forRoot(),
+    CronModule,
   ],
 
   controllers: [AppController],
-  providers: [AppService, AppGateway, CronService],
+  providers: [AppService, AppGateway],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

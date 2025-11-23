@@ -7,11 +7,6 @@ export class CronService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(CronService.name);
 
-  //   @Cron('05 * * * * *')
-  //   handleCron() {
-  //     this.logger.debug('Called when the current second is 45');
-  //   }
-  // 2025-11-23 02:00:12.662
   @Cron('*/5 * * * *')
   async handleTimeout() {
     const threshold = new Date(Date.now() - 15 * 60 * 1000).toISOString();
