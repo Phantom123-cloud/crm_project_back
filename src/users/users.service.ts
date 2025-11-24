@@ -5,6 +5,7 @@ import { AllUsersBuilder } from './builders/users.builder';
 import { IsActiveUserUseCase } from './use-cases/is-active-user.usecase';
 import { UpdateUserRolesUseCase } from './use-cases/update-user-roles.usecase';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
+import { ChangeRoleTemplateUseCase } from './use-cases/change-role-template.usecase';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +13,7 @@ export class UsersService {
     private readonly allUsersBuilder: AllUsersBuilder,
     private readonly isActiveUserUseCase: IsActiveUserUseCase,
     private readonly updateUserRolesUseCase: UpdateUserRolesUseCase,
+    private readonly сhangeRoleTemplateUseCase: ChangeRoleTemplateUseCase,
   ) {}
 
   async allUsers(dto: PaginationDto) {
@@ -28,5 +30,11 @@ export class UsersService {
 
   async updateUserRoles(userId: string, dto: UpdateUserRolesDto) {
     return this.updateUserRolesUseCase.updateUserRoles(userId, dto);
+  }
+  async сhangeRoleTemplate(userId: string, roleTemplatesId: string) {
+    return this.сhangeRoleTemplateUseCase.changeRoleTemplate(
+      userId,
+      roleTemplatesId,
+    );
   }
 }

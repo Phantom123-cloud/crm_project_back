@@ -28,6 +28,6 @@ import { UsersModule } from 'src/users/users.module';
     RolesByUserIdBuilder,
     RolesByNotTemplateBuilder,
   ],
-  imports: [RoleTemplatesModule, forwardRef(() => UsersModule)],
+  imports: [RoleTemplatesModule, UsersModule],
 })
 export class RolesModule {}

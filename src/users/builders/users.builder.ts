@@ -97,6 +97,7 @@ export class AllUsersBuilder {
         createdAt: true,
         isActive: true,
         isOnline: true,
+        roleTemplatesId: true,
         employee: {
           select: {
             id: true,

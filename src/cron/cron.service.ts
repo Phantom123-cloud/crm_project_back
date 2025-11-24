@@ -9,7 +9,7 @@ export class CronService {
 
   @Cron('*/5 * * * *')
   async handleTimeout() {
-    const threshold = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const threshold = new Date(Date.now() - 5 * 60 * 1000).toISOString();
 
     const users = await this.prismaService.user.updateMany({
       where: {

@@ -33,28 +33,46 @@ export class RoleTemplatesRepository {
     });
   }
 
-  async updateRoleTemplate(id: string, dto: UpdateRoleTemplateDto) {
+  async updateRoleTemplate(
+    id: string,
+    deleteIds: string[],
+    dto: UpdateRoleTemplateDto,
+  ) {
     const { arrayConnect, arrayDisconnect, name } = dto;
 
-    return this.prismaService.roleTemplates.update({
-      where: { id },
-      data: {
-        name,
-        roles: {
+    return this.prismaService.$transaction(async (tx) => {
+      await tx.roleTemplates.update({
+        where: { id },
+        data: {
+          name,
+          roles: {
+            ...(arrayDisconnect?.length && {
+              disconnect: arrayDisconnect.map((id) => ({ id })),
+            }),
+            ...(arrayConnect?.length && {
+              connect: arrayConnect.map((id) => ({ id })),
+            }),
+          },
+
           ...(arrayDisconnect?.length && {
-            disconnect: arrayDisconnect.map((id) => ({ id })),
-          }),
-          ...(arrayConnect?.length && {
-            connect: arrayConnect.map((id) => ({ id })),
+            individualRules: {
+              deleteMany: { roleTemplatesId: id, type: 'REMOVE' },
+            },
           }),
         },
+      });
 
-        ...(arrayDisconnect?.length && {
-          individualRules: {
-            deleteMany: { roleTemplatesId: id, type: 'REMOVE' },
+      if (deleteIds?.length) {
+        await tx.individualRules.deleteMany({
+          where: {
+            id: {
+              in: deleteIds,
+            },
           },
-        }),
-      },
+        });
+      }
+
+      return;
     });
   }
 }

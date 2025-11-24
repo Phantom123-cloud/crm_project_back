@@ -18,8 +18,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private userSockets = new Map<string, Set<string>>();
   private disconnectTimers = new Map<string, NodeJS.Timeout>();
 
-  async handleConnection(socket: Socket) {
+  handleConnection(socket: Socket) {
+    this.onlineObserver(socket);
     socket.on('register', async (userId: string) => {
+      console.log(userId);
+
       const timeout = this.disconnectTimers.get(userId);
 
       if (timeout) {
@@ -29,21 +32,19 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (!this.userSockets.has(userId)) {
         this.userSockets.set(userId, new Set());
-      }
-      this.userSockets.get(userId)!.add(socket.id);
+        console.log('RECONNECT', userId);
 
-      if (this.userSockets.get(userId)!.size === 1) {
         const lastConnections = new Date().toISOString();
-
         await this.prismaService.user.update({
           where: { id: userId },
           data: { isOnline: true, lastConnections },
         });
       }
+      this.userSockets.get(userId)!.add(socket.id);
     });
   }
 
-  async handleDisconnect(socket: Socket) {
+  handleDisconnect(socket: Socket) {
     for (const [userId, sockets] of this.userSockets.entries()) {
       if (sockets.has(socket.id)) {
         sockets.delete(socket.id);
@@ -64,5 +65,17 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     }
+  }
+
+  onlineObserver(socket: Socket) {
+    socket.on('ping', async (userId: string) => {
+      console.log('ONLINE', userId);
+
+      const lastConnections = new Date().toISOString();
+      await this.prismaService.user.update({
+        where: { id: userId },
+        data: { isOnline: true, lastConnections },
+      });
+    });
   }
 }

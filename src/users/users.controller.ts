@@ -41,6 +41,17 @@ export class UsersController {
     });
   }
 
+  @AuthRoles('update_roles_template')
+  @Put('change-role-template')
+  @HttpCode(HttpStatus.OK)
+  async сhangeRoleTemplate(
+    @Query('userId') userId: string,
+    @Query('roleTemplatesId')
+    roleTemplatesId: string,
+  ) {
+    return await this.usersService.сhangeRoleTemplate(userId, roleTemplatesId);
+  }
+
   @AuthRoles('view_users')
   @Get('/:id')
   @HttpCode(HttpStatus.OK)

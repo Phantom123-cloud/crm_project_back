@@ -81,7 +81,7 @@ model IndividualRules {
   roleId          String              @map("role_id")
   role            Role                @relation(fields: [roleId], references: [id])
   type            IndividualRulesType
-  templateId      RoleTemplates?      @relation(fields: [roleTemplatesId], references: [id])
+  template      RoleTemplates?      @relation(fields: [roleTemplatesId], references: [id])
   roleTemplatesId String?             @map("role_templates_id")
   createdAt       DateTime            @default(now()) @map("created_at")
   updatedAt       DateTime            @updatedAt @map("updated_at")

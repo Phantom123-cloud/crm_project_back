@@ -54,7 +54,6 @@ export class UsersRepository {
       },
     });
   }
-
   async findByEmail(email: string) {
     return this.prismaService.user.findUnique({
       where: { email },
@@ -68,7 +67,6 @@ export class UsersRepository {
       },
     });
   }
-
   async updateUserAccount(id: string, email?: string, password?: string) {
     return this.prismaService.user.update({
       where: { id },
@@ -79,7 +77,6 @@ export class UsersRepository {
       },
     });
   }
-
   async findUserWithEmployeeAndCitizenship(
     userId: string,
     citizenshipId: string,
@@ -101,7 +98,6 @@ export class UsersRepository {
       },
     });
   }
-
   async blockUser(id: string) {
     return this.prismaService.user.update({
       where: { id },
@@ -125,5 +121,33 @@ export class UsersRepository {
         isActive: true,
       },
     });
+  }
+
+  async changeRoleTemplate(
+    userId: string,
+    roleTemplatesId: string,
+    currentIndivIds: string[],
+  ) {
+    return this.prismaService.$transaction(async (tx) => {
+      await tx.user.update({
+        where: {
+          id: userId,
+        },
+
+        data: {
+          roleTemplatesId,
+        },
+      });
+
+      await tx.individualRules.deleteMany({
+        where: {
+          id: {
+            in: currentIndivIds,
+          },
+        },
+      });
+    });
+
+    return;
   }
 }

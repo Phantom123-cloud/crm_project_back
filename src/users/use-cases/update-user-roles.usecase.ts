@@ -142,6 +142,7 @@ export class UpdateUserRolesUseCase {
             roleId,
             userId,
             type: 'ADD',
+            roleTemplatesId: user.roleTemplate?.id,
           })),
         });
       }

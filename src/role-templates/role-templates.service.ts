@@ -7,7 +7,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
-import { ensureAllExist, ensureNoDuplicates } from 'src/utils/is-exists.utils';
 import { RoleTemplatesBuilder } from './builders/role-templates-by-id.builder';
 import { RoleTemplatesRepository } from './role-templates.repository';
 import { UpdateRoleTemplateUseCase } from './use-cases/update-role-template.usecase';
