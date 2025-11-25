@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     command: >
       sh -c "npx prisma migrate deploy &&
-        npm run start:prod"
+        yarn start:prod"
     volumes:
       - ./uploads:/app/uploads
 

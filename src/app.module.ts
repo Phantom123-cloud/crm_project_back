@@ -15,7 +15,7 @@ import { LanguagesModule } from './languages/languages.module';
 import { EmployeesModule } from './employees/employees.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { FilesModule } from './files/files.module';
-import { AppGateway } from 'gateway/app.gateway';
+import { AppGateway } from 'src/gateway/app.gateway';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronModule } from './cron/cron.module';
 
@@ -26,7 +26,7 @@ import { CronModule } from './cron/cron.module';
       wildcard: true,
       delimiter: '.',
     }),
-
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     RolesModule,
@@ -39,7 +39,6 @@ import { CronModule } from './cron/cron.module';
     EmployeesModule,
     UploadsModule,
     FilesModule,
-    ScheduleModule.forRoot(),
     CronModule,
   ],
 

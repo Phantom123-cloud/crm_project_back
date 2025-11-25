@@ -1,11 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, Interval, Timeout } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
+import { LoggerService } from 'src/common/logger/logger.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class CronService {
-  constructor(private readonly prismaService: PrismaService) {}
-  private readonly logger = new Logger(CronService.name);
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @Cron('*/5 * * * *')
   async handleTimeout() {

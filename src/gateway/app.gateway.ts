@@ -7,6 +7,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import fs from 'fs/promises';
+import path from 'path';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
@@ -17,11 +19,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private userSockets = new Map<string, Set<string>>();
   private disconnectTimers = new Map<string, NodeJS.Timeout>();
+  private loggerPath = path.join(process.cwd(), 'logger.log');
 
   handleConnection(socket: Socket) {
     this.onlineObserver(socket);
     socket.on('register', async (userId: string) => {
-      console.log(userId);
+      await fs.appendFile(
+        this.loggerPath,
+        `id:  ${userId}; type: register; timestamp: ${new Date().toISOString()}\n`,
+      );
 
       const timeout = this.disconnectTimers.get(userId);
 
@@ -32,8 +38,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (!this.userSockets.has(userId)) {
         this.userSockets.set(userId, new Set());
-        console.log('RECONNECT', userId);
-
+        await fs.appendFile(
+          this.loggerPath,
+          `id:  ${userId}; type: reconect; timestamp: ${new Date().toISOString()}\n`,
+        );
         const lastConnections = new Date().toISOString();
         await this.prismaService.user.update({
           where: { id: userId },
@@ -44,10 +52,14 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  handleDisconnect(socket: Socket) {
+  async handleDisconnect(socket: Socket) {
     for (const [userId, sockets] of this.userSockets.entries()) {
       if (sockets.has(socket.id)) {
         sockets.delete(socket.id);
+        await fs.appendFile(
+          this.loggerPath,
+          `id:  ${userId}; type: disconnect; timestamp: ${new Date().toISOString()}\n`,
+        );
 
         if (sockets.size === 0) {
           const timeout = setTimeout(async () => {
@@ -69,7 +81,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   onlineObserver(socket: Socket) {
     socket.on('ping', async (userId: string) => {
-      console.log('ONLINE', userId);
+      await fs.appendFile(
+        this.loggerPath,
+        `id:  ${userId}; type: ping; timestamp: ${new Date().toISOString()}\n`,
+      );
 
       const lastConnections = new Date().toISOString();
       await this.prismaService.user.update({
