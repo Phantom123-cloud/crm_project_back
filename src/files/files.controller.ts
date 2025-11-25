@@ -64,7 +64,8 @@ export class FilesController {
     if (!fs.existsSync(filePath)) {
       throw new NotFoundException('Файл не обнаружен');
     }
-
+    // const file = await fs.promises.readFile(filePath);
+    // res.send(file);
     fs.createReadStream(filePath).pipe(res);
   }
 }
