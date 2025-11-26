@@ -12,79 +12,96 @@ export class AllUsersBuilder {
 
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
-    const [users, total] = await this.prismaService.$transaction([
-      this.prismaService.user.findMany({
-        skip: (currentPage - 1) * pageSize,
-        take: pageSize,
-        orderBy: {
-          createdAt: 'desc',
-        },
+    const [users, total, online, offline, blocked] =
+      await this.prismaService.$transaction([
+        this.prismaService.user.findMany({
+          skip: (currentPage - 1) * pageSize,
+          take: pageSize,
+          orderBy: {
+            createdAt: 'desc',
+          },
 
-        where: {
-          ...(typeof isActive === 'boolean' && { isActive }),
-          ...(typeof isOnline === 'boolean' && { isOnline }),
-        },
-        select: {
-          id: true,
-          email: true,
-          createdAt: true,
-          isActive: true,
-          isOnline: true,
-          ...(isFullData && {
-            employee: {
-              select: {
-                fullName: true,
-                passportNumber: true,
-                tradingСode: true,
-                citizenships: {
-                  select: {
-                    localeRu: true,
-                    localeEn: true,
+          where: {
+            ...(typeof isActive === 'boolean' && { isActive }),
+            ...(typeof isOnline === 'boolean' && { isOnline }),
+          },
+          select: {
+            id: true,
+            email: true,
+            createdAt: true,
+            isActive: true,
+            isOnline: true,
+            ...(isFullData && {
+              employee: {
+                select: {
+                  fullName: true,
+                  passportNumber: true,
+                  tradingСode: true,
+                  citizenships: {
+                    select: {
+                      localeRu: true,
+                      localeEn: true,
+                    },
                   },
-                },
-                registrationAddress: true,
-                actualAddress: true,
-                birthDate: true,
-                phones: {
-                  select: {
-                    number: true,
-                    option: true,
+                  registrationAddress: true,
+                  actualAddress: true,
+                  birthDate: true,
+                  phones: {
+                    select: {
+                      number: true,
+                      option: true,
+                    },
                   },
-                },
-                dateFirstTrip: true,
-                isInMarriage: true,
-                isHaveChildren: true,
-                isHaveDriverLicense: true,
-                drivingExperience: true,
-                isHaveInterPassport: true,
-                foreignLanguages: {
-                  select: {
-                    level: true,
-                    language: {
-                      select: {
-                        localeRu: true,
-                        localeEn: true,
+                  dateFirstTrip: true,
+                  isInMarriage: true,
+                  isHaveChildren: true,
+                  isHaveDriverLicense: true,
+                  drivingExperience: true,
+                  isHaveInterPassport: true,
+                  foreignLanguages: {
+                    select: {
+                      level: true,
+                      language: {
+                        select: {
+                          localeRu: true,
+                          localeEn: true,
+                        },
                       },
                     },
                   },
                 },
               },
-            },
-          }),
-        },
-      }),
-      this.prismaService.user.count({
-        where: {
-          ...(typeof isActive === 'boolean' && { isActive }),
-          ...(typeof isOnline === 'boolean' && { isOnline }),
-        },
-      }),
-    ]);
+            }),
+          },
+        }),
+        this.prismaService.user.count({
+          where: {
+            ...(typeof isActive === 'boolean' && { isActive }),
+            ...(typeof isOnline === 'boolean' && { isOnline }),
+          },
+        }),
+
+        this.prismaService.user.count({
+          where: {
+            isOnline: true,
+          },
+        }),
+        this.prismaService.user.count({
+          where: {
+            isOnline: false,
+          },
+        }),
+        this.prismaService.user.count({
+          where: {
+            isActive: false,
+          },
+        }),
+      ]);
 
     const countPages = Math.ceil(total / limit);
 
     return buildResponse('Данные', {
-      data: { users, total, countPages, page, limit },
+      data: { users, total, countPages, page, limit, online, offline, blocked },
     });
   }
 

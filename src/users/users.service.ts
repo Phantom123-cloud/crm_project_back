@@ -6,6 +6,7 @@ import { IsActiveUserUseCase } from './use-cases/is-active-user.usecase';
 import { UpdateUserRolesUseCase } from './use-cases/update-user-roles.usecase';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
 import { ChangeRoleTemplateUseCase } from './use-cases/change-role-template.usecase';
+import { AppGateway } from 'src/gateway/app.gateway';
 
 @Injectable()
 export class UsersService {

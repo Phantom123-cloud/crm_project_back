@@ -15,6 +15,7 @@ export class UsersRepository {
         email: true,
         password: true,
         isActive: true,
+        isOnline: true,
         token: true,
         individualRules: {
           select: {
@@ -59,6 +60,7 @@ export class UsersRepository {
       where: { email },
 
       select: {
+        isOnline: true,
         token: true,
         password: true,
         isActive: true,

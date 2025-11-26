@@ -121,4 +121,52 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     });
   }
+
+  async usersSystemStatusObserver(
+    userId?: string,
+    type?: 'logoutById' | 'isActive' | undefined,
+  ) {
+    const [online, offline, blocked, onlineIds] =
+      await this.prismaService.$transaction([
+        this.prismaService.user.count({
+          where: {
+            isOnline: true,
+            isActive: true,
+          },
+        }),
+        this.prismaService.user.count({
+          where: {
+            isOnline: false,
+            isActive: true,
+          },
+        }),
+        this.prismaService.user.count({
+          where: {
+            isActive: false,
+          },
+        }),
+        this.prismaService.user.findMany({
+          select: {
+            id: true,
+          },
+        }),
+      ]);
+
+    for (const { id } of onlineIds) {
+      if (this.userSockets.has(id)) {
+        const sockets = this.userSockets.get(id);
+        if (sockets) {
+          for (const socketId of sockets) {
+            this.server.to(socketId).emit('usersSystemStatus', {
+              online,
+              offline,
+              blocked,
+              type,
+              userId,
+            });
+          }
+        }
+      }
+    }
+  }
 }

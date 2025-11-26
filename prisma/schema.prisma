@@ -191,6 +191,7 @@ enum PhoneSelection {
   mobile
   whatsapp
   telegram
+  viber
 }
 
 enum LanguageLevel {

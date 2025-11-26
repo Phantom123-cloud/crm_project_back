@@ -8,6 +8,7 @@ import { LoginUseCase } from './use-cases/login.usecase';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { UpdateAccountCredentialsUseCase } from './use-cases/update-account-credentials.usecase';
 import { UserSessionUseCase } from './use-cases/user-session-usecase';
+import { AppGateway } from 'src/gateway/app.gateway';
 
 @Injectable()
 export class AuthService {

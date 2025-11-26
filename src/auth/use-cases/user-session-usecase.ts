@@ -10,8 +10,8 @@ import type { Response, Request } from 'express';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { CreateSessionBuilder } from '../builders/create-session.builder';
 import { JwtService } from '@nestjs/jwt';
-import { MeRolesBuilder } from 'src/roles/builders/me-roles.builder';
 import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
+import { AppGateway } from 'src/gateway/app.gateway';
 
 @Injectable()
 export class UserSessionUseCase {
@@ -19,8 +19,8 @@ export class UserSessionUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly createSessionBuilder: CreateSessionBuilder,
     private readonly rolesDataBuilder: RolesDataBuilder,
-    // private readonly meRolesBuilder: MeRolesBuilder,
     private readonly jwtService: JwtService,
+    private appGateway: AppGateway,
   ) {}
 
   async validate(id: string): Promise<JwtPayload> {
@@ -55,6 +55,7 @@ export class UserSessionUseCase {
     const payload: JwtPayload = await this.jwtService.verifyAsync(token);
     await this.createSessionBuilder.deactivateTokens(payload.id);
     this.createSessionBuilder.setTokenCookie(res, '', 0);
+    await this.appGateway.usersSystemStatusObserver();
 
     return buildResponse('Выполнен выход из системы');
   }
@@ -65,6 +66,7 @@ export class UserSessionUseCase {
       throw new ConflictException('Вы не можете вылогинить сами себя');
     }
     await this.createSessionBuilder.deactivateTokens(id);
+    await this.appGateway.usersSystemStatusObserver(id, 'logoutById');
     return buildResponse('Выполнен выход из системы');
   }
 }

@@ -13,6 +13,8 @@ import { isDev } from 'src/utils/is-dev.utils';
 import { UsersRepository } from 'src/users/users.repository';
 import { TokenRepository } from '../repositories/token.repository';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { AppGateway } from 'src/gateway/app.gateway';
 
 @Injectable()
 export class CreateSessionBuilder {
@@ -26,6 +28,8 @@ export class CreateSessionBuilder {
     private readonly jwtService: JwtService,
     private readonly tokenRepository: TokenRepository,
     private readonly usersRepository: UsersRepository,
+    private readonly prismaService: PrismaService,
+    private readonly appGateway: AppGateway,
   ) {
     this.TOKEN_TTL_S = 1 * 24 * 60 * 60;
     this.TOKEN_TTL_L = 7 * 24 * 60 * 60;
@@ -62,6 +66,15 @@ export class CreateSessionBuilder {
     this.setTokenCookie(res, hash, ttl * 1000);
 
     await this.tokenRepository.createSession(id, exp, hash);
+    await this.prismaService.user.update({
+      where: {
+        id,
+      },
+      data: {
+        isOnline: true,
+      },
+    });
+    await this.appGateway.usersSystemStatusObserver();
     return buildResponse('Вы вошли в систему');
   }
 
@@ -97,6 +110,18 @@ export class CreateSessionBuilder {
     if (now > exp || tokenHash !== hash) {
       this.setTokenCookie(res, '', 0);
       throw new UnauthorizedException('Сессия просрочена, войдите снова');
+    }
+
+    if (!user.isOnline) {
+      await this.prismaService.user.update({
+        where: {
+          id: user.id,
+        },
+
+        data: {
+          isOnline: true,
+        },
+      });
     }
   }
 
