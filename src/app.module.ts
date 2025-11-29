@@ -1,5 +1,4 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
@@ -15,10 +14,9 @@ import { LanguagesModule } from './languages/languages.module';
 import { EmployeesModule } from './employees/employees.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { FilesModule } from './files/files.module';
-import { AppGateway } from 'src/gateway/app.gateway';
-import { ScheduleModule } from '@nestjs/schedule';
-import { CronModule } from './cron/cron.module';
-import { AppGatewayModule } from './gateway/app.gateway.module';
+// import { ScheduleModule } from '@nestjs/schedule';
+// import { CronModule } from './cron/cron.module';
+// import { AppGatewayModule } from './gateway/app.gateway.module';
 
 @Module({
   imports: [
@@ -27,7 +25,7 @@ import { AppGatewayModule } from './gateway/app.gateway.module';
       wildcard: true,
       delimiter: '.',
     }),
-    ScheduleModule.forRoot(),
+    // ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     RolesModule,
@@ -40,8 +38,8 @@ import { AppGatewayModule } from './gateway/app.gateway.module';
     EmployeesModule,
     UploadsModule,
     FilesModule,
-    CronModule,
-    AppGatewayModule,
+    // CronModule,
+    // AppGatewayModule,
   ],
 
   // controllers: [AppController],

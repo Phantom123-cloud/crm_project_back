@@ -19,7 +19,7 @@ export class TokenRepository {
       },
 
       data: {
-        isOnline: false,
+        // isOnline: false,
 
         token: {
           update: {

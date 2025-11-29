@@ -5,7 +5,9 @@ import * as argon2 from 'argon2';
 
 @Injectable()
 export class AuthRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+  ) {}
 
   async createUser(dto: RegisterDto) {
     const {
@@ -53,7 +55,6 @@ export class AuthRepository {
           })),
         });
       }
-
       return user;
     });
   }
