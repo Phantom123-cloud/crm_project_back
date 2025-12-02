@@ -13,7 +13,7 @@ model User {
   password        String
   isActive        Boolean           @default(true) @map("is_active")
   isOnline        Boolean           @default(false) @map("is_online")
-  lastConnections DateTime?          @default("2025-01-01T00:00:00.000Z") @map("last_connections")
+  lastConnections DateTime?         @default("2025-01-01T00:00:00.000Z") @map("last_connections")
   token           Token?
   employee        Employees?
   roleTemplate    RoleTemplates?    @relation(fields: [roleTemplatesId], references: [id], onDelete: SetNull)
@@ -21,6 +21,7 @@ model User {
   individualRules IndividualRules[]
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
+  warehouses      Warehouses[]
 
   @@map("users")
 }
@@ -29,10 +30,10 @@ model Token {
   id        String   @id @default(uuid())
   hash      String?  @map("hash")
   exp       BigInt   @default(0)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
   user      User     @relation(fields: [userId], references: [id])
   userId    String   @unique @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("tokens")
 }
@@ -44,9 +45,9 @@ model Role {
   type            RoleTypes         @relation(fields: [roleTypeId], references: [id])
   descriptions    String            @default("")
   roleTemplates   RoleTemplates[]   @relation("role_connections")
+  individualRules IndividualRules[]
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
-  individualRules IndividualRules[]
 
   @@map("roles")
 }
@@ -66,10 +67,10 @@ model RoleTemplates {
   id              String            @id @default(uuid())
   name            String            @unique
   roles           Role[]            @relation("role_connections")
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
   users           User[]
   individualRules IndividualRules[]
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
 
   @@map("role_templates")
 }
@@ -81,7 +82,7 @@ model IndividualRules {
   roleId          String              @map("role_id")
   role            Role                @relation(fields: [roleId], references: [id])
   type            IndividualRulesType
-  template      RoleTemplates?      @relation(fields: [roleTemplatesId], references: [id])
+  template        RoleTemplates?      @relation(fields: [roleTemplatesId], references: [id])
   roleTemplatesId String?             @map("role_templates_id")
   createdAt       DateTime            @default(now()) @map("created_at")
   updatedAt       DateTime            @updatedAt @map("updated_at")
@@ -156,9 +157,9 @@ model Languages {
   code             String             @unique
   localeRu         String             @unique @map("locale_ru")
   localeEn         String             @unique @map("locale_en")
+  foreignLanguages ForeignLanguages[]
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
-  foreignLanguages ForeignLanguages[]
 
   @@map("languages")
 }
@@ -210,3 +211,115 @@ enum FilesType {
 }
 
 // СОТРУДНИКИ
+// ВЫЕЗД
+
+// ВЫЕЗД
+
+model Trip {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  dateFrom    String
+  dateTo      String
+  warehouses  Warehouses @relation(fields: [warehouseId], references: [id])
+  warehouseId String     @map("warehouse_id")
+  tripTypes   TripTypes  @relation(fields: [tripTypesId], references: [id])
+  tripTypesId String     @map("trip_types_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@map("trips")
+}
+
+model TripTypes {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  trips     Trip[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("trip_types")
+}
+
+// СКЛАД
+model Warehouses {
+  id                 String           @id @default(uuid())
+  name               String           @unique
+  user               User             @relation(fields: [ownerUserId], references: [id])
+  ownerUserId        String           @map("owner_user_id")
+  isActive           Boolean          @default(true) @map("is_active")
+  type               WarehousesTypes
+  stockItems         StockItems[]
+  stockMovementsFrom StockMovements[] @relation("WarehouseFrom")
+  stockMovementsTo   StockMovements[] @relation("WarehouseTo")
+  trips              Trip[]
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  @@map("warehouses")
+}
+
+enum WarehousesTypes {
+  CENTRAL
+  PERSONAL
+  TRIP
+}
+
+model Products {
+  id             String           @id @default(uuid())
+  name           String           @unique
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  stockItems     StockItems[]
+  stockMovements StockMovements[]
+
+  @@map("products")
+}
+
+model StockItems {
+  id          String     @id @default(uuid())
+  product     Products   @relation(fields: [productId], references: [id])
+  productId   String     @map("product_id")
+  warehouse   Warehouses @relation(fields: [warehouseId], references: [id])
+  warehouseId String     @map("warehouse_id")
+  quantity    Int
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@map("stock_items")
+}
+
+model StockMovements {
+  id                  String               @id @default(uuid())
+  product             Products             @relation(fields: [productId], references: [id])
+  productId           String               @map("product_id")
+  quantity            Int
+  warehouseFrom       Warehouses           @relation("WarehouseFrom", fields: [fromWarehouseId], references: [id])
+  fromWarehouseId     String               @map("from_warehouse_id")
+  warehouseTo         Warehouses           @relation("WarehouseTo", fields: [toWarehouseId], references: [id])
+  toWarehouseId       String               @map("to_warehouse_id")
+  status              StockMovementsStatus
+  stockMovementType   StockMovementType    @relation(fields: [stockMovementTypeId], references: [id])
+  stockMovementTypeId String               @map("stock_movement_type_Id")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+
+  @@map("stock_movements")
+}
+
+model StockMovementType {
+  id             String           @id @default(uuid())
+  name           String           @unique
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  stockMovements StockMovements[]
+
+  @@map("stock_movement_types")
+}
+
+enum StockMovementsStatus {
+  TRANSIT
+  RECEIVED
+  CANCELLED
+}
+
+// СКЛАД

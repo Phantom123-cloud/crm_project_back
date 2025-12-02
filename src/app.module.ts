@@ -17,6 +17,11 @@ import { FilesModule } from './files/files.module';
 // import { ScheduleModule } from '@nestjs/schedule';
 // import { CronModule } from './cron/cron.module';
 // import { AppGatewayModule } from './gateway/app.gateway.module';
+import { TripsModule } from './trips/trips.module';
+import { TripTypesModule } from './trip-types/trip-types.module';
+import { WarehousesModule } from './warehouses/warehouses.module';
+import { ProductsModule } from './products/products.module';
+
 
 @Module({
   imports: [
@@ -38,6 +43,10 @@ import { FilesModule } from './files/files.module';
     EmployeesModule,
     UploadsModule,
     FilesModule,
+    TripsModule,
+    TripTypesModule,
+    WarehousesModule,
+    ProductsModule,
     // CronModule,
     // AppGatewayModule,
   ],
