@@ -22,27 +22,27 @@ export class CitizenshipsController {
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateCitizenshipsDto) {
-    return await this.citizenshipsService.create(dto);
+    return this.citizenshipsService.create(dto);
   }
 
   @AuthRoles('view_citizenships')
   @Get('all')
   @HttpCode(HttpStatus.CREATED)
   async all() {
-    return await this.citizenshipsService.all();
+    return this.citizenshipsService.all();
   }
 
   @AuthRoles('update_citizenships')
   @Put('update/:id')
   @HttpCode(HttpStatus.CREATED)
   async update(@Param('id') id: string, @Body() dto: UpdateCitizenshipsDto) {
-    return await this.citizenshipsService.update(id, dto);
+    return this.citizenshipsService.update(id, dto);
   }
 
   @AuthRoles('delete_citizenships')
   @Delete('delete/:id')
   @HttpCode(HttpStatus.CREATED)
   async delete(@Param('id') id: string) {
-    return await this.citizenshipsService.delete(id);
+    return this.citizenshipsService.delete(id);
   }
 }

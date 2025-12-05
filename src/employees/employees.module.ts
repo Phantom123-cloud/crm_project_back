@@ -8,6 +8,7 @@ import { UpdateEmployeeUseCase } from './use-cases/update-employee-form.usecase'
 import { AddEmployeeFieldsUseCase } from './use-cases/add-employee-fields.usecase';
 import { DeleteEmployeeFieldsUseCase } from './use-cases/delete-employee-fields.usecase';
 import { EmployeeCitizenshipUseCase } from './use-cases/disconnect-citizenship.usecase';
+import { EmployeeBuilder } from './builders/employees.builder';
 
 @Module({
   controllers: [EmployeesController],
@@ -19,6 +20,7 @@ import { EmployeeCitizenshipUseCase } from './use-cases/disconnect-citizenship.u
     AddEmployeeFieldsUseCase,
     DeleteEmployeeFieldsUseCase,
     EmployeeCitizenshipUseCase,
+    EmployeeBuilder,
   ],
   imports: [UsersModule],
 })

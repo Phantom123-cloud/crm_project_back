@@ -32,7 +32,7 @@ export class UsersController {
     @Query('isOnline', new ParseBoolPipe({ optional: true }))
     isOnline?: boolean,
   ) {
-    return await this.usersService.allUsers({
+    return this.usersService.allUsers({
       page,
       limit,
       isActive,
@@ -49,21 +49,21 @@ export class UsersController {
     @Query('roleTemplatesId')
     roleTemplatesId: string,
   ) {
-    return await this.usersService.сhangeRoleTemplate(userId, roleTemplatesId);
+    return this.usersService.сhangeRoleTemplate(userId, roleTemplatesId);
   }
 
   @AuthRoles('view_users')
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   async userById(@Param('id') id: string) {
-    return await this.usersService.userById(id);
+    return this.usersService.userById(id);
   }
 
   @AuthRoles('change_account_status')
   @Put('is-active/:id')
   @HttpCode(HttpStatus.OK)
   async isActiveUser(@Param('id') id: string, @Req() req: Request) {
-    return await this.usersService.isActiveUser(id, req);
+    return this.usersService.isActiveUser(id, req);
   }
 
   @AuthRoles('update_account_roles')

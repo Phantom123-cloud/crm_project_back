@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseBoolPipe,
   Patch,
   Post,
   Put,
@@ -90,5 +91,15 @@ export class EmployeesController {
     @Query('phoneId') phoneId: string,
   ) {
     return this.employeesService.deleteContactNumberToEmployee(userId, phoneId);
+  }
+
+  // @AuthRoles('update_employee')
+  @Get('all-employee-tradings')
+  @HttpCode(HttpStatus.OK)
+  allEmployeeTradings(
+    @Query('isNotAll', ParseBoolPipe)
+    isNotAll: boolean,
+  ) {
+    return this.employeesService.allEmployeeTradings(isNotAll);
   }
 }

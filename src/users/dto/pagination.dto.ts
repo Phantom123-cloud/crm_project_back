@@ -14,5 +14,5 @@ export class PaginationDto {
   isOnline?: boolean;
 
   @IsBoolean()
-  isFullData: boolean;
+  isFullData?: boolean;
 }

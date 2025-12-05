@@ -3,10 +3,19 @@ import { TripsService } from './trips.service';
 import { TripsController } from './trips.controller';
 import { TripsRepository } from './trips.repository';
 import { WarehousesModule } from 'src/warehouses/warehouses.module';
+import { CreateTripUsecase } from './use-cases/create-trip.usecase';
+import { TripsBuilder } from './builders/trips.builder';
+import { ActionsTripUsecase } from './use-cases/actions-trip.usecase';
 
 @Module({
   controllers: [TripsController],
-  providers: [TripsService, TripsRepository],
-  imports: [WarehousesModule]
+  providers: [
+    TripsService,
+    TripsRepository,
+    CreateTripUsecase,
+    TripsBuilder,
+    ActionsTripUsecase,
+  ],
+  imports: [WarehousesModule],
 })
 export class TripsModule {}

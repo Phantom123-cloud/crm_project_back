@@ -19,24 +19,24 @@ export class LanguagesController {
   @AuthRoles('create_languages')
   @Post('create')
   async create(@Body() dto: CreateLanguageDto) {
-    return await this.languagesService.create(dto);
+    return this.languagesService.create(dto);
   }
 
   @AuthRoles('view_languages')
   @Get('all')
   async all() {
-    return await this.languagesService.all();
+    return this.languagesService.all();
   }
 
   @AuthRoles('update_languages')
   @Put('update/:id')
   async update(@Param('id') id: string, @Body() dto: UpdateLanguageDto) {
-    return await this.languagesService.update(id, dto);
+    return this.languagesService.update(id, dto);
   }
 
   @AuthRoles('delete_languages')
   @Delete('delete/:id')
   async delete(@Param('id') id: string) {
-    return await this.languagesService.delete(id);
+    return this.languagesService.delete(id);
   }
 }

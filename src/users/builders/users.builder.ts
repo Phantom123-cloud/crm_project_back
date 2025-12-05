@@ -104,7 +104,6 @@ export class AllUsersBuilder {
       data: { users, total, countPages, page, limit, online, offline, blocked },
     });
   }
-
   async userById(id: string) {
     const user = await this.prismaService.user.findUnique({
       where: { id },

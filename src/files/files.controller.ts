@@ -43,7 +43,7 @@ export class FilesController {
     @Param('id') id: string,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    return await this.filesService.importPasspostFiles(id, files);
+    return this.filesService.importPasspostFiles(id, files);
   }
 
   @AuthRoles('delete_employee_passports')
@@ -53,7 +53,7 @@ export class FilesController {
     @Query('fileName') fileName: string,
     @Query('userId') userId: string,
   ) {
-    return await this.filesService.deleteFile(fileName, userId, 'passports');
+    return this.filesService.deleteFile(fileName, userId, 'passports');
   }
 
   @AuthRoles('view_employee_passports')

@@ -7,6 +7,7 @@ import { UpdateEmployeeUseCase } from './use-cases/update-employee-form.usecase'
 import { EmployeeCitizenshipUseCase } from './use-cases/disconnect-citizenship.usecase';
 import { AddEmployeeFieldsUseCase } from './use-cases/add-employee-fields.usecase';
 import { DeleteEmployeeFieldsUseCase } from './use-cases/delete-employee-fields.usecase';
+import { EmployeeBuilder } from './builders/employees.builder';
 
 @Injectable()
 export class EmployeesService {
@@ -15,6 +16,7 @@ export class EmployeesService {
     private readonly employeeCitizenshipUseCase: EmployeeCitizenshipUseCase,
     private readonly addEmployeeFieldsUseCase: AddEmployeeFieldsUseCase,
     private readonly deleteEmployeeFieldsUseCase: DeleteEmployeeFieldsUseCase,
+    private readonly employeeBuilder: EmployeeBuilder,
   ) {}
 
   async updateEmployeeForm(
@@ -35,7 +37,6 @@ export class EmployeesService {
       userId,
     );
   }
-
   async addLanguageToEmployee(userId: string, dto: AddLanguageToEmployeeDto) {
     return this.addEmployeeFieldsUseCase.addLanguage(userId, dto);
   }
@@ -45,7 +46,6 @@ export class EmployeesService {
   ) {
     return this.addEmployeeFieldsUseCase.addContactNumber(userId, dto);
   }
-
   async deleteContactNumberToEmployee(userId: string, phoneId: string) {
     return this.deleteEmployeeFieldsUseCase.deleteContactNumber(
       userId,
@@ -54,5 +54,9 @@ export class EmployeesService {
   }
   async deleteLanguageToEmployee(userId: string, languageId: string) {
     return this.deleteEmployeeFieldsUseCase.deleteLanguage(userId, languageId);
+  }
+
+  async allEmployeeTradings(isNotAll: boolean) {
+    return this.employeeBuilder.allEmployeeTradings(isNotAll);
   }
 }

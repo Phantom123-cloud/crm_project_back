@@ -220,6 +220,7 @@ model Trip {
   name        String     @unique
   dateFrom    String
   dateTo      String
+  isActive    Boolean    @default(true) @map("is_active")
   warehouses  Warehouses @relation(fields: [warehouseId], references: [id])
   warehouseId String     @map("warehouse_id")
   tripTypes   TripTypes  @relation(fields: [tripTypesId], references: [id])
@@ -244,8 +245,8 @@ model TripTypes {
 model Warehouses {
   id                 String           @id @default(uuid())
   name               String           @unique
-  user               User             @relation(fields: [ownerUserId], references: [id])
-  ownerUserId        String           @map("owner_user_id")
+  user               User            @relation(fields: [ownerUserId], references: [id])
+  ownerUserId        String          @map("owner_user_id")
   isActive           Boolean          @default(true) @map("is_active")
   type               WarehousesTypes
   stockItems         StockItems[]

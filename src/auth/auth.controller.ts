@@ -26,7 +26,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
-    return await this.authService.register(dto);
+    return this.authService.register(dto);
   }
 
   @Post('login')
@@ -35,14 +35,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Body() dto: LoginDto,
   ) {
-    return await this.authService.login(res, dto);
+    return this.authService.login(res, dto);
   }
 
   @Auth()
   @Post('logout/me')
   @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) res: Response, @Req() req: Request) {
-    return await this.authService.logoutMe(res, req);
+    return this.authService.logoutMe(res, req);
   }
 
   @Auth()
@@ -50,7 +50,7 @@ export class AuthController {
   @Post('logout-user/:id')
   @HttpCode(HttpStatus.OK)
   async user(@Param('id') id: string, @Req() req: Request) {
-    return await this.authService.logoutById(id, req);
+    return this.authService.logoutById(id, req);
   }
 
   @Auth()
@@ -60,7 +60,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
   ) {
-    return await this.authService.me(req, res);
+    return this.authService.me(req, res);
   }
 
   @AuthRoles('update_accounts')
@@ -70,6 +70,6 @@ export class AuthController {
     @Param('id') id: string,
     @Body() dto: Partial<UpdateAccountCredentialsDto>,
   ) {
-    return await this.authService.updateAccountCredentials(dto, id);
+    return this.authService.updateAccountCredentials(dto, id);
   }
 }
