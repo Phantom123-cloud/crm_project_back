@@ -9,6 +9,8 @@ export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(dto: CreateProductsDto) {
+    console.log(dto);
+
     const { name } = dto;
 
     const isExist = await this.prismaService.products.findUnique({
