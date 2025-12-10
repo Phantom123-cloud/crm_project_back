@@ -14,12 +14,14 @@ import {
 import { WarehousesService } from './warehouses.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
+import { AddStockItems } from './dto/add-stock-items.dto';
 
 @Controller('warehouses')
 export class WarehousesController {
   constructor(private readonly warehousesService: WarehousesService) {}
 
   @Post('create')
+  @HttpCode(HttpStatus.OK)
   async create(
     @Body() dto: CreateWarehouseDto,
     @Query('ownerUserId') ownerUserId: string,
@@ -28,11 +30,13 @@ export class WarehousesController {
   }
 
   @Put('is-active/:id')
+  @HttpCode(HttpStatus.OK)
   async isActive(@Param('id') id: string) {
     return this.warehousesService.isActive(id);
   }
 
   @Put('update/:id')
+  @HttpCode(HttpStatus.OK)
   async update(@Body() dto: UpdateWarehouseDto, @Param('id') id: string) {
     return this.warehousesService.update(dto, id);
   }
@@ -40,7 +44,7 @@ export class WarehousesController {
   // @AuthRoles('view_users')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async allTrips(
+  async allWarehouses(
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
     @Query('isActive', new ParseBoolPipe({ optional: true }))
@@ -51,5 +55,21 @@ export class WarehousesController {
       limit,
       isActive,
     });
+  }
+
+  @Get('by/:id')
+  @HttpCode(HttpStatus.OK)
+  async warehouseById(@Param('id') id: string) {
+    return this.warehousesService.warehouseById(id);
+  }
+
+  @Put('add-stock-item')
+  @HttpCode(HttpStatus.OK)
+  async addStockItem(
+    @Query('productId') productId: string,
+    @Query('warehouseId') warehouseId: string,
+    @Body() dto: AddStockItems,
+  ) {
+    return this.warehousesService.addStockItem(dto, productId, warehouseId);
   }
 }

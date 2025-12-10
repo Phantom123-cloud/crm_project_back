@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
@@ -16,6 +17,18 @@ export class CreateTripUsecase {
   ) {}
 
   async create(dto: CreateTripDto, tripTypesId: string, ownerUserId: string) {
+    const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({
+      where: {
+        type: 'CENTRAL',
+      },
+    });
+
+    if (!isExistMainWarehouse) {
+      throw new NotFoundException(
+        'Что бы начать работу, создайте центральный склад',
+      );
+    }
+
     const { dateFrom, dateTo } = dto;
 
     const dFrom = new Date(dateFrom);

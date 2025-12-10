@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { buildResponse } from 'src/utils/build-response';
@@ -50,6 +54,55 @@ export class WarehousesBuilder {
 
     return buildResponse('Данные', {
       data: { warehouses, total, countPages, page, limit },
+    });
+  }
+  async warehouseById(id: string) {
+    const isExistWarehouse = await this.prismaService.warehouses.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!isExistWarehouse) {
+      throw new NotFoundException('Склад не найден');
+    }
+    const warehouse = await this.prismaService.warehouses.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        name: true,
+        user: {
+          select: {
+            employee: {
+              select: {
+                fullName: true,
+              },
+            },
+          },
+        },
+        isActive: true,
+        type: true,
+        createdAt: true,
+
+        stockItems: {
+          select: {
+            quantity: true,
+            id: true,
+            product: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return buildResponse('Данные', {
+      data: { warehouse },
     });
   }
 }
