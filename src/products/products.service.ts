@@ -9,8 +9,6 @@ export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(dto: CreateProductsDto) {
-    console.log(dto);
-
     const { name } = dto;
 
     const isExist = await this.prismaService.products.findUnique({
@@ -96,7 +94,37 @@ export class ProductsService {
     return buildResponse('Продукт удалён');
   }
 
-  async all() {
+  async all(page: number, limit: number) {
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+    const [products, total] = await this.prismaService.$transaction([
+      this.prismaService.products.findMany({
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'asc',
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      }),
+      this.prismaService.products.count(),
+    ]);
+
+    const countPages = Math.ceil(total / limit);
+    return buildResponse('Данные', {
+      data: {
+        products,
+        total,
+        countPages,
+        page,
+        limit,
+      },
+    });
+  }
+
+  async allSelect() {
     const data = await this.prismaService.products.findMany({
       select: {
         id: true,

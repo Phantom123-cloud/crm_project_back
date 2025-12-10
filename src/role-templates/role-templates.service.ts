@@ -49,7 +49,7 @@ export class RoleTemplatesService {
     });
     return buildResponse('Новый шаблон создан');
   }
-  async allRoleTemplates() {
+  async allRoleTemplatesSelect() {
     const templates = await this.prismaService.roleTemplates.findMany({
       select: {
         name: true,
@@ -58,6 +58,38 @@ export class RoleTemplatesService {
     });
 
     return buildResponse('Данные', { data: { templates } });
+  }
+
+  async allRoleTemplates(page: number, limit: number) {
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+
+    const [templates, total] = await this.prismaService.$transaction([
+      this.prismaService.roleTemplates.findMany({
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'asc',
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      }),
+
+      this.prismaService.roleTemplates.count(),
+    ]);
+
+    const countPages = Math.ceil(total / limit);
+    return buildResponse('Данные', {
+      data: {
+        templates,
+        total,
+        countPages,
+        page,
+        limit,
+      },
+    });
   }
   async deleteRoleTemplate(id: string) {
     const isExistTemplate = await this.prismaService.roleTemplates.findUnique({

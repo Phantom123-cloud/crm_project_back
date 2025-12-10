@@ -6,8 +6,10 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { RoleTypesService } from './role-types.service';
 import { CreateRoleDto } from 'src/roles/dto/create-role.dto';
@@ -40,7 +42,17 @@ export class RoleTypesController {
   @AuthRoles('view_role_types')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  allRoleTypes() {
-    return this.roleTypesService.all();
+  allRoleTypes(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return this.roleTypesService.all(page, limit);
+  }
+
+  @AuthRoles('view_role_types')
+  @Get('select-all')
+  @HttpCode(HttpStatus.OK)
+  selectAll() {
+    return this.roleTypesService.selectAll();
   }
 }

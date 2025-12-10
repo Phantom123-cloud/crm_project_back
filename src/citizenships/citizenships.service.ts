@@ -78,7 +78,40 @@ export class CitizenshipsService {
     });
     return buildResponse('Страна обновлена');
   }
-  async all() {
+  async all(page: number, limit: number) {
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+
+    const [citizenships, total] = await this.prismaService.$transaction([
+      this.prismaService.citizenships.findMany({
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'asc',
+        },
+        select: {
+          id: true,
+          localeEn: true,
+          localeRu: true,
+          code: true,
+        },
+      }),
+      this.prismaService.citizenships.count(),
+    ]);
+
+    const countPages = Math.ceil(total / limit);
+    return buildResponse('Данные', {
+      data: {
+        citizenships,
+        total,
+        countPages,
+        page,
+        limit,
+      },
+    });
+  }
+
+  async allSelect() {
     const data = await this.prismaService.citizenships.findMany({
       select: {
         id: true,

@@ -243,18 +243,19 @@ model TripTypes {
 
 // СКЛАД
 model Warehouses {
-  id                 String           @id @default(uuid())
-  name               String           @unique
-  user               User            @relation(fields: [ownerUserId], references: [id])
-  ownerUserId        String          @map("owner_user_id")
-  isActive           Boolean          @default(true) @map("is_active")
+  id                 String             @id @default(uuid())
+  name               String             @unique
+  user               User               @relation(fields: [ownerUserId], references: [id])
+  ownerUserId        String             @map("owner_user_id")
+  isActive           Boolean            @default(true) @map("is_active")
   type               WarehousesTypes
   stockItems         StockItems[]
-  stockMovementsFrom StockMovements[] @relation("WarehouseFrom")
-  stockMovementsTo   StockMovements[] @relation("WarehouseTo")
+  stockMovementsFrom StockMovements[]   @relation("WarehouseFrom")
+  stockMovementsTo   StockMovements[]   @relation("WarehouseTo")
   trips              Trip[]
-  createdAt          DateTime         @default(now()) @map("created_at")
-  updatedAt          DateTime         @updatedAt @map("updated_at")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  warehousesHistries WarehousesHistry[]
 
   @@map("warehouses")
 }
@@ -287,6 +288,16 @@ model StockItems {
   updatedAt   DateTime   @updatedAt @map("updated_at")
 
   @@map("stock_items")
+}
+
+model WarehousesHistry {
+  id          String     @id @default(uuid())
+  warehouseId String     @map("warehouse_id")
+  warehouse   Warehouses @relation(fields: [warehouseId], references: [id])
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@map("warehouses_histry")
 }
 
 model StockMovements {

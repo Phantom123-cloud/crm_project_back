@@ -48,7 +48,7 @@ export class RolesController {
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
   ) {
-    return this.rolesService.allRoles(page, limit);
+    return this.rolesService.allRoles({ page, limit });
   }
 
   @AuthRoles('update_account_roles')

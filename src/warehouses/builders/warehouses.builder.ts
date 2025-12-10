@@ -87,6 +87,9 @@ export class WarehousesBuilder {
         createdAt: true,
 
         stockItems: {
+          orderBy: {
+            quantity: 'desc',
+          },
           select: {
             quantity: true,
             id: true,

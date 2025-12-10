@@ -11,6 +11,7 @@ import { FullInformationOnRolesBuilder } from './builders/full-Information-on-ro
 import { RolesDataBuilder } from './builders/roles-data.builder';
 import { RolesByNotTemplateBuilder } from './builders/roles-by-not-templete';
 import { RolesByTypeBuilder } from './builders/roles-by-type.builder';
+import { PaginationDto } from 'src/users/dto/pagination.dto';
 
 @Injectable()
 export class RolesService {
@@ -126,8 +127,8 @@ export class RolesService {
     return buildResponse('Роль изменена');
   }
 
-  async allRoles(page: number, limit: number) {
-    return this.rolesDataBuilder.allRoles(page, limit);
+  async allRoles(dto: PaginationDto) {
+    return this.rolesDataBuilder.allRoles(dto);
   }
   async fullInformationOnRoles(userId: string) {
     return this.fullInformationOnRolesBuilder.fullInformationOnRoles(userId);

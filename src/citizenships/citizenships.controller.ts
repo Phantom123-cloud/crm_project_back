@@ -6,8 +6,10 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CitizenshipsService } from './citizenships.service';
 import { CreateCitizenshipsDto } from './dto/create-citizenships.dto';
@@ -27,21 +29,31 @@ export class CitizenshipsController {
 
   @AuthRoles('view_citizenships')
   @Get('all')
-  @HttpCode(HttpStatus.CREATED)
-  async all() {
-    return this.citizenshipsService.all();
+  @HttpCode(HttpStatus.OK)
+  async all(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return this.citizenshipsService.all(page, limit);
+  }
+
+  @AuthRoles('view_citizenships')
+  @Get('select-all')
+  @HttpCode(HttpStatus.OK)
+  async allSelect() {
+    return this.citizenshipsService.allSelect();
   }
 
   @AuthRoles('update_citizenships')
   @Put('update/:id')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   async update(@Param('id') id: string, @Body() dto: UpdateCitizenshipsDto) {
     return this.citizenshipsService.update(id, dto);
   }
 
   @AuthRoles('delete_citizenships')
   @Delete('delete/:id')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   async delete(@Param('id') id: string) {
     return this.citizenshipsService.delete(id);
   }

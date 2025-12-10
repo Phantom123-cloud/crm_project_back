@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -46,8 +47,18 @@ export class RoleTemplatesController {
   @AuthRoles('view_templates')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  allRoleTemplates() {
-    return this.roleTemplatesService.allRoleTemplates();
+  allRoleTemplates(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return this.roleTemplatesService.allRoleTemplates(page, limit);
+  }
+
+  @AuthRoles('view_templates')
+  @Get('select-all')
+  @HttpCode(HttpStatus.OK)
+  allRoleTemplatesSelect() {
+    return this.roleTemplatesService.allRoleTemplatesSelect();
   }
 
   @AuthRoles('view_templates')

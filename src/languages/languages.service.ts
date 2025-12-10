@@ -41,7 +41,39 @@ export class LanguagesService {
 
     return buildResponse('Язык добавлен');
   }
-  async all() {
+  async all(page: number, limit: number) {
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+
+    const [languages, total] = await this.prismaService.$transaction([
+      this.prismaService.languages.findMany({
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'asc',
+        },
+        select: {
+          id: true,
+          localeEn: true,
+          localeRu: true,
+          code: true,
+        },
+      }),
+      this.prismaService.languages.count(),
+    ]);
+
+    const countPages = Math.ceil(total / limit);
+    return buildResponse('Данные', {
+      data: {
+        languages,
+        total,
+        countPages,
+        page,
+        limit,
+      },
+    });
+  }
+  async allSelect() {
     const data = await this.prismaService.languages.findMany({
       select: {
         id: true,

@@ -93,7 +93,38 @@ export class TripTypesService {
     return buildResponse('Тип выезда удалён');
   }
 
-  async all() {
+  async all(page: number, limit: number) {
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+
+    const [tripTypes, total] = await this.prismaService.$transaction([
+      this.prismaService.tripTypes.findMany({
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'asc',
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      }),
+      this.prismaService.tripTypes.count(),
+    ]);
+
+    const countPages = Math.ceil(total / limit);
+    return buildResponse('Данные', {
+      data: {
+        tripTypes,
+        total,
+        countPages,
+        page,
+        limit,
+      },
+    });
+  }
+
+  async allSelect() {
     const data = await this.prismaService.tripTypes.findMany({
       select: {
         id: true,

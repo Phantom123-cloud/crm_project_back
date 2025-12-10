@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { UsersRepository } from 'src/users/users.repository';
 import { buildResponse } from 'src/utils/build-response';
 
@@ -14,7 +15,8 @@ export class RolesDataBuilder {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  async allRoles(page: number, limit: number) {
+  async allRoles(dto: PaginationDto) {
+    const { page, limit } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
     const [rolesData, total] = await this.prismaService.$transaction([

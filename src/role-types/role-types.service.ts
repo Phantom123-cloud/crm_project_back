@@ -106,7 +106,39 @@ export class RoleTypesService {
 
     return buildResponse('Тип роли изменён');
   }
-  async all() {
+  async all(page: number, limit: number) {
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+
+    const [rolesTypeData, total] = await this.prismaService.$transaction([
+      this.prismaService.roleTypes.findMany({
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'asc',
+        },
+        select: {
+          id: true,
+          name: true,
+          descriptions: true,
+        },
+      }),
+      this.prismaService.roleTypes.count(),
+    ]);
+
+    const countPages = Math.ceil(total / limit);
+    return buildResponse('Данные', {
+      data: {
+        rolesTypeData,
+        total,
+        countPages,
+        page,
+        limit,
+      },
+    });
+  }
+
+  async selectAll() {
     const data = await this.prismaService.roleTypes.findMany({
       select: {
         id: true,
@@ -114,7 +146,6 @@ export class RoleTypesService {
         descriptions: true,
       },
     });
-
     return buildResponse('Данные', { data });
   }
 }
