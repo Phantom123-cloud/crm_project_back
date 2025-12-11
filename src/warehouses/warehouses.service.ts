@@ -8,6 +8,7 @@ import { WarehousesBuilder } from './builders/warehouses.builder';
 import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddStockItems } from './dto/add-stock-items.dto';
+import { StockMovementsStatus } from '@prisma/client';
 
 @Injectable()
 export class WarehousesService {
@@ -46,6 +47,20 @@ export class WarehousesService {
     return this.warehousesBuilder.allWarehouses(dto);
   }
 
+  async allStockMovements(
+    toWarehouseId: string,
+    page: number,
+    limit: number,
+    status?: StockMovementsStatus,
+  ) {
+    return this.warehousesBuilder.allStockMovements(
+      toWarehouseId,
+      page,
+      limit,
+      status,
+    );
+  }
+
   async warehouseById(id: string) {
     return this.warehousesBuilder.warehouseById(id);
   }
@@ -60,5 +75,23 @@ export class WarehousesService {
       productId,
       warehouseId,
     );
+  }
+
+  async stockMovements(
+    productId: string,
+    fromWarehouseId: string,
+    toWarehouseId: string,
+    dto: AddStockItems,
+  ) {
+    return this.warehousesActionsUseCase.stockMovements(
+      productId,
+      fromWarehouseId,
+      toWarehouseId,
+      dto,
+    );
+  }
+
+  async receiveProduct(stockMovementsId: string) {
+    return this.warehousesActionsUseCase.receiveProduct(stockMovementsId);
   }
 }

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { StockMovementsStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { buildResponse } from 'src/utils/build-response';
@@ -66,46 +67,134 @@ export class WarehousesBuilder {
     if (!isExistWarehouse) {
       throw new NotFoundException('Склад не найден');
     }
-    const warehouse = await this.prismaService.warehouses.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        id: true,
-        name: true,
-        user: {
-          select: {
-            employee: {
-              select: {
-                fullName: true,
-              },
-            },
-          },
-        },
-        isActive: true,
-        type: true,
-        createdAt: true,
-
-        stockItems: {
-          orderBy: {
-            quantity: 'desc',
+    const [warehouse, countTransitProduct] =
+      await this.prismaService.$transaction([
+        this.prismaService.warehouses.findUnique({
+          where: {
+            id,
           },
           select: {
-            quantity: true,
             id: true,
-            product: {
+            name: true,
+            user: {
               select: {
+                employee: {
+                  select: {
+                    fullName: true,
+                  },
+                },
+              },
+            },
+            isActive: true,
+            type: true,
+            createdAt: true,
+            stockItems: {
+              orderBy: {
+                quantity: 'desc',
+              },
+              select: {
+                quantity: true,
                 id: true,
-                name: true,
+                product: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
           },
-        },
-      },
-    });
+        }),
+        this.prismaService.stockMovements.count({
+          where: {
+            toWarehouseId: id,
+            status: 'TRANSIT',
+          },
+        }),
+      ]);
 
     return buildResponse('Данные', {
-      data: { warehouse },
+      data: { warehouse, countTransitProduct },
+    });
+  }
+  async allStockMovements(
+    toWarehouseId: string,
+    page: number,
+    limit: number,
+    status?: StockMovementsStatus,
+  ) {
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+
+    const [stockMovements, total] = await this.prismaService.$transaction([
+      this.prismaService.stockMovements.findMany({
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        where: {
+          toWarehouseId,
+          ...(status && { status }),
+        },
+
+        select: {
+          id: true,
+          product: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          quantity: true,
+          warehouseFrom: {
+            select: {
+              user: {
+                select: {
+                  email: true,
+
+                  employee: {
+                    select: {
+                      fullName: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          warehouseTo: {
+            select: {
+              user: {
+                select: {
+                  email: true,
+
+                  employee: {
+                    select: {
+                      fullName: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+
+          status: true,
+          stockMovementType: true,
+          createdAt: true,
+        },
+      }),
+      this.prismaService.stockMovements.count({
+        where: {
+          toWarehouseId,
+          ...(status && { status }),
+        },
+      }),
+    ]);
+
+    const countPages = Math.ceil(total / limit);
+
+    return buildResponse('Данные', {
+      data: { stockMovements, total, countPages, page, limit },
     });
   }
 }

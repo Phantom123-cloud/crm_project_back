@@ -15,6 +15,7 @@ import { WarehousesService } from './warehouses.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { AddStockItems } from './dto/add-stock-items.dto';
+import { StockMovementsStatus } from '@prisma/client';
 
 @Controller('warehouses')
 export class WarehousesController {
@@ -57,6 +58,22 @@ export class WarehousesController {
     });
   }
 
+  @Get('all-stock-movements')
+  @HttpCode(HttpStatus.OK)
+  async allStockMovements(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+    @Query('toWarehouseId') toWarehouseId: string,
+    @Query('status') status: StockMovementsStatus,
+  ) {
+    return this.warehousesService.allStockMovements(
+      toWarehouseId,
+      page,
+      limit,
+      status,
+    );
+  }
+
   @Get('by/:id')
   @HttpCode(HttpStatus.OK)
   async warehouseById(@Param('id') id: string) {
@@ -71,5 +88,27 @@ export class WarehousesController {
     @Body() dto: AddStockItems,
   ) {
     return this.warehousesService.addStockItem(dto, productId, warehouseId);
+  }
+
+  @Put('stock-movements')
+  @HttpCode(HttpStatus.OK)
+  async stockMovements(
+    @Query('productId') productId: string,
+    @Query('fromWarehouseId') fromWarehouseId: string,
+    @Query('toWarehouseId') toWarehouseId: string,
+    @Body() dto: AddStockItems,
+  ) {
+    return this.warehousesService.stockMovements(
+      productId,
+      fromWarehouseId,
+      toWarehouseId,
+      dto,
+    );
+  }
+
+  @Put('receive-product')
+  @HttpCode(HttpStatus.OK)
+  async receiveProduct(@Query('stockMovementsId') stockMovementsId: string) {
+    return this.warehousesService.receiveProduct(stockMovementsId);
   }
 }

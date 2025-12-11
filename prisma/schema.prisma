@@ -243,19 +243,19 @@ model TripTypes {
 
 // СКЛАД
 model Warehouses {
-  id                 String             @id @default(uuid())
-  name               String             @unique
-  user               User               @relation(fields: [ownerUserId], references: [id])
-  ownerUserId        String             @map("owner_user_id")
-  isActive           Boolean            @default(true) @map("is_active")
+  id                 String           @id @default(uuid())
+  name               String           @unique
+  user               User             @relation(fields: [ownerUserId], references: [id])
+  ownerUserId        String           @map("owner_user_id")
+  isActive           Boolean          @default(true) @map("is_active")
   type               WarehousesTypes
   stockItems         StockItems[]
-  stockMovementsFrom StockMovements[]   @relation("WarehouseFrom")
-  stockMovementsTo   StockMovements[]   @relation("WarehouseTo")
+  stockMovementsFrom StockMovements[] @relation("WarehouseFrom")
+  stockMovementsTo   StockMovements[] @relation("WarehouseTo")
   trips              Trip[]
-  createdAt          DateTime           @default(now()) @map("created_at")
-  updatedAt          DateTime           @updatedAt @map("updated_at")
-  warehousesHistries WarehousesHistry[]
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  // warehousesHistries WarehousesHistry[]
 
   @@map("warehouses")
 }
@@ -290,48 +290,52 @@ model StockItems {
   @@map("stock_items")
 }
 
-model WarehousesHistry {
-  id          String     @id @default(uuid())
-  warehouseId String     @map("warehouse_id")
-  warehouse   Warehouses @relation(fields: [warehouseId], references: [id])
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+// model WarehousesHistry {
+//   id          String     @id @default(uuid())
+//   warehouseId String     @map("warehouse_id")
+//   warehouse   Warehouses @relation(fields: [warehouseId], references: [id])
+//   createdAt   DateTime   @default(now()) @map("created_at")
+//   updatedAt   DateTime   @updatedAt @map("updated_at")
 
-  @@map("warehouses_histry")
-}
+//   @@map("warehouses_histry")
+// }
 
 model StockMovements {
-  id                  String               @id @default(uuid())
-  product             Products             @relation(fields: [productId], references: [id])
-  productId           String               @map("product_id")
-  quantity            Int
-  warehouseFrom       Warehouses           @relation("WarehouseFrom", fields: [fromWarehouseId], references: [id])
-  fromWarehouseId     String               @map("from_warehouse_id")
-  warehouseTo         Warehouses           @relation("WarehouseTo", fields: [toWarehouseId], references: [id])
-  toWarehouseId       String               @map("to_warehouse_id")
-  status              StockMovementsStatus
-  stockMovementType   StockMovementType    @relation(fields: [stockMovementTypeId], references: [id])
-  stockMovementTypeId String               @map("stock_movement_type_Id")
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
+  id                String               @id @default(uuid())
+  product           Products             @relation(fields: [productId], references: [id])
+  productId         String               @map("product_id")
+  quantity          Int
+  warehouseFrom     Warehouses?          @relation("WarehouseFrom", fields: [fromWarehouseId], references: [id])
+  fromWarehouseId   String?              @map("from_warehouse_id")
+  warehouseTo       Warehouses           @relation("WarehouseTo", fields: [toWarehouseId], references: [id])
+  toWarehouseId     String               @map("to_warehouse_id")
+  status            StockMovementsStatus
+  stockMovementType StockMovementType
+  createdAt         DateTime             @default(now()) @map("created_at")
+  updatedAt         DateTime             @updatedAt @map("updated_at")
 
   @@map("stock_movements")
 }
 
-model StockMovementType {
-  id             String           @id @default(uuid())
-  name           String           @unique
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
-  stockMovements StockMovements[]
+enum StockMovementType {
+  // ПРИХОД
+  GOODS_RECEIPT
+  // ПЕРЕМЕЩЕНИЕ
+  STOCK_TRANSFER
+  // ДОСТАВКА
+  OUTBOUND_DELIVERY
+  // СПИСАНИЕ_БРАК
+  SCRAP
 
-  @@map("stock_movement_types")
+  @@map("stock_movement_type")
 }
 
 enum StockMovementsStatus {
   TRANSIT
   RECEIVED
   CANCELLED
+
+  @@map("stock_movement_status")
 }
 
 // СКЛАД
