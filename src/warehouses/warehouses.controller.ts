@@ -76,8 +76,12 @@ export class WarehousesController {
 
   @Get('by/:id')
   @HttpCode(HttpStatus.OK)
-  async warehouseById(@Param('id') id: string) {
-    return this.warehousesService.warehouseById(id);
+  async warehouseById(
+    @Param('id') id: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return this.warehousesService.warehouseById(id, page, limit);
   }
 
   @Put('add-stock-item')

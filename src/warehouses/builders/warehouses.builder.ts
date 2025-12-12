@@ -57,7 +57,7 @@ export class WarehousesBuilder {
       data: { warehouses, total, countPages, page, limit },
     });
   }
-  async warehouseById(id: string) {
+  async warehouseById(id: string, page: number, limit: number) {
     const isExistWarehouse = await this.prismaService.warehouses.findUnique({
       where: {
         id,
@@ -67,7 +67,10 @@ export class WarehousesBuilder {
     if (!isExistWarehouse) {
       throw new NotFoundException('Склад не найден');
     }
-    const [warehouse, countTransitProduct] =
+
+    const currentPage = page ?? 1;
+    const pageSize = limit ?? 10;
+    const [warehouse, countTransitProduct, stockItems, total] =
       await this.prismaService.$transaction([
         this.prismaService.warehouses.findUnique({
           where: {
@@ -111,10 +114,46 @@ export class WarehousesBuilder {
             status: 'TRANSIT',
           },
         }),
+
+        this.prismaService.stockItems.findMany({
+          where: {
+            warehouseId: id,
+          },
+          skip: (currentPage - 1) * pageSize,
+          take: pageSize,
+          orderBy: {
+            quantity: 'desc',
+          },
+          select: {
+            quantity: true,
+            id: true,
+            product: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        }),
+        this.prismaService.stockItems.count({
+          where: {
+            warehouseId: id,
+          },
+        }),
       ]);
 
+    const countPages = Math.ceil(total / limit);
+
     return buildResponse('Данные', {
-      data: { warehouse, countTransitProduct },
+      data: {
+        warehouse,
+        countTransitProduct,
+        stockItems,
+        total,
+        countPages,
+        page,
+        limit,
+      },
     });
   }
   async allStockMovements(

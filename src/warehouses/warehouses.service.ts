@@ -61,8 +61,8 @@ export class WarehousesService {
     );
   }
 
-  async warehouseById(id: string) {
-    return this.warehousesBuilder.warehouseById(id);
+  async warehouseById(id: string, page: number, limit: number) {
+    return this.warehousesBuilder.warehouseById(id, page, limit);
   }
 
   async addStockItem(
