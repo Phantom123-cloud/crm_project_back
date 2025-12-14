@@ -157,7 +157,7 @@ export class WarehousesBuilder {
     });
   }
   async allStockMovements(
-    toWarehouseId: string,
+    warehouseId: string,
     page: number,
     limit: number,
     status?: StockMovementsStatus,
@@ -173,7 +173,14 @@ export class WarehousesBuilder {
           createdAt: 'desc',
         },
         where: {
-          toWarehouseId,
+          OR: [
+            {
+              toWarehouseId: warehouseId,
+            },
+            {
+              fromWarehouseId: warehouseId,
+            },
+          ],
           ...(status && { status }),
         },
 
@@ -188,32 +195,14 @@ export class WarehousesBuilder {
           quantity: true,
           warehouseFrom: {
             select: {
-              user: {
-                select: {
-                  email: true,
-
-                  employee: {
-                    select: {
-                      fullName: true,
-                    },
-                  },
-                },
-              },
+              id: true,
+              name: true,
             },
           },
           warehouseTo: {
             select: {
-              user: {
-                select: {
-                  email: true,
-
-                  employee: {
-                    select: {
-                      fullName: true,
-                    },
-                  },
-                },
-              },
+              id: true,
+              name: true,
             },
           },
 
@@ -224,7 +213,14 @@ export class WarehousesBuilder {
       }),
       this.prismaService.stockMovements.count({
         where: {
-          toWarehouseId,
+          OR: [
+            {
+              toWarehouseId: warehouseId,
+            },
+            {
+              fromWarehouseId: warehouseId,
+            },
+          ],
           ...(status && { status }),
         },
       }),
@@ -234,6 +230,25 @@ export class WarehousesBuilder {
 
     return buildResponse('Данные', {
       data: { stockMovements, total, countPages, page, limit },
+    });
+  }
+
+  async allWarehousesSelect(notId: string) {
+    const data = await this.prismaService.warehouses.findMany({
+      where: {
+        isActive: true,
+        id: {
+          not: notId,
+        },
+      },
+
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+    return buildResponse('Данные', {
+      data,
     });
   }
 }

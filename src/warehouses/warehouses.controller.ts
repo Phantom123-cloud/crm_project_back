@@ -63,15 +63,21 @@ export class WarehousesController {
   async allStockMovements(
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
-    @Query('toWarehouseId') toWarehouseId: string,
+    @Query('warehouseId') warehouseId: string,
     @Query('status') status: StockMovementsStatus,
   ) {
     return this.warehousesService.allStockMovements(
-      toWarehouseId,
+      warehouseId,
       page,
       limit,
       status,
     );
+  }
+
+  @Get('select-all')
+  @HttpCode(HttpStatus.OK)
+  async allWarehousesSelect(@Query('notId') notId: string) {
+    return this.warehousesService.allWarehousesSelect(notId);
   }
 
   @Get('by/:id')
@@ -110,9 +116,12 @@ export class WarehousesController {
     );
   }
 
-  @Put('receive-product')
+  @Put('accept-product')
   @HttpCode(HttpStatus.OK)
-  async receiveProduct(@Query('stockMovementsId') stockMovementsId: string) {
-    return this.warehousesService.receiveProduct(stockMovementsId);
+  async acceptProduct(
+    @Query('stockMovementsId') stockMovementsId: string,
+    @Query('warehouseId') warehouseId: string,
+  ) {
+    return this.warehousesService.acceptProduct(stockMovementsId, warehouseId);
   }
 }

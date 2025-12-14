@@ -48,17 +48,20 @@ export class WarehousesService {
   }
 
   async allStockMovements(
-    toWarehouseId: string,
+    warehouseId: string,
     page: number,
     limit: number,
     status?: StockMovementsStatus,
   ) {
     return this.warehousesBuilder.allStockMovements(
-      toWarehouseId,
+      warehouseId,
       page,
       limit,
       status,
     );
+  }
+  async allWarehousesSelect(notId: string) {
+    return this.warehousesBuilder.allWarehousesSelect(notId);
   }
 
   async warehouseById(id: string, page: number, limit: number) {
@@ -91,7 +94,10 @@ export class WarehousesService {
     );
   }
 
-  async receiveProduct(stockMovementsId: string) {
-    return this.warehousesActionsUseCase.receiveProduct(stockMovementsId);
+  async acceptProduct(stockMovementsId: string, warehouseId: string) {
+    return this.warehousesActionsUseCase.acceptProduct(
+      stockMovementsId,
+      warehouseId,
+    );
   }
 }
