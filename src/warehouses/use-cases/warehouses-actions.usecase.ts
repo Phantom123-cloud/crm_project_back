@@ -55,7 +55,7 @@ export class WarehousesActionsUseCase {
     productId: string,
     warehouseId: string,
   ) {
-    const { quantity } = dto;
+    const { quantity, from } = dto;
     const isExistWarehouse = await this.prismaService.warehouses.findUnique({
       where: {
         id: warehouseId,
@@ -117,6 +117,7 @@ export class WarehousesActionsUseCase {
         data: {
           productId,
           toWarehouseId: warehouseId,
+          fromSupplier: from,
           quantity,
           status: 'RECEIVED',
           stockMovementType: 'GOODS_RECEIPT',
@@ -220,7 +221,6 @@ export class WarehousesActionsUseCase {
 
     return buildResponse('Перемещение выполнено');
   }
-
   async acceptProduct(stockMovementsId: string, warehouseId: string) {
     const isExist = await this.prismaService.stockMovements.findUnique({
       where: {
@@ -265,7 +265,7 @@ export class WarehousesActionsUseCase {
           data: {
             productId: isExist.productId,
             warehouseId: isAccept
-              ? isExist.toWarehouseId
+              ? (isExist.toWarehouseId as string)
               : (isExist.fromWarehouseId as string),
             quantity: isExist.quantity,
           },
@@ -294,5 +294,80 @@ export class WarehousesActionsUseCase {
     });
 
     return buildResponse('Перемещение товара подтверждено');
+  }
+
+  async scrapProduct(
+    warehouseId: string,
+    productId: string,
+    dto: AddStockItems,
+  ) {
+    const { quantity } = dto;
+    const [isExistWarehouse, isExistStockItems] =
+      await this.prismaService.$transaction([
+        this.prismaService.warehouses.findUnique({
+          where: {
+            id: warehouseId,
+          },
+
+          select: {
+            stockItems: {
+              select: {
+                id: true,
+                quantity: true,
+                product: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+        this.prismaService.stockItems.findFirst({
+          where: {
+            productId,
+            warehouseId,
+          },
+
+          select: {
+            id: true,
+            quantity: true,
+          },
+        }),
+      ]);
+
+    if (!isExistWarehouse || !isExistStockItems) {
+      throw new NotFoundException(
+        !isExistWarehouse ? 'Склад не найден' : 'Товар не обнаружен на складе',
+      );
+    }
+
+    if (quantity > isExistStockItems.quantity) {
+      throw new ConflictException(
+        'К-во для списания не может быть больше чем общее к-во позиции на складе',
+      );
+    }
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.stockItems.update({
+        where: { id: isExistStockItems.id },
+        data: {
+          quantity: isExistStockItems.quantity - quantity,
+        },
+      });
+
+      await tx.stockMovements.create({
+        data: {
+          productId,
+          fromWarehouseId: warehouseId,
+          quantity,
+          status: 'SCRAP',
+          stockMovementType: 'SCRAP',
+        },
+      });
+
+      return;
+    });
+
+    return buildResponse('К-во обновлено');
   }
 }

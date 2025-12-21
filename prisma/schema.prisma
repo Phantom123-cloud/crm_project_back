@@ -307,14 +307,21 @@ model StockMovements {
   quantity          Int
   warehouseFrom     Warehouses?          @relation("WarehouseFrom", fields: [fromWarehouseId], references: [id])
   fromWarehouseId   String?              @map("from_warehouse_id")
-  warehouseTo       Warehouses           @relation("WarehouseTo", fields: [toWarehouseId], references: [id])
-  toWarehouseId     String               @map("to_warehouse_id")
+  warehouseTo       Warehouses?          @relation("WarehouseTo", fields: [toWarehouseId], references: [id])
+  toWarehouseId     String?              @map("to_warehouse_id")
+  fromSupplier      FromSupplier?
   status            StockMovementsStatus
   stockMovementType StockMovementType
   createdAt         DateTime             @default(now()) @map("created_at")
   updatedAt         DateTime             @updatedAt @map("updated_at")
 
   @@map("stock_movements")
+}
+
+enum FromSupplier {
+  SUPPLER
+  SPV
+  @@map("from_supplier")
 }
 
 enum StockMovementType {
@@ -334,6 +341,7 @@ enum StockMovementsStatus {
   TRANSIT
   RECEIVED
   CANCELLED
+  SCRAP
 
   @@map("stock_movement_status")
 }

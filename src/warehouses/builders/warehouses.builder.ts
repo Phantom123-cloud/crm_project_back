@@ -205,7 +205,7 @@ export class WarehousesBuilder {
               name: true,
             },
           },
-
+          fromSupplier: true,
           status: true,
           stockMovementType: true,
           createdAt: true,

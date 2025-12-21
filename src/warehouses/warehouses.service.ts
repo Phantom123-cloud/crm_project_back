@@ -100,4 +100,16 @@ export class WarehousesService {
       warehouseId,
     );
   }
+
+  async scrapProduct(
+    warehouseId: string,
+    productId: string,
+    dto: AddStockItems,
+  ) {
+    return this.warehousesActionsUseCase.scrapProduct(
+      warehouseId,
+      productId,
+      dto,
+    );
+  }
 }

@@ -99,6 +99,15 @@ export class WarehousesController {
   ) {
     return this.warehousesService.addStockItem(dto, productId, warehouseId);
   }
+  @Put('scrap-product')
+  @HttpCode(HttpStatus.OK)
+  async scrapProduct(
+    @Query('warehouseId') warehouseId: string,
+    @Query('productId') productId: string,
+    @Body() dto: AddStockItems,
+  ) {
+    return this.warehousesService.scrapProduct(warehouseId, productId, dto);
+  }
 
   @Put('stock-movements')
   @HttpCode(HttpStatus.OK)
