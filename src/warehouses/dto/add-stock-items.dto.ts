@@ -1,4 +1,4 @@
-import { FromSupplier } from '@prisma/client';
+import { WhomOrWhere } from '@prisma/client';
 import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class AddStockItems {
@@ -6,5 +6,5 @@ export class AddStockItems {
   quantity: number;
 
   @IsOptional()
-  from: FromSupplier;
+  fromOrTo: WhomOrWhere;
 }

@@ -186,6 +186,7 @@ export class WarehousesBuilder {
 
         select: {
           id: true,
+          reason: true,
           product: {
             select: {
               id: true,
@@ -205,7 +206,7 @@ export class WarehousesBuilder {
               name: true,
             },
           },
-          fromSupplier: true,
+          toWhomOrFromWhere: true,
           status: true,
           stockMovementType: true,
           createdAt: true,

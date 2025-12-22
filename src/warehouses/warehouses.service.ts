@@ -9,6 +9,7 @@ import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddStockItems } from './dto/add-stock-items.dto';
 import { StockMovementsStatus } from '@prisma/client';
+import { SaleProductDto } from './dto/sele-product.dto';
 
 @Injectable()
 export class WarehousesService {
@@ -74,6 +75,17 @@ export class WarehousesService {
     warehouseId: string,
   ) {
     return this.warehousesActionsUseCase.addStockItem(
+      dto,
+      productId,
+      warehouseId,
+    );
+  }
+  async saleProduct(
+    dto: SaleProductDto,
+    productId: string,
+    warehouseId: string,
+  ) {
+    return this.warehousesActionsUseCase.saleProduct(
       dto,
       productId,
       warehouseId,

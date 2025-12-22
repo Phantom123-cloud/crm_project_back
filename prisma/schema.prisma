@@ -290,26 +290,18 @@ model StockItems {
   @@map("stock_items")
 }
 
-// model WarehousesHistry {
-//   id          String     @id @default(uuid())
-//   warehouseId String     @map("warehouse_id")
-//   warehouse   Warehouses @relation(fields: [warehouseId], references: [id])
-//   createdAt   DateTime   @default(now()) @map("created_at")
-//   updatedAt   DateTime   @updatedAt @map("updated_at")
-
-//   @@map("warehouses_histry")
-// }
-
 model StockMovements {
-  id                String               @id @default(uuid())
-  product           Products             @relation(fields: [productId], references: [id])
-  productId         String               @map("product_id")
-  quantity          Int
-  warehouseFrom     Warehouses?          @relation("WarehouseFrom", fields: [fromWarehouseId], references: [id])
-  fromWarehouseId   String?              @map("from_warehouse_id")
-  warehouseTo       Warehouses?          @relation("WarehouseTo", fields: [toWarehouseId], references: [id])
-  toWarehouseId     String?              @map("to_warehouse_id")
-  fromSupplier      FromSupplier?
+  id              String      @id @default(uuid())
+  product         Products    @relation(fields: [productId], references: [id])
+  productId       String      @map("product_id")
+  quantity        Int
+  warehouseFrom   Warehouses? @relation("WarehouseFrom", fields: [fromWarehouseId], references: [id])
+  fromWarehouseId String?     @map("from_warehouse_id")
+  warehouseTo     Warehouses? @relation("WarehouseTo", fields: [toWarehouseId], references: [id])
+  toWarehouseId   String?     @map("to_warehouse_id")
+
+  toWhomOrFromWhere WhomOrWhere?         @map("to_whom_or_from_where")
+  reason            String?
   status            StockMovementsStatus
   stockMovementType StockMovementType
   createdAt         DateTime             @default(now()) @map("created_at")
@@ -318,9 +310,11 @@ model StockMovements {
   @@map("stock_movements")
 }
 
-enum FromSupplier {
+enum WhomOrWhere {
   SUPPLER
   SPV
+  CLIENT
+
   @@map("from_supplier")
 }
 
@@ -333,6 +327,10 @@ enum StockMovementType {
   OUTBOUND_DELIVERY
   // СПИСАНИЕ_БРАК
   SCRAP
+  // ПРОДАЖА
+  SALE
+  // ПОДАРОК
+  GIFT
 
   @@map("stock_movement_type")
 }

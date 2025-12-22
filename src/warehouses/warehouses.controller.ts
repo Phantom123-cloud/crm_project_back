@@ -16,6 +16,7 @@ import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { AddStockItems } from './dto/add-stock-items.dto';
 import { StockMovementsStatus } from '@prisma/client';
+import { SaleProductDto } from './dto/sele-product.dto';
 
 @Controller('warehouses')
 export class WarehousesController {
@@ -123,6 +124,16 @@ export class WarehousesController {
       toWarehouseId,
       dto,
     );
+  }
+
+  @Put('sale-product')
+  @HttpCode(HttpStatus.OK)
+  async saleProduct(
+    @Query('productId') productId: string,
+    @Query('warehouseId') warehouseId: string,
+    @Body() dto: SaleProductDto,
+  ) {
+    return this.warehousesService.saleProduct(dto, productId, warehouseId);
   }
 
   @Put('accept-product')
