@@ -8,8 +8,8 @@ export class SaleProductDto {
   reason: string;
 
   @IsEnum(
-    { SALE: 'SALE', GIFT: 'GIFT' },
+    { SALE: 'SALE', GIFT: 'GIFT', DELIVERY: 'DELIVERY' },
     { message: 'Некоректно переданные данные для типа' },
   )
-  stockMovementType: 'SALE' | 'GIFT';
+  stockMovementType: 'SALE' | 'GIFT' | 'DELIVERY';
 }

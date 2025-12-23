@@ -331,6 +331,8 @@ enum StockMovementType {
   SALE
   // ПОДАРОК
   GIFT
+  // ДОСТАВКА
+  DELIVERY
 
   @@map("stock_movement_type")
 }
