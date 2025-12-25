@@ -49,7 +49,7 @@ export class RoleTypesController {
     return this.roleTypesService.all(page, limit);
   }
 
-  @AuthRoles('view_role_types')
+  @AuthRoles('create_roles', 'update_roles')
   @Get('select-all')
   @HttpCode(HttpStatus.OK)
   selectAll() {

@@ -162,6 +162,6 @@ export class RolesDataBuilder {
 
     const allRoles = [...templateRoles.map((r) => r.name), ...individualRoles];
     const data = [...new Set(allRoles)];
-    return data;
+    return data.sort();
   }
 }

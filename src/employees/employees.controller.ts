@@ -93,7 +93,7 @@ export class EmployeesController {
     return this.employeesService.deleteContactNumberToEmployee(userId, phoneId);
   }
 
-  // @AuthRoles('update_employee')
+  @AuthRoles('create_warehouses')
   @Get('all-employee-tradings')
   @HttpCode(HttpStatus.OK)
   allEmployeeTradings(

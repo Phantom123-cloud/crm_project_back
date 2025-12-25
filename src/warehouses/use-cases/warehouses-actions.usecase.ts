@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,12 +8,23 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { AddStockItems } from '../dto/add-stock-items.dto';
 import { SaleProductDto } from '../dto/sele-product.dto';
+import type { Request } from 'express';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
 
 @Injectable()
 export class WarehousesActionsUseCase {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly rolesDataBuilder: RolesDataBuilder,
+  ) {}
+
+  async isWarehousesAdmin(user: JwtPayload) {
+    const userRoles = await this.rolesDataBuilder.getRolesNameByUserId(user.id);
+    return userRoles.some((roleName) => roleName === 'warehouses_admin');
+  }
   async isActive(id: string) {
-    const [isExistWarehouse, isExistEmptyStockItems] =
+    const [isExistWarehouse, isExistEmptyStockItems, isEmptyStockMovements] =
       await this.prismaService.$transaction([
         this.prismaService.warehouses.findUnique({
           where: {
@@ -23,6 +35,7 @@ export class WarehousesActionsUseCase {
             stockItems: true,
             type: true,
             isActive: true,
+            ownerUserId: true,
           },
         }),
 
@@ -32,6 +45,18 @@ export class WarehousesActionsUseCase {
             quantity: {
               gte: 1,
             },
+          },
+        }),
+        this.prismaService.stockMovements.count({
+          where: {
+            OR: [
+              {
+                toWarehouseId: id,
+              },
+              {
+                fromWarehouseId: id,
+              },
+            ],
           },
         }),
       ]);
@@ -44,11 +69,12 @@ export class WarehousesActionsUseCase {
       throw new ConflictException('Центральный склад не блокируется');
     }
 
-    if (isExistEmptyStockItems) {
+    if (isExistEmptyStockItems || isEmptyStockMovements) {
       throw new ConflictException(
         'Заблокировать склад можно после перемещения всех остатков товара в другое место',
       );
     }
+
     await this.prismaService.warehouses.update({
       where: {
         id,
@@ -64,10 +90,14 @@ export class WarehousesActionsUseCase {
     );
   }
   async addStockItem(
+    req: Request,
     dto: AddStockItems,
     productId: string,
     warehouseId: string,
   ) {
+    const user = req.user as JwtPayload;
+    const isWarehousesAdmin = await this.isWarehousesAdmin(user);
+
     const { quantity, fromOrTo } = dto;
     const [isExistWarehouse, findStockId] =
       await this.prismaService.$transaction([
@@ -77,6 +107,7 @@ export class WarehousesActionsUseCase {
           },
 
           select: {
+            ownerUserId: true,
             stockItems: {
               select: {
                 id: true,
@@ -107,6 +138,10 @@ export class WarehousesActionsUseCase {
       throw new NotFoundException(
         !isExistWarehouse ? 'Склад не найден' : 'Товар не обнаружен на складе',
       );
+    }
+
+    if (!isWarehousesAdmin && isExistWarehouse.ownerUserId !== user.id) {
+      throw new ForbiddenException('У вас нет права на это действие');
     }
 
     await this.prismaService.$transaction(async (tx) => {
@@ -145,10 +180,14 @@ export class WarehousesActionsUseCase {
     return buildResponse('К-во обновлено');
   }
   async saleProduct(
+    req: Request,
     dto: SaleProductDto,
     productId: string,
     warehouseId: string,
   ) {
+    const user = req.user as JwtPayload;
+    const isWarehousesAdmin = await this.isWarehousesAdmin(user);
+
     const { quantity, reason, stockMovementType } = dto;
     const [isExistWarehouse, findStockId] =
       await this.prismaService.$transaction([
@@ -158,6 +197,7 @@ export class WarehousesActionsUseCase {
           },
 
           select: {
+            ownerUserId: true,
             stockItems: {
               select: {
                 id: true,
@@ -188,6 +228,10 @@ export class WarehousesActionsUseCase {
       throw new NotFoundException(
         !isExistWarehouse ? 'Склад не найден' : 'Товар не обнаружен на складе',
       );
+    }
+
+    if (!isWarehousesAdmin && isExistWarehouse.ownerUserId !== user.id) {
+      throw new ForbiddenException('У вас нет права на это действие');
     }
 
     if (quantity > findStockId.quantity) {
@@ -227,8 +271,11 @@ export class WarehousesActionsUseCase {
     fromWarehouseId: string,
     toWarehouseId: string,
     dto: AddStockItems,
+    req: Request,
   ) {
     const { quantity } = dto;
+    const user = req.user as JwtPayload;
+    const isWarehousesAdmin = await this.isWarehousesAdmin(user);
 
     const [fromWarehouse, toWarehouse] = await this.prismaService.$transaction([
       this.prismaService.warehouses.findUnique({
@@ -237,6 +284,7 @@ export class WarehousesActionsUseCase {
         },
 
         select: {
+          ownerUserId: true,
           stockItems: {
             select: {
               id: true,
@@ -273,6 +321,10 @@ export class WarehousesActionsUseCase {
 
     if (!fromWarehouse || !toWarehouse) {
       throw new NotFoundException('Склад не найден');
+    }
+
+    if (!isWarehousesAdmin && fromWarehouse.ownerUserId !== user.id) {
+      throw new ForbiddenException('У вас нет права на это действие');
     }
 
     const stockItemsForReduce = fromWarehouse.stockItems.find(
@@ -314,21 +366,22 @@ export class WarehousesActionsUseCase {
 
     return buildResponse('Перемещение выполнено');
   }
-  async acceptProduct(stockMovementsId: string, warehouseId: string) {
+  async acceptProduct(
+    req: Request,
+    stockMovementsId: string,
+    warehouseId: string,
+  ) {
     const isExist = await this.prismaService.stockMovements.findUnique({
       where: {
         id: stockMovementsId,
       },
     });
 
+    const user = req.user as JwtPayload;
+    const isWarehousesAdmin = await this.isWarehousesAdmin(user);
+
     if (!isExist) {
       throw new NotFoundException('Данные не найдены');
-    }
-
-    if (!isExist.fromWarehouseId) {
-      throw new ConflictException(
-        'К товару попавшему на склад не через перемещение, операция не применима',
-      );
     }
 
     const warehouse = await this.prismaService.warehouses.findUnique({
@@ -339,11 +392,28 @@ export class WarehousesActionsUseCase {
       select: {
         id: true,
         stockItems: true,
+        ownerUserId: true,
       },
     });
 
     if (!warehouse) {
       throw new NotFoundException('Склад не найдены');
+    }
+
+    if (!isWarehousesAdmin && warehouse.ownerUserId !== user.id) {
+      throw new ForbiddenException('У вас нет права на это действие');
+    }
+
+    if (!isExist.fromWarehouseId) {
+      throw new ConflictException(
+        'К товару попавшему на склад не через перемещение, операция не применима',
+      );
+    }
+
+    if (['RECEIVED', 'CANCELLED'].includes(isExist.status)) {
+      throw new ConflictException(
+        'Операция была выполнена, возможно необходимо обновить страницу',
+      );
     }
 
     const isAccept = isExist.toWarehouseId === warehouse.id;
@@ -389,11 +459,15 @@ export class WarehousesActionsUseCase {
     return buildResponse('Перемещение товара подтверждено');
   }
   async scrapProduct(
+    req: Request,
     warehouseId: string,
     productId: string,
     dto: AddStockItems,
   ) {
     const { quantity } = dto;
+    const user = req.user as JwtPayload;
+    const isWarehousesAdmin = await this.isWarehousesAdmin(user);
+
     const [isExistWarehouse, isExistStockItems] =
       await this.prismaService.$transaction([
         this.prismaService.warehouses.findUnique({
@@ -402,6 +476,7 @@ export class WarehousesActionsUseCase {
           },
 
           select: {
+            ownerUserId: true,
             stockItems: {
               select: {
                 id: true,
@@ -432,6 +507,10 @@ export class WarehousesActionsUseCase {
       throw new NotFoundException(
         !isExistWarehouse ? 'Склад не найден' : 'Товар не обнаружен на складе',
       );
+    }
+
+    if (!isWarehousesAdmin && isExistWarehouse.ownerUserId !== user.id) {
+      throw new ForbiddenException('У вас нет права на это действие');
     }
 
     if (quantity > isExistStockItems.quantity) {

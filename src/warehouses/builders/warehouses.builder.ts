@@ -1,18 +1,26 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { StockMovementsStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { buildResponse } from 'src/utils/build-response';
+import type { Request } from 'express';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
 
 @Injectable()
 export class WarehousesBuilder {
-  constructor(private readonly prismaService: PrismaService) {}
-  async allWarehouses(dto: PaginationDto) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly rolesDataBuilder: RolesDataBuilder,
+  ) {}
+  async allWarehouses(dto: PaginationDto, req: Request) {
     const { page, limit, isActive } = dto;
+    const user = req.user as JwtPayload;
+    const userRoles = await this.rolesDataBuilder.getRolesNameByUserId(user.id);
+
+    const isWarehousesAdmin = userRoles.some(
+      (roleName) => roleName === 'warehouses_admin',
+    );
 
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
@@ -26,17 +34,14 @@ export class WarehousesBuilder {
         },
         where: {
           ...(typeof isActive === 'boolean' && { isActive }),
+          ...(!isWarehousesAdmin && { ownerUserId: user.id }),
         },
         select: {
           id: true,
           name: true,
           user: {
             select: {
-              employee: {
-                select: {
-                  fullName: true,
-                },
-              },
+              email: true,
             },
           },
           isActive: true,
@@ -57,7 +62,7 @@ export class WarehousesBuilder {
       data: { warehouses, total, countPages, page, limit },
     });
   }
-  async warehouseById(id: string, page: number, limit: number) {
+  async warehouseById(id: string, page: number, limit: number, req: Request) {
     const isExistWarehouse = await this.prismaService.warehouses.findUnique({
       where: {
         id,
@@ -157,6 +162,7 @@ export class WarehousesBuilder {
     });
   }
   async allStockMovements(
+    req: Request,
     warehouseId: string,
     page: number,
     limit: number,

@@ -37,7 +37,7 @@ export class LanguagesController {
     return this.languagesService.all(page, limit);
   }
 
-  @AuthRoles('view_citizenships')
+  @AuthRoles('update_employee')
   @Get('select-all')
   @HttpCode(HttpStatus.OK)
   async allSelect() {

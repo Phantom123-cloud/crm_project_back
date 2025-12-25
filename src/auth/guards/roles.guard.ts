@@ -20,6 +20,8 @@ export class RolesGuard implements CanActivate {
     const userRoles = await this.rolesDataBuilder.getRolesNameByUserId(user.id);
     if (!user.id || !requiredRoles) return false;
 
-    return userRoles.some((role) => requiredRoles.includes(role));
+    const isAccess = userRoles.some((role) => requiredRoles.includes(role));
+
+    return isAccess;
   }
 }

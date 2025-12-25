@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AddStockItems } from './dto/add-stock-items.dto';
 import { StockMovementsStatus } from '@prisma/client';
 import { SaleProductDto } from './dto/sele-product.dto';
+import type { Request } from 'express';
 
 @Injectable()
 export class WarehousesService {
@@ -44,17 +45,19 @@ export class WarehousesService {
     return this.warehousesMutationUseCase.update(dto, id);
   }
 
-  async allWarehouses(dto: PaginationDto) {
-    return this.warehousesBuilder.allWarehouses(dto);
+  async allWarehouses(dto: PaginationDto, req: Request) {
+    return this.warehousesBuilder.allWarehouses(dto, req);
   }
 
   async allStockMovements(
+    req: Request,
     warehouseId: string,
     page: number,
     limit: number,
     status?: StockMovementsStatus,
   ) {
     return this.warehousesBuilder.allStockMovements(
+      req,
       warehouseId,
       page,
       limit,
@@ -65,27 +68,31 @@ export class WarehousesService {
     return this.warehousesBuilder.allWarehousesSelect(notId);
   }
 
-  async warehouseById(id: string, page: number, limit: number) {
-    return this.warehousesBuilder.warehouseById(id, page, limit);
+  async warehouseById(id: string, page: number, limit: number, req: Request) {
+    return this.warehousesBuilder.warehouseById(id, page, limit, req);
   }
 
   async addStockItem(
+    req: Request,
     dto: AddStockItems,
     productId: string,
     warehouseId: string,
   ) {
     return this.warehousesActionsUseCase.addStockItem(
+      req,
       dto,
       productId,
       warehouseId,
     );
   }
   async saleProduct(
+    req: Request,
     dto: SaleProductDto,
     productId: string,
     warehouseId: string,
   ) {
     return this.warehousesActionsUseCase.saleProduct(
+      req,
       dto,
       productId,
       warehouseId,
@@ -97,28 +104,37 @@ export class WarehousesService {
     fromWarehouseId: string,
     toWarehouseId: string,
     dto: AddStockItems,
+    req: Request,
   ) {
     return this.warehousesActionsUseCase.stockMovements(
       productId,
       fromWarehouseId,
       toWarehouseId,
       dto,
+      req,
     );
   }
 
-  async acceptProduct(stockMovementsId: string, warehouseId: string) {
+  async acceptProduct(
+    req: Request,
+    stockMovementsId: string,
+    warehouseId: string,
+  ) {
     return this.warehousesActionsUseCase.acceptProduct(
+      req,
       stockMovementsId,
       warehouseId,
     );
   }
 
   async scrapProduct(
+    req: Request,
     warehouseId: string,
     productId: string,
     dto: AddStockItems,
   ) {
     return this.warehousesActionsUseCase.scrapProduct(
+      req,
       warehouseId,
       productId,
       dto,

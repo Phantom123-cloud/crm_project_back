@@ -54,7 +54,7 @@ export class RoleTemplatesController {
     return this.roleTemplatesService.allRoleTemplates(page, limit);
   }
 
-  @AuthRoles('view_templates')
+  @AuthRoles('register_users', 'update_account_roles')
   @Get('select-all')
   @HttpCode(HttpStatus.OK)
   allRoleTemplatesSelect() {

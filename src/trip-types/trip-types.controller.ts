@@ -20,14 +20,14 @@ import { UpdateTripTypesDto } from './dto/update-trip-types.dto';
 export class TripTypesController {
   constructor(private readonly tripTypesService: TripTypesService) {}
 
-  // @AuthRoles('create_languages')
+  @AuthRoles('create_trips_types')
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateTripTypesDto) {
     return this.tripTypesService.create(dto);
   }
 
-  // @AuthRoles('view_languages')
+  @AuthRoles('view_trip_types')
   @Get('all')
   @HttpCode(HttpStatus.OK)
   async all(
@@ -37,20 +37,22 @@ export class TripTypesController {
     return this.tripTypesService.all(page, limit);
   }
 
+  // для создания выезда
+  @AuthRoles('create_trips')
   @Get('select-all')
   @HttpCode(HttpStatus.OK)
   async allSelect() {
     return this.tripTypesService.allSelect();
   }
 
-  // @AuthRoles('update_languages')
+  @AuthRoles('update_trip_types')
   @Put('update/:id')
   @HttpCode(HttpStatus.OK)
   async update(@Param('id') id: string, @Body() dto: UpdateTripTypesDto) {
     return this.tripTypesService.update(id, dto);
   }
 
-  // @AuthRoles('delete_languages')
+  @AuthRoles('delete_trip_types')
   @Delete('delete/:id')
   @HttpCode(HttpStatus.OK)
   async delete(@Param('id') id: string) {
