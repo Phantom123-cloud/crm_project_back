@@ -56,7 +56,7 @@ export class EmployeesService {
     return this.deleteEmployeeFieldsUseCase.deleteLanguage(userId, languageId);
   }
 
-  async allEmployeeTradings(isNotAll: boolean) {
-    return this.employeeBuilder.allEmployeeTradings(isNotAll);
+  async allEmployeeTradings(isNotAll: boolean, isViewWarehouses: boolean) {
+    return this.employeeBuilder.allEmployeeTradings(isNotAll, isViewWarehouses);
   }
 }

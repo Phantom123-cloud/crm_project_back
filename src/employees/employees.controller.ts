@@ -93,13 +93,17 @@ export class EmployeesController {
     return this.employeesService.deleteContactNumberToEmployee(userId, phoneId);
   }
 
-  @AuthRoles('create_warehouses')
+  @AuthRoles('create_warehouses', 'change_owner_warehouse')
   @Get('all-employee-tradings')
   @HttpCode(HttpStatus.OK)
   allEmployeeTradings(
-    @Query('isNotAll', ParseBoolPipe)
-    isNotAll: boolean,
+    @Query('isNotAll', ParseBoolPipe) isNotAll: boolean,
+    @Query('isViewWarehouses', new ParseBoolPipe({ optional: true }))
+    isViewWarehouses: boolean,
   ) {
-    return this.employeesService.allEmployeeTradings(isNotAll);
+    return this.employeesService.allEmployeeTradings(
+      isNotAll,
+      isViewWarehouses,
+    );
   }
 }

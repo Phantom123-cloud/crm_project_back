@@ -52,6 +52,8 @@ export class UsersRepository {
             },
           },
         },
+
+        warehouses: true,
       },
     });
   }

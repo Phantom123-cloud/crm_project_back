@@ -140,4 +140,15 @@ export class WarehousesService {
       dto,
     );
   }
+  async changeOwnerWarehouse(
+    warehouseId: string,
+    ownerUserId: string,
+    req: Request,
+  ) {
+    return this.warehousesActionsUseCase.changeOwnerWarehouse(
+      warehouseId,
+      ownerUserId,
+      req,
+    );
+  }
 }

@@ -6,7 +6,7 @@ import { buildResponse } from 'src/utils/build-response';
 export class EmployeeBuilder {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async allEmployeeTradings(isNotAll: boolean) {
+  async allEmployeeTradings(isNotAll: boolean, isViewWarehouses?: boolean) {
     const data = await this.prismaService.employees.findMany({
       where: {
         ...(isNotAll && {
@@ -17,6 +17,16 @@ export class EmployeeBuilder {
 
         user: {
           isActive: true,
+
+          ...(typeof isViewWarehouses === 'boolean' && {
+            roleTemplate: {
+              roles: {
+                some: {
+                  name: 'change_owner_warehouse',
+                },
+              },
+            },
+          }),
         },
       },
 

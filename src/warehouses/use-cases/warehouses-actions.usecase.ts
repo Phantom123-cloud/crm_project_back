@@ -541,4 +541,45 @@ export class WarehousesActionsUseCase {
 
     return buildResponse('К-во обновлено');
   }
+
+  async changeOwnerWarehouse(
+    warehouseId: string,
+    ownerUserId: string,
+    req: Request,
+  ) {
+    const user = req.user as JwtPayload;
+    const [isExistWarehouse, isExistUser] =
+      await this.prismaService.$transaction([
+        this.prismaService.warehouses.findUnique({
+          where: {
+            id: warehouseId,
+          },
+
+          select: {
+            ownerUserId: true,
+          },
+        }),
+        this.prismaService.user.findUnique({
+          where: {
+            id: ownerUserId,
+          },
+        }),
+      ]);
+
+    if (!isExistWarehouse || !isExistUser) {
+      throw new NotFoundException(
+        !isExistWarehouse ? 'Склад не найден' : 'Пользователь не найден',
+      );
+    }
+
+    await this.prismaService.warehouses.update({
+      where: {
+        id: warehouseId,
+      },
+      data: {
+        ownerUserId,
+      },
+    });
+    return buildResponse('Ответственный обновлён');
+  }
 }

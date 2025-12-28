@@ -42,6 +42,7 @@ export class WarehousesBuilder {
           user: {
             select: {
               email: true,
+              id: true,
             },
           },
           isActive: true,

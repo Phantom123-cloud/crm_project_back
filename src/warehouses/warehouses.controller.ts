@@ -44,10 +44,7 @@ export class WarehousesController {
   @AuthRoles('warehouses_admin')
   @Put('update/:id')
   @HttpCode(HttpStatus.OK)
-  async update(
-    @Body() dto: UpdateWarehouseDto,
-    @Param('id') id: string,
-  ) {
+  async update(@Body() dto: UpdateWarehouseDto, @Param('id') id: string) {
     return this.warehousesService.update(dto, id);
   }
 
@@ -187,6 +184,21 @@ export class WarehousesController {
       req,
       stockMovementsId,
       warehouseId,
+    );
+  }
+
+  @AuthRoles('change_owner_warehouse')
+  @Put('change-owher')
+  @HttpCode(HttpStatus.OK)
+  async changeOwnerWarehouse(
+    @Req() req: Request,
+    @Query('warehouseId') warehouseId: string,
+    @Query('ownerUserId') ownerUserId: string,
+  ) {
+    return this.warehousesService.changeOwnerWarehouse(
+      warehouseId,
+      ownerUserId,
+      req,
     );
   }
 }
