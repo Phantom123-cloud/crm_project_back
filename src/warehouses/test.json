@@ -1,0 +1,57 @@
+{
+  "success": true,
+  "message": "Данные",
+  "data": {
+    "body": [
+      {
+        "id": "82f358ef-1aa7-40a5-bfb5-9080e8532968",
+        "name": "Казан 6л",
+        "remainder": 89,
+        "scrapTotal": 11,
+        "Центральный склад": {
+          "countProduct": 56,
+          "warehouseId": "784ce1e1-3e3f-4e84-add2-7934bd621e6c",
+          "transit": 1,
+          "scrap": 9
+        },
+        "Садирова ГА": {
+          "countProduct": 19,
+          "warehouseId": "c1a3ec0d-6c43-4da5-9be6-d5bb5e8d5634",
+          "transit": 0,
+          "scrap": 1
+        },
+        "Абатов ГА": {
+          "countProduct": 13,
+          "warehouseId": "eb684612-5d88-4c4d-85f8-f0b3791149ef",
+          "transit": 0,
+          "scrap": 1
+        }
+      },
+      {
+        "id": "15b75208-f00a-4efa-a3fb-0032998e31b2",
+        "name": "products",
+        "remainder": 49,
+        "scrapTotal": 1,
+        "Центральный склад": {
+          "countProduct": 4,
+          "warehouseId": "784ce1e1-3e3f-4e84-add2-7934bd621e6c",
+          "transit": 3,
+          "scrap": 1
+        },
+        "Садирова ГА": {
+          "countProduct": 1,
+          "warehouseId": "c1a3ec0d-6c43-4da5-9be6-d5bb5e8d5634",
+          "transit": 0,
+          "scrap": 0
+        },
+        "Абатов ГА": {
+          "countProduct": 27,
+          "warehouseId": "eb684612-5d88-4c4d-85f8-f0b3791149ef",
+          "transit": 14,
+          "scrap": 0
+        }
+      }
+    ],
+    "header": ["Центральный склад", "Садирова ГА", "Абатов ГА"]
+  }
+}

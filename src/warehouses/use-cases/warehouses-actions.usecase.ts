@@ -57,6 +57,8 @@ export class WarehousesActionsUseCase {
                 fromWarehouseId: id,
               },
             ],
+
+            status: 'TRANSIT',
           },
         }),
       ]);
@@ -69,7 +71,7 @@ export class WarehousesActionsUseCase {
       throw new ConflictException('Центральный склад не блокируется');
     }
 
-    if (isExistEmptyStockItems || isEmptyStockMovements) {
+    if (isExistEmptyStockItems > 0 || isEmptyStockMovements > 0) {
       throw new ConflictException(
         'Заблокировать склад можно после перемещения всех остатков товара в другое место',
       );
@@ -134,10 +136,8 @@ export class WarehousesActionsUseCase {
         }),
       ]);
 
-    if (!isExistWarehouse || !findStockId) {
-      throw new NotFoundException(
-        !isExistWarehouse ? 'Склад не найден' : 'Товар не обнаружен на складе',
-      );
+    if (!isExistWarehouse) {
+      throw new NotFoundException('Склад не найден');
     }
 
     if (!isWarehousesAdmin && isExistWarehouse.ownerUserId !== user.id) {

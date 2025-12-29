@@ -68,8 +68,12 @@ export class WarehousesService {
     return this.warehousesBuilder.allWarehousesSelect(notId);
   }
 
-  async warehouseById(id: string, page: number, limit: number, req: Request) {
-    return this.warehousesBuilder.warehouseById(id, page, limit, req);
+  async warehouseById(id: string, page: number, limit: number) {
+    return this.warehousesBuilder.warehouseById(id, page, limit);
+  }
+  
+  async getReportBalanceWarehouses() {
+    return this.warehousesBuilder.getReportBalanceWarehouses();
   }
 
   async addStockItem(

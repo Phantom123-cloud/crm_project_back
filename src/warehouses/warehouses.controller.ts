@@ -91,12 +91,11 @@ export class WarehousesController {
   @Get('by/:id')
   @HttpCode(HttpStatus.OK)
   async warehouseById(
-    @Req() req: Request,
     @Param('id') id: string,
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
   ) {
-    return this.warehousesService.warehouseById(id, page, limit, req);
+    return this.warehousesService.warehouseById(id, page, limit);
   }
 
   // для списка складов перемещения товаров
@@ -105,6 +104,13 @@ export class WarehousesController {
   @HttpCode(HttpStatus.OK)
   async allWarehousesSelect(@Query('notId') notId: string) {
     return this.warehousesService.allWarehousesSelect(notId);
+  }
+
+  // @AuthRoles('stock_movements')
+  @Get('report-warehouses-balance')
+  @HttpCode(HttpStatus.OK)
+  async getReportBalanceWarehouses() {
+    return this.warehousesService.getReportBalanceWarehouses();
   }
 
   @AuthRoles('stock_movements')

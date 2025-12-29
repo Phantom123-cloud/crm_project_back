@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { StockMovementsStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from 'src/users/dto/pagination.dto';
@@ -25,7 +29,7 @@ export class WarehousesBuilder {
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
 
-    const [warehouses, total] = await this.prismaService.$transaction([
+    const [warehousesData, total] = await this.prismaService.$transaction([
       this.prismaService.warehouses.findMany({
         skip: (currentPage - 1) * pageSize,
         take: pageSize,
@@ -48,6 +52,11 @@ export class WarehousesBuilder {
           isActive: true,
           type: true,
           createdAt: true,
+          stockMovementsTo: {
+            select: {
+              status: true,
+            },
+          },
         },
       }),
       this.prismaService.trip.count({
@@ -59,11 +68,18 @@ export class WarehousesBuilder {
 
     const countPages = Math.ceil(total / limit);
 
+    const warehouses = warehousesData.map((warehouse) => ({
+      ...warehouse,
+      countTransit: warehouse.stockMovementsTo.filter(
+        (item) => item.status === 'TRANSIT',
+      ).length,
+    }));
+
     return buildResponse('Данные', {
       data: { warehouses, total, countPages, page, limit },
     });
   }
-  async warehouseById(id: string, page: number, limit: number, req: Request) {
+  async warehouseById(id: string, page: number, limit: number) {
     const isExistWarehouse = await this.prismaService.warehouses.findUnique({
       where: {
         id,
@@ -240,7 +256,6 @@ export class WarehousesBuilder {
       data: { stockMovements, total, countPages, page, limit },
     });
   }
-
   async allWarehousesSelect(notId: string) {
     const data = await this.prismaService.warehouses.findMany({
       where: {
@@ -257,6 +272,151 @@ export class WarehousesBuilder {
     });
     return buildResponse('Данные', {
       data,
+    });
+  }
+  async getReportBalanceWarehouses() {
+    const [products, warehouses, statusProducts] =
+      await this.prismaService.$transaction([
+        this.prismaService.products.findMany({
+          where: {
+            stockItems: {
+              some: {
+                quantity: {
+                  gte: 0,
+                },
+              },
+            },
+          },
+
+          select: {
+            id: true,
+            name: true,
+          },
+        }),
+
+        this.prismaService.warehouses.findMany({
+          where: {
+            stockItems: {
+              some: {
+                quantity: {
+                  gte: 1,
+                },
+              },
+            },
+          },
+
+          select: {
+            name: true,
+            id: true,
+            stockItems: {
+              select: {
+                quantity: true,
+                product: {
+                  select: {
+                    name: true,
+                    id: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+        this.prismaService.stockMovements.findMany({
+          where: {
+            status: {
+              in: ['TRANSIT', 'SCRAP'],
+            },
+          },
+
+          select: {
+            product: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
+
+            warehouseTo: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+
+            warehouseFrom: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            quantity: true,
+            status: true,
+          },
+        }),
+      ]);
+
+    const body = products.map(({ id, name }) => ({
+      id,
+      name,
+      remainder: 0,
+      scrapTotal: 0,
+    }));
+
+    const header = warehouses.map(({ name }) => name);
+
+    const statusMap = new Map<string, { transit: number; scrap: number }>();
+
+    for (const m of statusProducts) {
+      const whId =
+        m.status === 'TRANSIT'
+          ? m.warehouseTo?.id
+          : m.status === 'SCRAP'
+            ? m.warehouseFrom?.id
+            : undefined;
+
+      if (!whId) continue;
+
+      const key = `${whId}:${m.product.id}`;
+      const cur = statusMap.get(key) ?? { transit: 0, scrap: 0 };
+
+      if (m.status === 'TRANSIT') cur.transit += m.quantity;
+      else cur.scrap += m.quantity;
+
+      statusMap.set(key, cur);
+    }
+
+    const productIndexes = new Map(body.map((p, i) => [p.id, i]));
+    warehouses.forEach((warehouse) => {
+      warehouse.stockItems.forEach((item) => {
+        const productIndex = productIndexes.get(item.product.id);
+
+        if (typeof productIndex !== 'number') {
+          throw new ConflictException(
+            'При создании отчета возникла ошибка. Обратитесь к администратору',
+          );
+        }
+
+        const key = `${warehouse.id}:${item.product.id}`;
+        const statuses = statusMap.get(key) ?? { transit: 0, scrap: 0 };
+        body[productIndex][warehouse.name] = {
+          countProduct: item.quantity,
+          warehouseId: warehouse.id,
+          ...statuses,
+        };
+
+        body[productIndex].remainder += item.quantity + statuses.transit;
+        body[productIndex].scrapTotal += statuses.scrap;
+      });
+    });
+
+    body.sort((a, b) => {
+      return b.remainder - a.remainder;
+    });
+    return buildResponse('Данные', {
+      data: {
+        body,
+        header,
+      },
     });
   }
 }
