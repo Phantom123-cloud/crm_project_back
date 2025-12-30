@@ -14,7 +14,7 @@ services:
     container_name: nest_api
     build: .
     ports:
-      - "3000:3000"
+      - "5000:5000"
     env_file:
       - .env
     depends_on:
@@ -27,8 +27,8 @@ services:
       - ./uploads:/app/uploads
 
   frontend:
-    container_name: frontend
-    build: ../frontend
+    container_name: front
+    build: ../front
     restart: unless-stopped
     ports:
       - "80:80"
