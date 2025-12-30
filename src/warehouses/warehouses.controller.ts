@@ -106,7 +106,7 @@ export class WarehousesController {
     return this.warehousesService.allWarehousesSelect(notId);
   }
 
-  // @AuthRoles('stock_movements')
+  @AuthRoles('view_report_warehouses')
   @Get('report-warehouses-remainder')
   @HttpCode(HttpStatus.OK)
   async getReportRemainderWarehouses() {
