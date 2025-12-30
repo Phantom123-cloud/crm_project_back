@@ -380,11 +380,17 @@ export class WarehousesBuilder {
         countProduct: 0,
         warehouseId: item.id,
         transit: 0,
-        scrap: 0,
       })),
     }));
 
     const header = warehouses.map(({ name }) => name);
+    const warehousesMap = new Map<string, number>();
+
+    body.forEach((item) =>
+      item.warehouses.forEach((item, index) =>
+        warehousesMap.set(item.warehouseId, index),
+      ),
+    );
 
     const statusMap = new Map<string, { transit: number; scrap: number }>();
 
@@ -420,12 +426,15 @@ export class WarehousesBuilder {
 
         const key = `${warehouse.id}:${item.product.id}`;
         const statuses = statusMap.get(key) ?? { transit: 0, scrap: 0 };
-        console.log(statuses);
 
-        const wId = body[productIndex].warehouses.findIndex(
-          (item) => item.warehouseId === warehouse.id,
-        );
-        body[productIndex].warehouses[wId].scrap = statuses.scrap;
+        const wId = warehousesMap.get(warehouse.id);
+
+        if (typeof wId !== 'number') {
+          throw new ConflictException(
+            'Что то пошло не так, обратитесь к администратору',
+          );
+        }
+
         body[productIndex].warehouses[wId].transit = statuses.transit;
         body[productIndex].warehouses[wId].countProduct = item.quantity;
 
