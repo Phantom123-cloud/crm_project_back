@@ -274,7 +274,7 @@ export class WarehousesBuilder {
       data,
     });
   }
-  async getReportBalanceWarehouses() {
+  async getReportRemainderWarehouses() {
     const [products, warehouses, statusProducts] =
       await this.prismaService.$transaction([
         this.prismaService.products.findMany({
@@ -296,13 +296,28 @@ export class WarehousesBuilder {
 
         this.prismaService.warehouses.findMany({
           where: {
-            stockItems: {
-              some: {
-                quantity: {
-                  gte: 1,
+            isActive: true,
+            OR: [
+              {
+                stockItems: {
+                  some: {
+                    quantity: {
+                      gte: 1,
+                    },
+                  },
                 },
               },
-            },
+
+              {
+                stockMovementsTo: {
+                  some: {
+                    quantity: {
+                      gte: 1,
+                    },
+                  },
+                },
+              },
+            ],
           },
 
           select: {
@@ -360,6 +375,13 @@ export class WarehousesBuilder {
       name,
       remainder: 0,
       scrapTotal: 0,
+      warehouses: warehouses.map((item) => ({
+        name: item.name,
+        countProduct: 0,
+        warehouseId: item.id,
+        transit: 0,
+        scrap: 0,
+      })),
     }));
 
     const header = warehouses.map(({ name }) => name);
@@ -398,11 +420,14 @@ export class WarehousesBuilder {
 
         const key = `${warehouse.id}:${item.product.id}`;
         const statuses = statusMap.get(key) ?? { transit: 0, scrap: 0 };
-        body[productIndex][warehouse.name] = {
-          countProduct: item.quantity,
-          warehouseId: warehouse.id,
-          ...statuses,
-        };
+        console.log(statuses);
+
+        const wId = body[productIndex].warehouses.findIndex(
+          (item) => item.warehouseId === warehouse.id,
+        );
+        body[productIndex].warehouses[wId].scrap = statuses.scrap;
+        body[productIndex].warehouses[wId].transit = statuses.transit;
+        body[productIndex].warehouses[wId].countProduct = item.quantity;
 
         body[productIndex].remainder += item.quantity + statuses.transit;
         body[productIndex].scrapTotal += statuses.scrap;

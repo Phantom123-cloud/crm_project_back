@@ -107,10 +107,10 @@ export class WarehousesController {
   }
 
   // @AuthRoles('stock_movements')
-  @Get('report-warehouses-balance')
+  @Get('report-warehouses-remainder')
   @HttpCode(HttpStatus.OK)
-  async getReportBalanceWarehouses() {
-    return this.warehousesService.getReportBalanceWarehouses();
+  async getReportRemainderWarehouses() {
+    return this.warehousesService.getReportRemainderWarehouses();
   }
 
   @AuthRoles('stock_movements')

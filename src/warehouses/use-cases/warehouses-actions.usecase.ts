@@ -476,6 +476,7 @@ export class WarehousesActionsUseCase {
           },
 
           select: {
+            type: true,
             ownerUserId: true,
             stockItems: {
               select: {
@@ -511,6 +512,12 @@ export class WarehousesActionsUseCase {
 
     if (!isWarehousesAdmin && isExistWarehouse.ownerUserId !== user.id) {
       throw new ForbiddenException('У вас нет права на это действие');
+    }
+
+    if (isExistWarehouse.type !== 'CENTRAL') {
+      throw new ConflictException(
+        'Операция возвожна только с центрального склада',
+      );
     }
 
     if (quantity > isExistStockItems.quantity) {
