@@ -2,21 +2,25 @@ version: '3.9'
 services:
   db:
     image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: crm_db
     container_name: nest_db
     restart: unless-stopped
-    env_file:
-      - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
   api:
-    container_name: nest_api
+    container_name: slp_crm
     build: .
     ports:
-      - "3000:3000"
+      - "5000:5000"
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/crm_db?schema=public
     depends_on:
       - db
     restart: unless-stopped
@@ -27,8 +31,8 @@ services:
       - ./uploads:/app/uploads
 
   frontend:
-    container_name: frontend
-    build: ../frontend
+    container_name: front
+    build: ../front
     restart: unless-stopped
     ports:
       - "80:80"
