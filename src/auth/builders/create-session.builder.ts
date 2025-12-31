@@ -137,8 +137,8 @@ export class CreateSessionBuilder {
     res.cookie('token', value, {
       httpOnly: true,
       domain: this.COOKIE_DOMAIN,
-      secure: !isDev(this.configService),
-      sameSite: 'lax',
+      secure: false,
+      sameSite: 'none',
       maxAge: maxAgeMs,
     });
   }
