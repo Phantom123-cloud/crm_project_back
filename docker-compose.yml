@@ -32,7 +32,7 @@ services:
 
   frontend:
     container_name: front
-    build: ../front
+    build: ../crm_project_front
     restart: unless-stopped
     ports:
       - "80:80"
