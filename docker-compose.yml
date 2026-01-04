@@ -4,14 +4,14 @@ services:
     image: postgres:14
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: rootroot
       POSTGRES_DB: crm_db
     container_name: nest_db
     restart: unless-stopped
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5432:5433"
   api:
     container_name: slp_crm
     build: .
@@ -20,12 +20,12 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/crm_db?schema=public
+      DATABASE_URL: postgresql://postgres:rootroot@db:5432/crm_db?schema=public
     depends_on:
       - db
     restart: unless-stopped
     command: >
-      sh -c "npx prisma migrate deploy &&
+      sh -c "npx prisma db push &&
         yarn start:prod"
     volumes:
       - ./uploads:/app/uploads
