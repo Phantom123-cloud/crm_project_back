@@ -12,7 +12,7 @@ import passport from 'passport';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-    origin: 'http://188.137.179.163',
+    origin: 'http://localhost:5173',
     credentials: true,
   });
 
