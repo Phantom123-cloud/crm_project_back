@@ -5,12 +5,14 @@ import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { WarehousesActionsUseCase } from './use-cases/warehouses-actions.usecase';
 import { WarehousesMutationUseCase } from './use-cases/warehouses-mutation.usecase';
 import { WarehousesBuilder } from './builders/warehouses.builder';
-import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddStockItems } from './dto/add-stock-items.dto';
 import { StockMovementsStatus } from '@prisma/client';
 import { SaleProductDto } from './dto/sele-product.dto';
 import type { Request } from 'express';
+import { PaginationWarehousesDto } from './dto/pagination-warehouses.dto';
+import { PaginationStockMovementsDto } from './dto/pagination-stock-movements.dto';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Injectable()
 export class WarehousesService {
@@ -77,31 +79,19 @@ export class WarehousesService {
     return this.warehousesMutationUseCase.update(dto, id);
   }
 
-  async allWarehouses(dto: PaginationDto, req: Request) {
+  async allWarehouses(dto: PaginationWarehousesDto, req: Request) {
     return this.warehousesBuilder.allWarehouses(dto, req);
   }
 
-  async allStockMovements(
-    req: Request,
-    warehouseId: string,
-    page: number,
-    limit: number,
-    status?: StockMovementsStatus,
-  ) {
-    return this.warehousesBuilder.allStockMovements(
-      req,
-      warehouseId,
-      page,
-      limit,
-      status,
-    );
+  async allStockMovements(dto: PaginationStockMovementsDto) {
+    return this.warehousesBuilder.allStockMovements(dto);
   }
   async allWarehousesSelect(notId: string) {
     return this.warehousesBuilder.allWarehousesSelect(notId);
   }
 
-  async warehouseById(id: string, page: number, limit: number) {
-    return this.warehousesBuilder.warehouseById(id, page, limit);
+  async warehouseById(id: string, dto: PaginationBasic) {
+    return this.warehousesBuilder.warehouseById(id, dto);
   }
 
   async getReportRemainderWarehouses() {

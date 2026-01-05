@@ -7,6 +7,7 @@ import { CreateLanguageDto } from './dto/create-language.dto';
 import { UpdateLanguageDto } from './dto/update-language.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Injectable()
 export class LanguagesService {
@@ -41,7 +42,9 @@ export class LanguagesService {
 
     return buildResponse('Язык добавлен');
   }
-  async all(page: number, limit: number) {
+  async all(dto: PaginationBasic) {
+    const { page, limit } = dto;
+
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
 

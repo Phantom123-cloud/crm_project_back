@@ -15,6 +15,7 @@ import { TripTypesService } from './trip-types.service';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 import { CreateTripTypesDto } from './dto/create-trip-types.dto';
 import { UpdateTripTypesDto } from './dto/update-trip-types.dto';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Controller('trip-types')
 export class TripTypesController {
@@ -30,11 +31,8 @@ export class TripTypesController {
   @AuthRoles('view_trip_types')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async all(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-  ) {
-    return this.tripTypesService.all(page, limit);
+  async all(@Query() dto: PaginationBasic) {
+    return this.tripTypesService.all(dto);
   }
 
   // для создания выезда

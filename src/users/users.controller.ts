@@ -5,8 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseBoolPipe,
-  ParseIntPipe,
   Put,
   Query,
   Req,
@@ -15,6 +13,7 @@ import { UsersService } from './users.service';
 import type { Request } from 'express';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
+import { PaginationUsersDto } from './dto/pagination-users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -23,22 +22,8 @@ export class UsersController {
   @AuthRoles('view_users')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async allUsers(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('isFullData', ParseBoolPipe) isFullData: boolean,
-    @Query('isActive', new ParseBoolPipe({ optional: true }))
-    isActive?: boolean,
-    @Query('isOnline', new ParseBoolPipe({ optional: true }))
-    isOnline?: boolean,
-  ) {
-    return this.usersService.allUsers({
-      page,
-      limit,
-      isActive,
-      isOnline,
-      isFullData,
-    });
+  async allUsers(@Query() dto: PaginationUsersDto) {
+    return this.usersService.allUsers(dto);
   }
 
   @AuthRoles('update_roles_template')

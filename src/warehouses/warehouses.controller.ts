@@ -20,6 +20,9 @@ import { StockMovementsStatus } from '@prisma/client';
 import { SaleProductDto } from './dto/sele-product.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 import type { Request } from 'express';
+import { PaginationWarehousesDto } from './dto/pagination-warehouses.dto';
+import { PaginationStockMovementsDto } from './dto/pagination-stock-movements.dto';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Controller('warehouses')
 export class WarehousesController {
@@ -53,49 +56,23 @@ export class WarehousesController {
   @HttpCode(HttpStatus.OK)
   async allWarehouses(
     @Req() req: Request,
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('isActive', new ParseBoolPipe({ optional: true }))
-    isActive?: boolean,
+    @Query() dto: PaginationWarehousesDto,
   ) {
-    return this.warehousesService.allWarehouses(
-      {
-        page,
-        limit,
-        isActive,
-      },
-      req,
-    );
+    return this.warehousesService.allWarehouses(dto, req);
   }
 
   @AuthRoles('view_warehouse_by_id')
   @Get('all-stock-movements')
   @HttpCode(HttpStatus.OK)
-  async allStockMovements(
-    @Req() req: Request,
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('warehouseId') warehouseId: string,
-    @Query('status') status: StockMovementsStatus,
-  ) {
-    return this.warehousesService.allStockMovements(
-      req,
-      warehouseId,
-      page,
-      limit,
-      status,
-    );
+  async allStockMovements(@Query() dto: PaginationStockMovementsDto) {
+    return this.warehousesService.allStockMovements(dto);
   }
 
   @AuthRoles('view_warehouse_by_id')
   @Get('by/:id')
   @HttpCode(HttpStatus.OK)
-  async warehouseById(
-    @Param('id') id: string,
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-  ) {
-    return this.warehousesService.warehouseById(id, page, limit);
+  async warehouseById(@Param('id') id: string, @Query() dto: PaginationBasic) {
+    return this.warehousesService.warehouseById(id, dto);
   }
 
   // для списка складов перемещения товаров

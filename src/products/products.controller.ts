@@ -15,6 +15,7 @@ import { ProductsService } from './products.service';
 import { CreateProductsDto } from './dto/create-products.dto';
 import { UpdateProductsDto } from './dto/update-products.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -30,11 +31,8 @@ export class ProductsController {
   @AuthRoles('view_products')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async all(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-  ) {
-    return this.productsService.all(page, limit);
+  async all(@Query() dto: PaginationBasic) {
+    return this.productsService.all(dto);
   }
 
   @AuthRoles('stock_movements')

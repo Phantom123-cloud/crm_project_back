@@ -5,11 +5,13 @@ import {
 } from '@nestjs/common';
 import { StockMovementsStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { buildResponse } from 'src/utils/build-response';
 import type { Request } from 'express';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
+import { PaginationWarehousesDto } from '../dto/pagination-warehouses.dto';
+import { PaginationStockMovementsDto } from '../dto/pagination-stock-movements.dto';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Injectable()
 export class WarehousesBuilder {
@@ -17,7 +19,7 @@ export class WarehousesBuilder {
     private readonly prismaService: PrismaService,
     private readonly rolesDataBuilder: RolesDataBuilder,
   ) {}
-  async allWarehouses(dto: PaginationDto, req: Request) {
+  async allWarehouses(dto: PaginationWarehousesDto, req: Request) {
     const { page, limit, isActive } = dto;
     const user = req.user as JwtPayload;
     const userRoles = await this.rolesDataBuilder.getRolesNameByUserId(user.id);
@@ -79,7 +81,8 @@ export class WarehousesBuilder {
       data: { warehouses, total, countPages, page, limit },
     });
   }
-  async warehouseById(id: string, page: number, limit: number) {
+  async warehouseById(id: string, dto: PaginationBasic) {
+    const { page, limit } = dto;
     const isExistWarehouse = await this.prismaService.warehouses.findUnique({
       where: {
         id,
@@ -178,13 +181,8 @@ export class WarehousesBuilder {
       },
     });
   }
-  async allStockMovements(
-    req: Request,
-    warehouseId: string,
-    page: number,
-    limit: number,
-    status?: StockMovementsStatus,
-  ) {
+  async allStockMovements(dto: PaginationStockMovementsDto) {
+    const { page, limit, warehouseId, status } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Request } from 'express';
-import { PaginationDto } from './dto/pagination.dto';
+import { PaginationUsersDto } from './dto/pagination-users.dto';
 import { AllUsersBuilder } from './builders/users.builder';
 import { IsActiveUserUseCase } from './use-cases/is-active-user.usecase';
 import { UpdateUserRolesUseCase } from './use-cases/update-user-roles.usecase';
@@ -16,7 +16,7 @@ export class UsersService {
     private readonly сhangeRoleTemplateUseCase: ChangeRoleTemplateUseCase,
   ) {}
 
-  async allUsers(dto: PaginationDto) {
+  async allUsers(dto: PaginationUsersDto) {
     return this.allUsersBuilder.allUsers(dto);
   }
 

@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRoleDto } from 'src/roles/dto/create-role.dto';
 import { buildResponse } from 'src/utils/build-response';
 import { UpdateRoleTypeDto } from './dto/update-role-type.dto';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Injectable()
 export class RoleTypesService {
@@ -106,7 +107,8 @@ export class RoleTypesService {
 
     return buildResponse('Тип роли изменён');
   }
-  async all(page: number, limit: number) {
+  async all(dto: PaginationBasic) {
+    const { page, limit } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
 

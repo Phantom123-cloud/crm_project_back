@@ -7,6 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { CreateCitizenshipsDto } from './dto/create-citizenships.dto';
 import { UpdateCitizenshipsDto } from './dto/update-citizenships.dto';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Injectable()
 export class CitizenshipsService {
@@ -78,7 +79,8 @@ export class CitizenshipsService {
     });
     return buildResponse('Страна обновлена');
   }
-  async all(page: number, limit: number) {
+  async all(dto: PaginationBasic) {
+    const { page, limit } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
 

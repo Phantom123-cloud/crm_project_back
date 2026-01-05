@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { CreateProductsDto } from './dto/create-products.dto';
 import { UpdateProductsDto } from './dto/update-products.dto';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Injectable()
 export class ProductsService {
@@ -94,7 +95,8 @@ export class ProductsService {
     return buildResponse('Продукт удалён');
   }
 
-  async all(page: number, limit: number) {
+  async all(dto: PaginationBasic) {
+    const { page, limit } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
     const [products, total] = await this.prismaService.$transaction([
