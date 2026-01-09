@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTripTypesDto } from './dto/create-trip-types.dto';
 import { buildResponse } from 'src/utils/build-response';
 import { UpdateTripTypesDto } from './dto/update-trip-types.dto';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Injectable()
 export class TripTypesService {
@@ -93,7 +94,8 @@ export class TripTypesService {
     return buildResponse('Тип выезда удалён');
   }
 
-  async all(page: number, limit: number) {
+  async all(dto: PaginationBasic) {
+    const { page, limit } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
 

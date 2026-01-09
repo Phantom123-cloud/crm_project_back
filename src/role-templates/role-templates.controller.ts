@@ -15,6 +15,7 @@ import { RoleTemplatesService } from './role-templates.service';
 import { RoleTemplatesDto } from './dto/role-templates.dto';
 import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Controller('role-templates')
 export class RoleTemplatesController {
@@ -47,11 +48,8 @@ export class RoleTemplatesController {
   @AuthRoles('view_templates')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  allRoleTemplates(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-  ) {
-    return this.roleTemplatesService.allRoleTemplates(page, limit);
+  allRoleTemplates(@Query() dto: PaginationBasic) {
+    return this.roleTemplatesService.allRoleTemplates(dto);
   }
 
   @AuthRoles('register_users', 'update_account_roles')

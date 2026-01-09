@@ -15,6 +15,7 @@ import { RoleTypesService } from './role-types.service';
 import { CreateRoleDto } from 'src/roles/dto/create-role.dto';
 import { UpdateRoleTypeDto } from './dto/update-role-type.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Controller('role-types')
 export class RoleTypesController {
@@ -42,11 +43,8 @@ export class RoleTypesController {
   @AuthRoles('view_role_types')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  allRoleTypes(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-  ) {
-    return this.roleTypesService.all(page, limit);
+  allRoleTypes(@Query() dto: PaginationBasic) {
+    return this.roleTypesService.all(dto);
   }
 
   @AuthRoles('create_roles', 'update_roles')

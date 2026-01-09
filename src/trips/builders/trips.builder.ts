@@ -1,13 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { buildResponse } from 'src/utils/build-response';
+import { PaginationTripsDto } from '../dto/pagination-trips.dto';
 
 @Injectable()
 export class TripsBuilder {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async allTrip(dto: PaginationDto) {
+  async allTrip(dto: PaginationTripsDto) {
     const { page, limit, isActive } = dto;
 
     const currentPage = page ?? 1;

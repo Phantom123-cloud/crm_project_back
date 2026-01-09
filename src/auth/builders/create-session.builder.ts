@@ -136,9 +136,8 @@ export class CreateSessionBuilder {
   setTokenCookie(res: Response, value: string, maxAgeMs: number) {
     res.cookie('token', value, {
       httpOnly: true,
-      domain: this.COOKIE_DOMAIN,
       secure: false,
-      sameSite: 'none',
+      sameSite: 'lax',
       maxAge: maxAgeMs,
     });
   }

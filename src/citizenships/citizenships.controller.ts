@@ -15,6 +15,7 @@ import { CitizenshipsService } from './citizenships.service';
 import { CreateCitizenshipsDto } from './dto/create-citizenships.dto';
 import { UpdateCitizenshipsDto } from './dto/update-citizenships.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Controller('citizenships')
 export class CitizenshipsController {
@@ -30,11 +31,8 @@ export class CitizenshipsController {
   @AuthRoles('view_citizenships')
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async all(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-  ) {
-    return this.citizenshipsService.all(page, limit);
+  async all(@Query() dto: PaginationBasic) {
+    return this.citizenshipsService.all(dto);
   }
 
   @AuthRoles('update_employee')

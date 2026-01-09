@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { UsersRepository } from 'src/users/users.repository';
 import { buildResponse } from 'src/utils/build-response';
 
@@ -15,7 +15,7 @@ export class RolesDataBuilder {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  async allRoles(dto: PaginationDto) {
+  async allRoles(dto: PaginationBasic) {
     const { page, limit } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;

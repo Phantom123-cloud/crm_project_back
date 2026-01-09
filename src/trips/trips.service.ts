@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { CreateTripUsecase } from './use-cases/create-trip.usecase';
 import { TripsBuilder } from './builders/trips.builder';
-import { PaginationDto } from 'src/users/dto/pagination.dto';
 import { ActionsTripUsecase } from './use-cases/actions-trip.usecase';
+import { PaginationTripsDto } from './dto/pagination-trips.dto';
 
 @Injectable()
 export class TripsService {
@@ -17,7 +17,7 @@ export class TripsService {
     return this.createTripUsecase.create(dto, tripTypesId, ownerUserId);
   }
 
-  async allTrips(dto: PaginationDto) {
+  async allTrips(dto: PaginationTripsDto) {
     return this.tripsBuilder.allTrip(dto);
   }
 

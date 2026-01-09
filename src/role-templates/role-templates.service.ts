@@ -10,6 +10,7 @@ import { UpdateRoleTemplateDto } from './dto/update-role-template.dto';
 import { RoleTemplatesBuilder } from './builders/role-templates-by-id.builder';
 import { RoleTemplatesRepository } from './role-templates.repository';
 import { UpdateRoleTemplateUseCase } from './use-cases/update-role-template.usecase';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Injectable()
 export class RoleTemplatesService {
@@ -60,7 +61,8 @@ export class RoleTemplatesService {
     return buildResponse('Данные', { data: { templates } });
   }
 
-  async allRoleTemplates(page: number, limit: number) {
+  async allRoleTemplates(dto: PaginationBasic) {
+    const { page, limit } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;
 
