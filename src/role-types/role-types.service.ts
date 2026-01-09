@@ -79,11 +79,11 @@ export class RoleTypesService {
     }
     const { name, descriptions } = dto;
 
-    if (name && roleType.roles?.length) {
-      throw new ConflictException(
-        'Невозможно редактировать: тип роли связан с другими данными',
-      );
-    }
+    // if (name && roleType.roles?.length) {
+    //   throw new ConflictException(
+    //     'Невозможно редактировать: тип роли связан с другими данными',
+    //   );
+    // }
 
     if (name) {
       const isExistName = await this.prismaService.roleTypes.findUnique({

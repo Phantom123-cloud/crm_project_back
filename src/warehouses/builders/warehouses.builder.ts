@@ -182,6 +182,8 @@ export class WarehousesBuilder {
     });
   }
   async allStockMovements(dto: PaginationStockMovementsDto) {
+    console.log(dto);
+
     const { page, limit, warehouseId, status } = dto;
     const currentPage = page ?? 1;
     const pageSize = limit ?? 10;

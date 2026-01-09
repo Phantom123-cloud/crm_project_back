@@ -21,7 +21,7 @@ import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 export class TripTypesController {
   constructor(private readonly tripTypesService: TripTypesService) {}
 
-  @AuthRoles('create_trips_types')
+  @AuthRoles('create_trip_types')
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateTripTypesDto) {

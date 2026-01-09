@@ -12,6 +12,6 @@ export class PaginationStockMovementsDto extends PaginationBasic {
   warehouseId: string;
 
   @IsOptional()
-  @IsEnum({ StockMovementsStatus })
+  @IsEnum({ ...StockMovementsStatus })
   status?: StockMovementsStatus;
 }
