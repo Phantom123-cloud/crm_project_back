@@ -35,11 +35,11 @@ export class TripsBuilder {
             },
           },
           createdAt: true,
-          warehouses: {
-            select: {
-              id: true,
-            },
-          },
+          // warehouses: {
+          //   select: {
+          //     id: true,
+          //   },
+          // },
         },
       }),
       this.prismaService.trip.count({

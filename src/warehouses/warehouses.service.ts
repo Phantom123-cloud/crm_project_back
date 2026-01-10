@@ -27,51 +27,7 @@ export class WarehousesService {
   ) {}
 
   async create(dto: CreateWarehouseDto, ownerUserId: string) {
-    const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({
-      where: {
-        type: 'CENTRAL',
-      },
-    });
-
-    if (!isExistMainWarehouse && dto.type !== 'CENTRAL') {
-      throw new NotFoundException(
-        'Что бы начать работу, создайте центральный склад',
-      );
-    }
-    const warehouseId = await this.warehousesMutationUseCase.create(
-      dto,
-      ownerUserId,
-    );
-    const stockItems = await this.prismaService.stockItems.findMany({
-      where: {
-        quantity: {
-          gte: 1,
-        },
-      },
-
-      select: {
-        product: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
-
-    const uniqueProducts = [
-      ...new Set(stockItems.map((item) => item.product.id)),
-    ];
-
-    await this.prismaService.stockItems.createMany({
-      data: uniqueProducts.map((productId) => ({
-        productId,
-        warehouseId,
-        quantity: 0,
-      })),
-    });
-
-    return buildResponse('Склад добавлен');
+    return this.warehousesMutationUseCase.create(dto, ownerUserId);
   }
 
   async isActive(id: string) {

@@ -13,6 +13,18 @@ export class WarehousesMutationUseCase {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(dto: CreateWarehouseDto, ownerUserId: string) {
+    const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({
+      where: {
+        type: 'CENTRAL',
+      },
+    });
+
+    if (!isExistMainWarehouse && dto.type !== 'CENTRAL') {
+      throw new NotFoundException(
+        'Что бы начать работу, создайте центральный склад',
+      );
+    }
+
     const { name, type } = dto;
 
     const isExist = await this.prismaService.warehouses.findUnique({
@@ -25,7 +37,7 @@ export class WarehousesMutationUseCase {
       throw new ConflictException('Данное имя склада уже задействовано');
     }
 
-    const { id } = await this.prismaService.warehouses.create({
+    const warehouse = await this.prismaService.warehouses.create({
       data: {
         name,
         type,
@@ -33,7 +45,33 @@ export class WarehousesMutationUseCase {
       },
     });
 
-    return id;
+    const products = await this.prismaService.products.findMany({
+      select: {
+        id: true,
+      },
+
+      where: {
+        stockItems: {
+          some: {
+            quantity: {
+              gte: 1,
+            },
+          },
+        },
+      },
+    });
+
+    const uniqueProducts = [...new Set(products.map((item) => item.id))];
+
+    await this.prismaService.stockItems.createMany({
+      data: uniqueProducts.map((productId) => ({
+        productId,
+        warehouseId: warehouse.id,
+        quantity: 0,
+      })),
+    });
+
+    return buildResponse('Склад добавлен');
   }
   async update(dto: UpdateWarehouseDto, id: string) {
     const { name } = dto;
@@ -47,11 +85,11 @@ export class WarehousesMutationUseCase {
       throw new ConflictException('Склад не обнаружен');
     }
 
-    if (isExist.type === 'TRIP') {
-      throw new ConflictException(
-        'Склад предназначеный для выезда изменять нельзя',
-      );
-    }
+    // if (isExist.type === 'TRIP') {
+    //   throw new ConflictException(
+    //     'Склад предназначеный для выезда изменять нельзя',
+    //   );
+    // }
 
     if (name === isExist.name) {
       throw new ConflictException('Новое имя должно отличаться от текущего');
