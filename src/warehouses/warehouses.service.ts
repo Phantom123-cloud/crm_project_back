@@ -7,18 +7,21 @@ import { WarehousesMutationUseCase } from './use-cases/warehouses-mutation.useca
 import { WarehousesBuilder } from './builders/warehouses.builder';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddStockItems } from './dto/add-stock-items.dto';
-import { StockMovementsStatus } from '@prisma/client';
 import { SaleProductDto } from './dto/sele-product.dto';
 import type { Request } from 'express';
 import { PaginationWarehousesDto } from './dto/pagination-warehouses.dto';
 import { PaginationStockMovementsDto } from './dto/pagination-stock-movements.dto';
 import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
+import { WarehousesProductActionsUseCase } from './use-cases/warehouses-product-actions.usecase';
+import { WarehousesStockMoveUseCase } from './use-cases/warehouses-stock-move.usecase';
 
 @Injectable()
 export class WarehousesService {
   constructor(
     private readonly warehousesActionsUseCase: WarehousesActionsUseCase,
+    private readonly warehousesProductActionsUseCase: WarehousesProductActionsUseCase,
     private readonly warehousesMutationUseCase: WarehousesMutationUseCase,
+    private readonly цarehousesStockMoveUseCase: WarehousesStockMoveUseCase,
     private readonly warehousesBuilder: WarehousesBuilder,
     private readonly prismaService: PrismaService,
   ) {}
@@ -104,7 +107,7 @@ export class WarehousesService {
     productId: string,
     warehouseId: string,
   ) {
-    return this.warehousesActionsUseCase.addStockItem(
+    return this.цarehousesStockMoveUseCase.addStockItem(
       req,
       dto,
       productId,
@@ -117,7 +120,7 @@ export class WarehousesService {
     productId: string,
     warehouseId: string,
   ) {
-    return this.warehousesActionsUseCase.saleProduct(
+    return this.warehousesProductActionsUseCase.saleProduct(
       req,
       dto,
       productId,
@@ -132,7 +135,7 @@ export class WarehousesService {
     dto: AddStockItems,
     req: Request,
   ) {
-    return this.warehousesActionsUseCase.stockMovements(
+    return this.цarehousesStockMoveUseCase.stockMovements(
       productId,
       fromWarehouseId,
       toWarehouseId,
@@ -146,7 +149,7 @@ export class WarehousesService {
     stockMovementsId: string,
     warehouseId: string,
   ) {
-    return this.warehousesActionsUseCase.acceptProduct(
+    return this.warehousesProductActionsUseCase.acceptProduct(
       req,
       stockMovementsId,
       warehouseId,
@@ -159,22 +162,17 @@ export class WarehousesService {
     productId: string,
     dto: AddStockItems,
   ) {
-    return this.warehousesActionsUseCase.scrapProduct(
+    return this.warehousesProductActionsUseCase.scrapProduct(
       req,
       warehouseId,
       productId,
       dto,
     );
   }
-  async changeOwnerWarehouse(
-    warehouseId: string,
-    ownerUserId: string,
-    req: Request,
-  ) {
+  async changeOwnerWarehouse(warehouseId: string, ownerUserId: string) {
     return this.warehousesActionsUseCase.changeOwnerWarehouse(
       warehouseId,
       ownerUserId,
-      req,
     );
   }
 }
