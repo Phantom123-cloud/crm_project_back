@@ -21,11 +21,11 @@ export class ActionsTripUsecase {
       data: {
         isActive: !isExist.isActive,
 
-        warehouses: {
-          update: {
-            isActive: !isExist.isActive,
-          },
-        },
+        // warehouses: {
+        //   update: {
+        //     isActive: !isExist.isActive,
+        //   },
+        // },
       },
     });
 

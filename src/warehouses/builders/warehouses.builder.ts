@@ -143,6 +143,10 @@ export class WarehousesBuilder {
         this.prismaService.stockItems.findMany({
           where: {
             warehouseId: id,
+
+            quantity: {
+              gte: 1,
+            },
           },
           skip: (currentPage - 1) * pageSize,
           take: pageSize,

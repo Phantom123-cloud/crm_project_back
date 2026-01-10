@@ -5,8 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseBoolPipe,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -16,7 +14,6 @@ import { WarehousesService } from './warehouses.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { AddStockItems } from './dto/add-stock-items.dto';
-import { StockMovementsStatus } from '@prisma/client';
 import { SaleProductDto } from './dto/sele-product.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 import type { Request } from 'express';
@@ -174,14 +171,12 @@ export class WarehousesController {
   @Put('change-owher')
   @HttpCode(HttpStatus.OK)
   async changeOwnerWarehouse(
-    @Req() req: Request,
     @Query('warehouseId') warehouseId: string,
     @Query('ownerUserId') ownerUserId: string,
   ) {
     return this.warehousesService.changeOwnerWarehouse(
       warehouseId,
       ownerUserId,
-      req,
     );
   }
 }

@@ -4,6 +4,8 @@ import { WarehousesController } from './warehouses.controller';
 import { WarehousesActionsUseCase } from './use-cases/warehouses-actions.usecase';
 import { WarehousesMutationUseCase } from './use-cases/warehouses-mutation.usecase';
 import { WarehousesBuilder } from './builders/warehouses.builder';
+import { WarehousesProductActionsUseCase } from './use-cases/warehouses-product-actions.usecase';
+import { WarehousesStockMoveUseCase } from './use-cases/warehouses-stock-move.usecase';
 
 @Module({
   controllers: [WarehousesController],
@@ -12,6 +14,8 @@ import { WarehousesBuilder } from './builders/warehouses.builder';
     WarehousesActionsUseCase,
     WarehousesMutationUseCase,
     WarehousesBuilder,
+    WarehousesProductActionsUseCase,
+    WarehousesStockMoveUseCase,
   ],
   exports: [WarehousesMutationUseCase],
 })

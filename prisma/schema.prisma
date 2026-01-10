@@ -222,8 +222,8 @@ model Trip {
   dateFrom    String
   dateTo      String
   isActive    Boolean    @default(true) @map("is_active")
-  warehouses  Warehouses @relation(fields: [warehouseId], references: [id])
-  warehouseId String     @map("warehouse_id")
+  // warehouses  Warehouses @relation(fields: [warehouseId], references: [id])
+  // warehouseId String     @map("warehouse_id")
   tripTypes   TripTypes  @relation(fields: [tripTypesId], references: [id])
   tripTypesId String     @map("trip_types_id")
   createdAt   DateTime   @default(now()) @map("created_at")
@@ -253,7 +253,7 @@ model Warehouses {
   stockItems         StockItems[]
   stockMovementsFrom StockMovements[] @relation("WarehouseFrom")
   stockMovementsTo   StockMovements[] @relation("WarehouseTo")
-  trips              Trip[]
+  // trips              Trip[]
   createdAt          DateTime         @default(now()) @map("created_at")
   updatedAt          DateTime         @updatedAt @map("updated_at")
   // warehousesHistries WarehousesHistry[]
@@ -264,7 +264,6 @@ model Warehouses {
 enum WarehousesTypes {
   CENTRAL
   PERSONAL
-  TRIP
 }
 
 model Products {

@@ -2,32 +2,32 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  NotFoundException,
+  // NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
-import { WarehousesMutationUseCase } from 'src/warehouses/use-cases/warehouses-mutation.usecase';
+// import { WarehousesMutationUseCase } from 'src/warehouses/use-cases/warehouses-mutation.usecase';
 import { CreateTripDto } from '../dto/create-trip.dto';
 
 @Injectable()
 export class CreateTripUsecase {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly warehousesMutationUseCase: WarehousesMutationUseCase,
+    // private readonly warehousesMutationUseCase: WarehousesMutationUseCase,
   ) {}
 
   async create(dto: CreateTripDto, tripTypesId: string, ownerUserId: string) {
-    const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({
-      where: {
-        type: 'CENTRAL',
-      },
-    });
+    // const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({
+    //   where: {
+    //     type: 'CENTRAL',
+    //   },
+    // });
 
-    if (!isExistMainWarehouse) {
-      throw new NotFoundException(
-        'Что бы начать работу, создайте центральный склад',
-      );
-    }
+    // if (!isExistMainWarehouse) {
+    //   throw new NotFoundException(
+    //     'Что бы начать работу, создайте центральный склад',
+    //   );
+    // }
 
     const { dateFrom, dateTo } = dto;
 
@@ -64,21 +64,12 @@ export class CreateTripUsecase {
       year: 'numeric',
     })} ${isExistType.name}`;
 
-    const [isExistTrip, isExistWarehouse] =
-      await this.prismaService.$transaction([
-        this.prismaService.trip.findFirst({
-          where: { name },
-        }),
+    const isExistTrip = await this.prismaService.trip.findFirst({
+      where: { name },
+    });
 
-        this.prismaService.warehouses.findFirst({
-          where: { name },
-        }),
-      ]);
-
-    if (isExistTrip || isExistWarehouse) {
-      throw new ConflictException(
-        `${isExistTrip ? 'Выезд' : isExistWarehouse && 'Склад'} с таким названием уже существует`,
-      );
+    if (isExistTrip) {
+      throw new ConflictException('Выезд с таким названием уже существует');
     }
 
     const isExistOwner = await this.prismaService.user.findUnique({
@@ -91,29 +82,37 @@ export class CreateTripUsecase {
       throw new ConflictException('Пользователь не существует');
     }
 
-    await this.prismaService.$transaction(async (tx) => {
-      const warehouseId = await this.warehousesMutationUseCase.create(
-        {
-          type: 'TRIP',
-          name,
-        },
-        ownerUserId,
-      );
-
-      if (warehouseId) {
-        await tx.trip.create({
-          data: {
-            name,
-            dateFrom,
-            dateTo,
-            tripTypesId,
-            warehouseId,
-          },
-        });
-      }
-
-      return;
+    await this.prismaService.trip.create({
+      data: {
+        name,
+        dateFrom,
+        dateTo,
+        tripTypesId,
+      },
     });
+
+    // await this.prismaService.$transaction(async (tx) => {
+    //   const warehouseId = await this.warehousesMutationUseCase.create(
+    //     {
+    //       type: 'TRIP',
+    //       name,
+    //     },
+    //     ownerUserId,
+    //   );
+
+    //   if (warehouseId) {
+    //     await tx.trip.create({
+    //       data: {
+    //         name,
+    //         dateFrom,
+    //         dateTo,
+    //         tripTypesId,
+    //       },
+    //     });
+    //   }
+
+    //   return;
+    // });
 
     return buildResponse('Выезд добавлен');
   }
