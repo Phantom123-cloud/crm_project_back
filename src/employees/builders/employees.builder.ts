@@ -22,7 +22,7 @@ export class EmployeeBuilder {
             roleTemplate: {
               roles: {
                 some: {
-                  name: 'change_owner_warehouse',
+                  name: 'view_warehouses',
                 },
               },
             },
