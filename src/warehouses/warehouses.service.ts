@@ -20,9 +20,8 @@ export class WarehousesService {
     private readonly warehousesActionsUseCase: WarehousesActionsUseCase,
     private readonly warehousesProductActionsUseCase: WarehousesProductActionsUseCase,
     private readonly warehousesMutationUseCase: WarehousesMutationUseCase,
-    private readonly цarehousesStockMoveUseCase: WarehousesStockMoveUseCase,
+    private readonly warehousesStockMoveUseCase: WarehousesStockMoveUseCase,
     private readonly warehousesBuilder: WarehousesBuilder,
-    private readonly prismaService: PrismaService,
   ) {}
 
   async create(dto: CreateWarehouseDto, ownerUserId: string) {
@@ -62,7 +61,7 @@ export class WarehousesService {
     productId: string,
     warehouseId: string,
   ) {
-    return this.цarehousesStockMoveUseCase.addStockItem(
+    return this.warehousesStockMoveUseCase.addStockItem(
       req,
       dto,
       productId,
@@ -90,7 +89,7 @@ export class WarehousesService {
     dto: AddStockItems,
     req: Request,
   ) {
-    return this.цarehousesStockMoveUseCase.stockMovements(
+    return this.warehousesStockMoveUseCase.stockMovements(
       productId,
       fromWarehouseId,
       toWarehouseId,
