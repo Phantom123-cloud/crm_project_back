@@ -10,8 +10,6 @@ services:
     restart: unless-stopped
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - '5432:5433'
   api:
     container_name: slp_crm
     build: .
@@ -24,9 +22,6 @@ services:
     depends_on:
       - db
     restart: unless-stopped
-    command: >
-      sh -c "npx prisma db push &&
-        yarn start:prod"
     volumes:
       - ./uploads:/app/uploads
 
