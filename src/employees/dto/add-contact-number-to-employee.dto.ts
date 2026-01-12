@@ -1,4 +1,4 @@
-import { LanguageLevel, PhoneSelection } from '@prisma/client';
+import { PhoneSelection } from '@prisma/client';
 import { IsNotEmpty } from 'class-validator';
 
 export class AddContactNumberToEmployeeDto {

@@ -109,7 +109,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.onlineObserver(socket);
   }
 
-  handleDisconnect(socket: Socket) {
+  handleDisconnect() {
     // можно оставить пустым или логировать
   }
 }

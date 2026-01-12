@@ -11,7 +11,7 @@ import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class FullInformationOnRolesBuilder {
-  constructor( 
+  constructor(
     private readonly prismaService: PrismaService,
     private readonly usersRepository: UsersRepository,
   ) {}

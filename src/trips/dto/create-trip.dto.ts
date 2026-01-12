@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTripDto {
   // @IsString({ message: 'Название должно быть строкой' })
