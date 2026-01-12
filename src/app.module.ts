@@ -22,7 +22,6 @@ import { TripTypesModule } from './trip-types/trip-types.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
 import { ProductsModule } from './products/products.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),

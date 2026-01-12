@@ -6,7 +6,6 @@ import {
   Param,
   Delete,
   Put,
-  ParseIntPipe,
   Query,
   HttpCode,
   HttpStatus,

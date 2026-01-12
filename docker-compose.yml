@@ -11,12 +11,12 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5433"
+      - '5432:5433'
   api:
     container_name: slp_crm
     build: .
     ports:
-      - "5000:5000"
+      - '5000:5000'
     env_file:
       - .env
     environment:
@@ -35,7 +35,7 @@ services:
     build: ../crm_project_front
     restart: unless-stopped
     ports:
-      - "80:80"
+      - '80:80'
     depends_on:
       - api
 

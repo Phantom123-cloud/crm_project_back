@@ -17,7 +17,7 @@ export function ToBoolean(options: ToBooleanOptions = {}) {
     if (value === false || value === 'false') return false;
 
     if (strict) {
-      return NaN as any;
+      return NaN;
     }
 
     return value;

@@ -5,5 +5,5 @@ export interface Roles {
   type: {
     id: string;
     name: string;
-  }
+  };
 }

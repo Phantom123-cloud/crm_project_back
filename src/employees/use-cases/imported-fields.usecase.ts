@@ -10,7 +10,7 @@ import { LanguageLevel, PhoneSelection } from '@prisma/client';
 export class ImportedFildsUseCase {
   constructor() {}
 
-  async validateImportedField(
+  validateImportedField(
     type: 'phone' | 'language' | 'citizen',
     dto: ValidateImportedDto,
   ) {

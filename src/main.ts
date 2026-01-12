@@ -12,7 +12,7 @@ import passport from 'passport';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONT,
     credentials: true,
   });
 
@@ -33,4 +33,4 @@ async function bootstrap() {
   const PORT = process.env.PORT ?? 3000;
   await app.listen(PORT);
 }
-bootstrap();
+bootstrap().catch((e) => console.log(`Ошибка поднятия сервера: ${e}`));

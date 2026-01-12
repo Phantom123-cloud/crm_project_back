@@ -25,7 +25,7 @@ export class RolesByNotTemplateBuilder {
     const transaction = await this.prismaService.$transaction(async (tx) => {
       const idsDelete = isExistTemplate.roles.map(({ id }) => id);
 
-      const rolesData = await this.prismaService.role.findMany({
+      const rolesData = await tx.role.findMany({
         where: {
           id: { notIn: idsDelete },
         },
@@ -47,7 +47,7 @@ export class RolesByNotTemplateBuilder {
           },
         },
       });
-      const types = await this.prismaService.roleTypes.findMany({
+      const types = await tx.roleTypes.findMany({
         select: {
           name: true,
           descriptions: true,

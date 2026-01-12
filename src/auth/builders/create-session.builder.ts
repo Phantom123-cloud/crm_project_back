@@ -9,7 +9,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response, Request } from 'express';
 import { buildResponse } from 'src/utils/build-response';
-import { isDev } from 'src/utils/is-dev.utils';
 import { UsersRepository } from 'src/users/users.repository';
 import { TokenRepository } from '../repositories/token.repository';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
@@ -19,7 +18,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CreateSessionBuilder {
   private readonly TOKEN_TTL_S: number;
   private readonly TOKEN_TTL_L: number;
-  private readonly COOKIE_DOMAIN: string;
   private readonly JWT_SECRET: string;
 
   constructor(
@@ -31,7 +29,6 @@ export class CreateSessionBuilder {
   ) {
     this.TOKEN_TTL_S = 1 * 24 * 60 * 60;
     this.TOKEN_TTL_L = 7 * 24 * 60 * 60;
-    this.COOKIE_DOMAIN = configService.getOrThrow<string>('COOKIE_DOMAIN');
     this.JWT_SECRET = configService.getOrThrow<string>('JWT_SECRET');
   }
 
@@ -93,7 +90,7 @@ export class CreateSessionBuilder {
     return true;
   }
   async validateToken(req: Request, res: Response) {
-    const tokenHash = req.cookies['token'];
+    const tokenHash = req.cookies['token'] as string;
     const { id } = req.user as JwtPayload;
     const user = await this.usersRepository.findByUserId(id);
 

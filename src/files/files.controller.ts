@@ -58,7 +58,7 @@ export class FilesController {
 
   @AuthRoles('view_employee_passports')
   @Get('passports/:filename')
-  async getPassport(@Param('filename') filename: string, @Res() res: Response) {
+  getPassport(@Param('filename') filename: string, @Res() res: Response) {
     const filePath = path.join(process.cwd(), 'uploads', 'passports', filename);
 
     if (!fs.existsSync(filePath)) {
