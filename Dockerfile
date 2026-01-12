@@ -13,4 +13,4 @@ RUN yarn install --frozen-lockfile --production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 RUN npx prisma generate
-CMD ["sh", "-lc", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-lc", "npx prisma db push && node dist/main.js"]
