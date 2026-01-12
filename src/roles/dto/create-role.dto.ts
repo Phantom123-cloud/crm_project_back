@@ -6,6 +6,6 @@ export class CreateRoleDto {
   name: string;
 
   @IsOptional()
-  @Length(5, 35, { message: 'Длина описания от 5 до 35 символов' })
+  @Length(5, 50, { message: 'Длина описания от 5 до 50 символов' })
   descriptions: string;
 }
