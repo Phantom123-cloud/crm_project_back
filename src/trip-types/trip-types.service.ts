@@ -64,35 +64,35 @@ export class TripTypesService {
     });
     return buildResponse('Тип выезда обновлён');
   }
-  async delete(id: string) {
-    const isExist = await this.prismaService.tripTypes.findUnique({
-      where: {
-        id,
-      },
+  // async delete(id: string) {
+  //   const isExist = await this.prismaService.tripTypes.findUnique({
+  //     where: {
+  //       id,
+  //     },
 
-      select: {
-        trips: true,
-      },
-    });
+  //     select: {
+  //       trips: true,
+  //     },
+  //   });
 
-    if (!isExist) {
-      throw new ConflictException('Тип выезда не обнаружен');
-    }
+  //   if (!isExist) {
+  //     throw new ConflictException('Тип выезда не обнаружен');
+  //   }
 
-    if (isExist.trips?.length) {
-      throw new ConflictException(
-        'Невозможно удалить: тип выезда связан с другими данными',
-      );
-    }
+  //   if (isExist.trips?.length) {
+  //     throw new ConflictException(
+  //       'Невозможно удалить: тип выезда связан с другими данными',
+  //     );
+  //   }
 
-    await this.prismaService.tripTypes.delete({
-      where: {
-        id,
-      },
-    });
+  //   await this.prismaService.tripTypes.delete({
+  //     where: {
+  //       id,
+  //     },
+  //   });
 
-    return buildResponse('Тип выезда удалён');
-  }
+  //   return buildResponse('Тип выезда удалён');
+  // }
 
   async all(dto: PaginationBasic) {
     const { page, limit } = dto;

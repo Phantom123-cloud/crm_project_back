@@ -12,7 +12,7 @@ import { UpdateWarehouseDto } from '../dto/update-warehouse.dto';
 export class WarehousesMutationUseCase {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(dto: CreateWarehouseDto, ownerUserId: string) {
+  async create(dto: CreateWarehouseDto, ownerUserId?: string) {
     const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({
       where: {
         type: 'CENTRAL',
@@ -71,7 +71,8 @@ export class WarehousesMutationUseCase {
       })),
     });
 
-    return buildResponse('Склад добавлен');
+    return warehouse.id
+    // return buildResponse('Склад добавлен');
   }
   async update(dto: UpdateWarehouseDto, id: string) {
     const { name } = dto;
@@ -85,11 +86,11 @@ export class WarehousesMutationUseCase {
       throw new ConflictException('Склад не обнаружен');
     }
 
-    // if (isExist.type === 'TRIP') {
-    //   throw new ConflictException(
-    //     'Склад предназначеный для выезда изменять нельзя',
-    //   );
-    // }
+    if (isExist.type === 'TRIP') {
+      throw new ConflictException(
+        'Склад предназначеный для выезда изменять нельзя',
+      );
+    }
 
     if (name === isExist.name) {
       throw new ConflictException('Новое имя должно отличаться от текущего');

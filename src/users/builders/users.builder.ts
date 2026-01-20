@@ -34,6 +34,13 @@ export class AllUsersBuilder {
             ...(isFullData && {
               employee: {
                 select: {
+                  coordinator: {
+                    select: {
+                      email: true,
+                      id: true,
+                    },
+                  },
+                  isCoordinator: true,
                   fullName: true,
                   passportNumber: true,
                   tradingСode: true,
@@ -116,6 +123,13 @@ export class AllUsersBuilder {
         roleTemplatesId: true,
         employee: {
           select: {
+            coordinator: {
+              select: {
+                email: true,
+                id: true,
+              },
+            },
+            isCoordinator: true,
             id: true,
             fullName: true,
             tradingСode: true,
