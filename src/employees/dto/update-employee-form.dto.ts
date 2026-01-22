@@ -8,7 +8,9 @@ export class UpdateEmployeeFormDto {
   isInMarriage: boolean;
   isHaveChildren: boolean;
   isHaveDriverLicense: boolean;
+  isCoordinator: boolean;
   drivingExperience: string;
+  coordinatorUserId: string;
   isHaveInterPassport: boolean;
   @IsOptional()
   @Length(1, 500, { message: 'Длина от 1 до 500 символов' })

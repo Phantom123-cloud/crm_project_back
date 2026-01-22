@@ -44,4 +44,28 @@ export class EmployeeBuilder {
       data,
     });
   }
+
+  async allCoordinators() {
+    const data = await this.prismaService.employees.findMany({
+      where: {
+        user: {
+          isActive: true,
+        },
+        isCoordinator: true,
+      },
+
+      select: {
+        fullName: true,
+        userId: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+    return buildResponse('Данные', {
+      data,
+    });
+  }
 }

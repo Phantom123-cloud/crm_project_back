@@ -25,6 +25,9 @@ export class EmployeesService {
   ) {
     return this.updateEmployeeUseCase.updateEmployeeForm(dto, userId);
   }
+  async allCoordinators() {
+    return this.employeeBuilder.allCoordinators();
+  }
   async updateEmployeePassport(
     dto: Partial<UpdateEmployeePassportDto>,
     userId: string,

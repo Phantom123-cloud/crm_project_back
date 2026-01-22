@@ -49,10 +49,10 @@ export class TripTypesController {
     return this.tripTypesService.update(id, dto);
   }
 
-  @AuthRoles('delete_trip_types')
-  @Delete('delete/:id')
-  @HttpCode(HttpStatus.OK)
-  async delete(@Param('id') id: string) {
-    return this.tripTypesService.delete(id);
-  }
+  // @AuthRoles('delete_trip_types')
+  // @Delete('delete/:id')
+  // @HttpCode(HttpStatus.OK)
+  // async delete(@Param('id') id: string) {
+  //   return this.tripTypesService.delete(id);
+  // }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { PaginationTripsDto } from '../dto/pagination-trips.dto';
@@ -29,17 +29,29 @@ export class TripsBuilder {
           dateFrom: true,
           dateTo: true,
           isActive: true,
-          tripTypes: {
+          // tripTypes: {
+          //   select: {
+          //     name: true,
+          //   },
+          // },
+          creator: {
             select: {
-              name: true,
+              id: true,
+              email: true,
             },
           },
           createdAt: true,
-          // warehouses: {
+          // city: {
           //   select: {
           //     id: true,
+          //     localeRu: true,
           //   },
           // },
+          warehouses: {
+            select: {
+              id: true,
+            },
+          },
         },
       }),
       this.prismaService.trip.count({
@@ -54,5 +66,37 @@ export class TripsBuilder {
     return buildResponse('Данные', {
       data: { trips, total, countPages, page, limit },
     });
+  }
+
+  async tripById(id: string) {
+    const trip = await this.prismaService.trip.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        dateFrom: true,
+        dateTo: true,
+        isActive: true,
+        // tripTypes: {
+        //   select: {
+        //     name: true,
+        //   },
+        // },
+
+        createdAt: true,
+
+        warehouses: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!trip) {
+      throw new NotFoundException('Выезд не найден');
+    }
+
+    return buildResponse('Данные', { data: { trip } });
   }
 }

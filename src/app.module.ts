@@ -21,6 +21,7 @@ import { TripsModule } from './trips/trips.module';
 import { TripTypesModule } from './trip-types/trip-types.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
 import { ProductsModule } from './products/products.module';
+import { PlacesModule } from './cities/places.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { ProductsModule } from './products/products.module';
     TripTypesModule,
     WarehousesModule,
     ProductsModule,
+    PlacesModule,
     // CronModule,
     // AppGatewayModule,
   ],
