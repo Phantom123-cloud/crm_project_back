@@ -6,6 +6,8 @@ import { ActionsTripUsecase } from './use-cases/actions-trip.usecase';
 import { PaginationTripsDto } from './dto/pagination-trips.dto';
 import { buildResponse } from 'src/utils/build-response';
 import { Request } from 'express';
+import { TeamCompositionsDto } from './dto/team-compositions.dto';
+import { TeamCompositionsUsecase } from './use-cases/team-compositions.usecase';
 
 @Injectable()
 export class TripsService {
@@ -13,10 +15,11 @@ export class TripsService {
     private readonly createTripUsecase: CreateTripUsecase,
     private readonly tripsBuilder: TripsBuilder,
     private readonly actionsTripUsecase: ActionsTripUsecase,
+    private readonly teamCompositionsUsecase: TeamCompositionsUsecase,
   ) {}
 
-  async create(dto: CreateTripDto, tripTypesId: string, req: Request) {
-    this.createTripUsecase.create(dto, tripTypesId, req);
+  async create(dto: CreateTripDto, req: Request) {
+    this.createTripUsecase.create(dto, req);
     return buildResponse('Склад добавлен');
   }
 
@@ -30,5 +33,9 @@ export class TripsService {
 
   async tripById(id: string) {
     return this.tripsBuilder.tripById(id);
+  }
+
+  async createComposition(dto: TeamCompositionsDto, tripId: string) {
+    return this.teamCompositionsUsecase.createComposition(dto, tripId);
   }
 }

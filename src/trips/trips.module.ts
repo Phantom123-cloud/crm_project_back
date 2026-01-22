@@ -6,6 +6,7 @@ import { WarehousesModule } from 'src/warehouses/warehouses.module';
 import { CreateTripUsecase } from './use-cases/create-trip.usecase';
 import { TripsBuilder } from './builders/trips.builder';
 import { ActionsTripUsecase } from './use-cases/actions-trip.usecase';
+import { TeamCompositionsUsecase } from './use-cases/team-compositions.usecase';
 
 @Module({
   controllers: [TripsController],
@@ -15,6 +16,7 @@ import { ActionsTripUsecase } from './use-cases/actions-trip.usecase';
     CreateTripUsecase,
     TripsBuilder,
     ActionsTripUsecase,
+    TeamCompositionsUsecase,
   ],
   imports: [WarehousesModule],
 })

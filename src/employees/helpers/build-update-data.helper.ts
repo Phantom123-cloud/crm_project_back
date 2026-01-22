@@ -21,4 +21,5 @@ export const buildUpdateData = (dto: Partial<UpdateEmployeeFormDto>) => ({
     isCoordinator: dto.isCoordinator,
   }),
   ...(dto.notes && { notes: dto.notes }),
+  ...(dto.isCoordinator && { coordinatorUserId: null }),
 });

@@ -12,7 +12,7 @@ import { UpdateWarehouseDto } from '../dto/update-warehouse.dto';
 export class WarehousesMutationUseCase {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(dto: CreateWarehouseDto, ownerUserId?: string) {
+  async create(dto: CreateWarehouseDto, ownerUserId: string) {
     const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({
       where: {
         type: 'CENTRAL',

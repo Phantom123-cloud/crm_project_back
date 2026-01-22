@@ -236,42 +236,31 @@ model Places {
 }
 
 model Trip {
-  id                   String                @id @default(uuid())
+  id                   String                 @id @default(uuid())
   name                 String
   dateFrom             String
   dateTo               String
-  isActive             Boolean               @default(true) @map("is_active")
-  warehouses           Warehouses?           @relation(fields: [warehouseId], references: [id])
-  warehouseId          String?               @map("warehouse_id")
-  creator              User                  @relation(fields: [creatorUserId], references: [id])
-  creatorUserId        String                @map("creator_user_id")
-  createdAt            DateTime              @default(now()) @map("created_at")
-  updatedAt            DateTime              @updatedAt @map("updated_at")
-  baseTeamCompositions BaseTeamComposition[]
-
-  @@map("trips")
-}
-
-model BaseTeamComposition {
-  id                   String                 @id @default(uuid())
-  trip                 Trip                   @relation(fields: [tripId], references: [id])
-  tripId               String                 @map("trip_id")
+  isActive             Boolean                @default(true) @map("is_active")
+  warehouses           Warehouses?            @relation(fields: [warehouseId], references: [id])
+  warehouseId          String?                @map("warehouse_id")
+  creator              User                   @relation(fields: [creatorUserId], references: [id])
+  creatorUserId        String                 @map("creator_user_id")
   createdAt            DateTime               @default(now()) @map("created_at")
   updatedAt            DateTime               @updatedAt @map("updated_at")
   baseTeamParticipants BaseTeamParticipants[]
 
-  @@map("base_team_composition")
+  @@map("trips")
 }
 
 model BaseTeamParticipants {
-  id                    String              @id @default(uuid())
-  baseTeamComposition   BaseTeamComposition @relation(fields: [baseTeamCompositionId], references: [id])
-  baseTeamCompositionId String              @map("base_team_composition_id")
-  user                  User                @relation(fields: [participantsUserId], references: [id])
-  participantsUserId    String              @map("participants_user_id")
-  jobTitle              TeamComposition     @map("job_title")
-  createdAt             DateTime            @default(now()) @map("created_at")
-  updatedAt             DateTime            @updatedAt @map("updated_at")
+  id                 String          @id @default(uuid())
+  trip               Trip            @relation(fields: [tripId], references: [id])
+  tripId             String          @map("trip_id")
+  user               User            @relation(fields: [participantsUserId], references: [id])
+  participantsUserId String          @map("participants_user_id")
+  jobTitle           TeamComposition @map("job_title")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
 
   @@map("base_team_participants")
 }

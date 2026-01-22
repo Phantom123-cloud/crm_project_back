@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
-import type { Request } from 'express';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { RolesDataBuilder } from 'src/roles/builders/roles-data.builder';
 

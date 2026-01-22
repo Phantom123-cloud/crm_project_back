@@ -15,6 +15,7 @@ import { CreateTripDto } from './dto/create-trip.dto';
 import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 import { PaginationTripsDto } from './dto/pagination-trips.dto';
 import type { Request } from 'express';
+import { TeamCompositionsDto } from './dto/team-compositions.dto';
 
 @Controller('trips')
 export class TripsController {
@@ -22,12 +23,8 @@ export class TripsController {
   @AuthRoles('create_trips')
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
-  async create(
-    @Body() dto: CreateTripDto,
-    @Query('tripTypesId') tripTypesId: string,
-    @Req() req: Request,
-  ) {
-    return this.tripsService.create(dto, tripTypesId, req);
+  async create(@Body() dto: CreateTripDto, @Req() req: Request) {
+    return this.tripsService.create(dto, req);
   }
 
   @AuthRoles('view_trips')
@@ -38,7 +35,7 @@ export class TripsController {
   }
 
   // @AuthRoles('view_trips')
-  @Get(':id')
+  @Get('by/:id')
   @HttpCode(HttpStatus.OK)
   async tripsBuilder(@Param('id') id: string) {
     return this.tripsService.tripById(id);
@@ -49,5 +46,14 @@ export class TripsController {
   @HttpCode(HttpStatus.OK)
   async isActiveTrip(@Param('id') id: string) {
     return this.tripsService.isActiveTrip(id);
+  }
+
+  @Post('create-team-composition')
+  @HttpCode(HttpStatus.CREATED)
+  async createComposition(
+    @Body() dto: TeamCompositionsDto,
+    @Query('tripId') tripId: string,
+  ) {
+    return this.tripsService.createComposition(dto, tripId);
   }
 }

@@ -8,7 +8,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { WarehousesMutationUseCase } from 'src/warehouses/use-cases/warehouses-mutation.usecase';
 import { CreateTripDto } from '../dto/create-trip.dto';
-import dayjs from 'dayjs';
 import { Request } from 'express';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
@@ -29,7 +28,7 @@ export class CreateTripUsecase {
     private readonly warehousesMutationUseCase: WarehousesMutationUseCase,
   ) {}
 
-  async create(dto: CreateTripDto, tripTypesId: string, req: Request) {
+  async create(dto: CreateTripDto, req: Request) {
     const { id: creatorUserId } = req.user as JwtPayload;
 
     const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({
@@ -51,16 +50,6 @@ export class CreateTripUsecase {
 
     if (isNaN(dFrom.getTime()) || isNaN(dTo.getTime())) {
       throw new BadRequestException('Ошибка формата дат');
-    }
-
-    const isExistType = await this.prismaService.tripTypes.findUnique({
-      where: {
-        id: tripTypesId,
-      },
-    });
-
-    if (!isExistType) {
-      throw new ConflictException('Тип выезда переданный вами не существует');
     }
 
     if (dTo < dFrom) {
