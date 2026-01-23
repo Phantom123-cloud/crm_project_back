@@ -29,6 +29,7 @@ export class TripsBuilder {
           dateFrom: true,
           dateTo: true,
           isActive: true,
+
           // tripTypes: {
           //   select: {
           //     name: true,
@@ -82,7 +83,24 @@ export class TripsBuilder {
         //     name: true,
         //   },
         // },
-
+        baseTeamParticipants: {
+          select: {
+            id: true,
+            jobTitle: true,
+            user: {
+              select: {
+                id: true,
+                email: true,
+                employee: {
+                  select: {
+                    fullName: true,
+                    tradingСode: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         createdAt: true,
 
         warehouses: {
