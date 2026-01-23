@@ -30,7 +30,7 @@ export class TeamCompositionsUsecase {
     const {
       AUDITOR,
       PRESENTER,
-      TRADER,
+      TRADERS,
       TRIP_MANAGER,
       CHIEF_ASSISTANT,
       TM_AND_CA,
@@ -40,10 +40,21 @@ export class TeamCompositionsUsecase {
       where: {
         id: tripId,
       },
+
+      select: {
+        baseTeamParticipants: true,
+        dateFrom: true,
+        dateTo: true,
+        name: true,
+      },
     });
 
     if (!isExistTrip) {
       throw new NotFoundException('Выезд не найден');
+    }
+
+    if (isExistTrip.baseTeamParticipants.length) {
+      throw new ConflictException('Шаблон для состава уже добавлен');
     }
 
     if (!PRESENTER) {
@@ -53,6 +64,14 @@ export class TeamCompositionsUsecase {
     }
 
     await this.prismaService.$transaction(async (tx) => {
+      await tx.baseTeamParticipants.create({
+        data: {
+          tripId,
+          jobTitle: 'PRESENTER',
+          participantsUserId: PRESENTER,
+        },
+      });
+
       const isExistcoordinatorId = await tx.user.findUnique({
         where: {
           id: PRESENTER,
@@ -184,25 +203,25 @@ export class TeamCompositionsUsecase {
           },
         });
       }
-      if (TRADER?.length) {
+      if (TRADERS?.length) {
         const isExistTraders = await tx.user.findMany({
           where: {
             id: {
-              in: TRADER,
+              in: TRADERS,
             },
           },
         });
 
-        if (isExistTraders.length !== TRADER.length) {
+        if (isExistTraders.length !== TRADERS.length) {
           throw new NotFoundException(
             'Некоторые из торговых не были найдены на сервере',
           );
         }
 
         await tx.baseTeamParticipants.createMany({
-          data: TRADER.map((id) => ({
+          data: TRADERS.map((id) => ({
             tripId,
-            jobTitle: 'TRADER',
+            jobTitle: 'TRADERS',
             participantsUserId: id,
           })),
         });
