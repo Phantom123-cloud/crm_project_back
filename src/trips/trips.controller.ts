@@ -48,6 +48,16 @@ export class TripsController {
     return this.tripsService.isActiveTrip(id);
   }
 
+  // tripId: string, coordinatorId: string
+  @Put('change-coordinator')
+  @HttpCode(HttpStatus.OK)
+  async changeCoordinator(
+    @Query('tripId') tripId: string,
+    @Query('coordinatorId') coordinatorId: string,
+  ) {
+    return this.tripsService.changeCoordinator(tripId, coordinatorId);
+  }
+
   @Post('create-team-composition')
   @HttpCode(HttpStatus.CREATED)
   async createComposition(

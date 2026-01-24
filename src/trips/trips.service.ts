@@ -8,6 +8,7 @@ import { buildResponse } from 'src/utils/build-response';
 import { Request } from 'express';
 import { TeamCompositionsDto } from './dto/team-compositions.dto';
 import { TeamCompositionsUsecase } from './use-cases/team-compositions.usecase';
+import { ChangeCoordinatorUsecase } from './use-cases/change-coordinator.usecase';
 
 @Injectable()
 export class TripsService {
@@ -16,6 +17,7 @@ export class TripsService {
     private readonly tripsBuilder: TripsBuilder,
     private readonly actionsTripUsecase: ActionsTripUsecase,
     private readonly teamCompositionsUsecase: TeamCompositionsUsecase,
+    private readonly changeCoordinatorUsecase: ChangeCoordinatorUsecase,
   ) {}
 
   async create(dto: CreateTripDto, req: Request) {
@@ -37,5 +39,12 @@ export class TripsService {
 
   async createComposition(dto: TeamCompositionsDto, tripId: string) {
     return this.teamCompositionsUsecase.createComposition(dto, tripId);
+  }
+
+  async changeCoordinator(tripId: string, coordinatorId: string) {
+    return this.changeCoordinatorUsecase.changeCoordinator(
+      tripId,
+      coordinatorId,
+    );
   }
 }
