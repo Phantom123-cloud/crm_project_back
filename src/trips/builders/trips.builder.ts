@@ -101,6 +101,12 @@ export class TripsBuilder {
             },
           },
         },
+        companies: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         createdAt: true,
 
         warehouses: {

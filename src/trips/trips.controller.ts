@@ -16,6 +16,7 @@ import { AuthRoles } from 'src/auth/decorators/auth-roles.decorator';
 import { PaginationTripsDto } from './dto/pagination-trips.dto';
 import type { Request } from 'express';
 import { TeamCompositionsDto } from './dto/team-compositions.dto';
+import { ArrayCompaniesDto } from './dto/array-companies.dto copy';
 
 @Controller('trips')
 export class TripsController {
@@ -46,6 +47,24 @@ export class TripsController {
   @HttpCode(HttpStatus.OK)
   async isActiveTrip(@Param('id') id: string) {
     return this.tripsService.isActiveTrip(id);
+  }
+
+  @Put('connect-companies')
+  @HttpCode(HttpStatus.OK)
+  async addCompanies(
+    @Body() dto: ArrayCompaniesDto,
+    @Query('tripId') tripId: string,
+  ) {
+    return this.tripsService.addCompanies(dto, tripId);
+  }
+
+  @Put('disconnect-company')
+  @HttpCode(HttpStatus.OK)
+  async disconnectCompany(
+    @Query('companyId') companyId: string,
+    @Query('tripId') tripId: string,
+  ) {
+    return this.tripsService.disconnectCompany(companyId, tripId);
   }
 
   // tripId: string, coordinatorId: string

@@ -235,6 +235,16 @@ model Places {
   @@map("places")
 }
 
+model Company {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  trips     Trip[]   @relation("companies_trips")
+
+  @@map("company")
+}
+
 model Trip {
   id                   String                 @id @default(uuid())
   name                 String
@@ -248,6 +258,7 @@ model Trip {
   createdAt            DateTime               @default(now()) @map("created_at")
   updatedAt            DateTime               @updatedAt @map("updated_at")
   baseTeamParticipants BaseTeamParticipants[]
+  companies            Company[]              @relation("companies_trips")
 
   @@map("trips")
 }
