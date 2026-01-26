@@ -16,7 +16,7 @@ export class TeamCompositionsUsecase {
     private readonly warehousesMutationUseCase: WarehousesMutationUseCase,
   ) {}
 
-  async createComposition(dto: TeamCompositionsDto, tripId: string) {
+  async createPresentation(dto: TeamCompositionsDto, tripId: string) {
     const {
       AUDITOR,
       PRESENTER,
