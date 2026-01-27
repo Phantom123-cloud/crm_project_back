@@ -11,6 +11,8 @@ import { TeamCompositionsUsecase } from './use-cases/team-compositions.usecase';
 import { ChangeCoordinatorUsecase } from './use-cases/change-coordinator.usecase';
 import { TripCompaniecUsecase } from './use-cases/trip-companies.usecase';
 import { ArrayCompaniesDto } from './dto/array-companies.dto copy';
+import { UpdateTeamCompositionsUsecase } from './use-cases/update-team-compositions.usecase';
+import { UpdateTeamCompositionsDto } from './dto/update-team-compositions.dto';
 
 @Injectable()
 export class TripsService {
@@ -21,6 +23,7 @@ export class TripsService {
     private readonly teamCompositionsUsecase: TeamCompositionsUsecase,
     private readonly changeCoordinatorUsecase: ChangeCoordinatorUsecase,
     private readonly tripCompaniecUsecase: TripCompaniecUsecase,
+    private readonly updateTeamCompositionsUsecase: UpdateTeamCompositionsUsecase,
   ) {}
 
   async create(dto: CreateTripDto, req: Request) {
@@ -42,6 +45,12 @@ export class TripsService {
 
   async createComposition(dto: TeamCompositionsDto, tripId: string) {
     return this.teamCompositionsUsecase.createComposition(dto, tripId);
+  }
+  async updateComposition(dto: UpdateTeamCompositionsDto, tripId: string) {
+    return this.updateTeamCompositionsUsecase.updateTeamComposition(
+      dto,
+      tripId,
+    );
   }
   async addCompanies(dto: ArrayCompaniesDto, tripId: string) {
     return this.tripCompaniecUsecase.addCompanies(dto, tripId);

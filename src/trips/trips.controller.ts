@@ -17,6 +17,7 @@ import { PaginationTripsDto } from './dto/pagination-trips.dto';
 import type { Request } from 'express';
 import { TeamCompositionsDto } from './dto/team-compositions.dto';
 import { ArrayCompaniesDto } from './dto/array-companies.dto copy';
+import { UpdateTeamCompositionsDto } from './dto/update-team-compositions.dto';
 
 @Controller('trips')
 export class TripsController {
@@ -84,5 +85,14 @@ export class TripsController {
     @Query('tripId') tripId: string,
   ) {
     return this.tripsService.createComposition(dto, tripId);
+  }
+
+  @Put('update-team-composition')
+  @HttpCode(HttpStatus.CREATED)
+  async updateComposition(
+    @Body() dto: UpdateTeamCompositionsDto,
+    @Query('tripId') tripId: string,
+  ) {
+    return this.tripsService.updateComposition(dto, tripId);
   }
 }

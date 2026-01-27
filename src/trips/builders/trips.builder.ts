@@ -100,6 +100,10 @@ export class TripsBuilder {
               },
             },
           },
+
+          orderBy: {
+            jobTitle: 'asc',
+          },
         },
         companies: {
           select: {
