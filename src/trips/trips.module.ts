@@ -9,6 +9,7 @@ import { ActionsTripUsecase } from './use-cases/actions-trip.usecase';
 import { TeamCompositionsUsecase } from './use-cases/team-compositions.usecase';
 import { ChangeCoordinatorUsecase } from './use-cases/change-coordinator.usecase';
 import { TripCompaniecUsecase } from './use-cases/trip-companies.usecase';
+import { UpdateTeamCompositionsUsecase } from './use-cases/update-team-compositions.usecase';
 
 @Module({
   controllers: [TripsController],
@@ -21,6 +22,7 @@ import { TripCompaniecUsecase } from './use-cases/trip-companies.usecase';
     TeamCompositionsUsecase,
     ChangeCoordinatorUsecase,
     TripCompaniecUsecase,
+    UpdateTeamCompositionsUsecase,
   ],
   imports: [WarehousesModule],
 })
