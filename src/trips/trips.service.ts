@@ -13,6 +13,7 @@ import { TripCompaniecUsecase } from './use-cases/trip-companies.usecase';
 import { ArrayCompaniesDto } from './dto/array-companies.dto copy';
 import { UpdateTeamCompositionsUsecase } from './use-cases/update-team-compositions.usecase';
 import { UpdateTeamCompositionsDto } from './dto/update-team-compositions.dto';
+import { RenameTripDto } from './dto/rename-trip.dto';
 
 @Injectable()
 export class TripsService {
@@ -28,7 +29,7 @@ export class TripsService {
 
   async create(dto: CreateTripDto, req: Request) {
     this.createTripUsecase.create(dto, req);
-    return buildResponse('Склад добавлен');
+    return buildResponse('Выезд добавлен');
   }
 
   async allTrips(dto: PaginationTripsDto) {
@@ -37,6 +38,10 @@ export class TripsService {
 
   async isActiveTrip(id: string) {
     return this.actionsTripUsecase.isActiveTrip(id);
+  }
+
+  async renameTrip(tripId: string, dto: RenameTripDto) {
+    return this.actionsTripUsecase.renameTrip(tripId, dto);
   }
 
   async tripById(id: string) {
