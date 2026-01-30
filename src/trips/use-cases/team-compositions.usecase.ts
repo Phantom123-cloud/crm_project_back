@@ -125,6 +125,11 @@ export class TeamCompositionsUsecase {
       if (!CHIEF_ASSISTANT && !TM_AND_CA) {
         throw new ConflictException('Назначение ГА - обязательно');
       }
+
+      if (!TRIP_MANAGER && !TM_AND_CA) {
+        throw new ConflictException('Назначение МВ - обязательно');
+      }
+
       if (TRIP_MANAGER && CHIEF_ASSISTANT && TM_AND_CA) {
         throw new ConflictException(
           'При наличии назначеных ролей в команде ГА и МВ, совмещённую роль МВ/ГА назначать не нужно',
@@ -219,13 +224,23 @@ export class TeamCompositionsUsecase {
 
       const ownerUserId = TRIP_MANAGER ? TRIP_MANAGER : (TM_AND_CA as string);
 
-      await this.warehousesMutationUseCase.create(
+      const warehouseId = await this.warehousesMutationUseCase.create(
         {
           name: `${isExistTrip.name} ${dayjs(isExistTrip.dateFrom).format('DD.MM.YYYY')}-${dayjs(isExistTrip.dateTo).format('DD.MM.YYYY')}`,
           type: 'TRIP',
         },
         ownerUserId,
       );
+
+      await tx.trip.update({
+        where: {
+          id: tripId,
+        },
+
+        data: {
+          warehouseId,
+        },
+      });
 
       return;
     });

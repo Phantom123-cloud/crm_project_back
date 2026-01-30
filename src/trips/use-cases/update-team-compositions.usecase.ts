@@ -125,6 +125,10 @@ export class UpdateTeamCompositionsUsecase {
         throw new ConflictException('Назначение ГА - обязательно');
       }
 
+      if (!TRIP_MANAGER && !TM_AND_CA) {
+        throw new ConflictException('Назначение МВ - обязательно');
+      }
+
       if (TRIP_MANAGER && CHIEF_ASSISTANT && TM_AND_CA) {
         throw new ConflictException(
           'При наличии назначеных ролей в команде ГА и МВ, совмещённую роль МВ/ГА назначать не нужно',
@@ -148,6 +152,10 @@ export class UpdateTeamCompositionsUsecase {
         !TM_AND_CA
       ) {
         throw new ConflictException('Назначение ГА - обязательно');
+      }
+
+      if (currentCa?.id && currentTmCa?.id && !TRIP_MANAGER && !TM_AND_CA) {
+        throw new ConflictException('Назначение МВ - обязательно');
       }
 
       if (TRIP_MANAGER) {

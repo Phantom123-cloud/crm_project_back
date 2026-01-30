@@ -18,6 +18,7 @@ import type { Request } from 'express';
 import { TeamCompositionsDto } from './dto/team-compositions.dto';
 import { ArrayCompaniesDto } from './dto/array-companies.dto copy';
 import { UpdateTeamCompositionsDto } from './dto/update-team-compositions.dto';
+import { RenameTripDto } from './dto/rename-trip.dto';
 
 @Controller('trips')
 export class TripsController {
@@ -48,6 +49,12 @@ export class TripsController {
   @HttpCode(HttpStatus.OK)
   async isActiveTrip(@Param('id') id: string) {
     return this.tripsService.isActiveTrip(id);
+  }
+
+  @Put('rename/:id')
+  @HttpCode(HttpStatus.OK)
+  async renameTrip(@Param('id') id: string, @Body() dto: RenameTripDto) {
+    return this.tripsService.renameTrip(id, dto);
   }
 
   @Put('connect-companies')

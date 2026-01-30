@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
-import { WarehousesMutationUseCase } from 'src/warehouses/use-cases/warehouses-mutation.usecase';
 import { CreateTripDto } from '../dto/create-trip.dto';
 import { Request } from 'express';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
@@ -23,10 +22,7 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class CreateTripUsecase {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly warehousesMutationUseCase: WarehousesMutationUseCase,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(dto: CreateTripDto, req: Request) {
     const { id: creatorUserId } = req.user as JwtPayload;
