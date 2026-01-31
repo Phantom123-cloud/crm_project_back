@@ -23,6 +23,7 @@ import { WarehousesModule } from './warehouses/warehouses.module';
 import { ProductsModule } from './products/products.module';
 import { PlacesModule } from './places/places.module';
 import { CompanyModule } from './company/company.module';
+import { PresentationsModule } from './presentations/presentations.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { CompanyModule } from './company/company.module';
     ProductsModule,
     PlacesModule,
     CompanyModule,
+    PresentationsModule,
     // CronModule,
     // AppGatewayModule,
   ],
