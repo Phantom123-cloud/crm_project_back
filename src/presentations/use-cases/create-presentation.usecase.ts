@@ -14,23 +14,20 @@ import { CreatePresentationDto } from '../dto/create-presentation.dto';
 export class CreatePresentationUsecase {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(
-    dto: CreatePresentationDto,
-    tripId: string,
-    placeId: string,
-    req: Request,
-  ) {
+  async create(dto: CreatePresentationDto, tripId: string, req: Request) {
     const { id: creatorUserId } = req.user as JwtPayload;
 
-    const { date, time, teams } = dto;
     const {
+      date,
+      time,
       AUDITOR,
       PRESENTER,
       TRADERS,
       TRIP_MANAGER,
       CHIEF_ASSISTANT,
       TM_AND_CA,
-    } = teams;
+      placeId,
+    } = dto;
 
     const dateValidate = new Date(`${date} ${time}`);
 
@@ -76,7 +73,7 @@ export class CreatePresentationUsecase {
 
       const COORDINATOR = isExistTrip.baseTeamParticipants.find(
         (b) => b.jobTitle === 'COORDINATOR',
-      )?.id;
+      )?.participantsUserId;
 
       if (!COORDINATOR) {
         throw new ConflictException('В выезде отсутствует координатор');
@@ -214,6 +211,6 @@ export class CreatePresentationUsecase {
       return;
     });
 
-    return buildResponse('Выезд добавлен');
+    return buildResponse('Презентация добавлена');
   }
 }
