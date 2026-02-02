@@ -25,6 +25,8 @@ export class CreateTripUsecase {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(dto: CreateTripDto, req: Request) {
+    console.log(req.user);
+
     const { id: creatorUserId } = req.user as JwtPayload;
 
     const isExistMainWarehouse = await this.prismaService.warehouses.findFirst({

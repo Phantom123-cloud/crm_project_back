@@ -1,35 +1,42 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
-import { TeamCompositionsDto } from '../dto/team-compositions.dto';
-import { WarehousesMutationUseCase } from 'src/warehouses/use-cases/warehouses-mutation.usecase';
-import dayjs from 'dayjs';
+import { Request } from 'express';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { CreatePresentationDto } from '../dto/create-presentation.dto';
 
 @Injectable()
-export class TeamCompositionsUsecase {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly warehousesMutationUseCase: WarehousesMutationUseCase,
-  ) {}
+export class CreatePresentationUsecase {
+  constructor(private readonly prismaService: PrismaService) {}
 
-  async createComposition(dto: TeamCompositionsDto, tripId: string) {
+  async create(dto: CreatePresentationDto, tripId: string, req: Request) {
+    const { id: creatorUserId } = req.user as JwtPayload;
+
     const {
+      date,
+      time,
       AUDITOR,
       PRESENTER,
       TRADERS,
       TRIP_MANAGER,
       CHIEF_ASSISTANT,
       TM_AND_CA,
+      placeId,
     } = dto;
 
+    const dateValidate = new Date(`${date} ${time}`);
+
+    if (isNaN(dateValidate.getTime())) {
+      throw new BadRequestException('Ошибка формата даты/время');
+    }
+
     const isExistTrip = await this.prismaService.trip.findUnique({
-      where: {
-        id: tripId,
-      },
+      where: { id: tripId },
 
       select: {
         baseTeamParticipants: true,
@@ -40,62 +47,41 @@ export class TeamCompositionsUsecase {
     });
 
     if (!isExistTrip) {
-      throw new NotFoundException('Выезд не найден');
+      throw new ConflictException('Выезд не найден');
     }
 
-    if (isExistTrip.baseTeamParticipants.length) {
-      throw new ConflictException('Шаблон для состава уже добавлен');
-    }
+    const isExistPlace = await this.prismaService.places.findUnique({
+      where: { id: placeId },
+    });
 
-    if (!PRESENTER) {
-      throw new ConflictException(
-        'Ведущий - обязательный сотрудник состава команды',
-      );
+    if (!isExistPlace) {
+      throw new ConflictException('Локация не найдена');
     }
 
     await this.prismaService.$transaction(async (tx) => {
-      await tx.baseTeamParticipants.create({
+      const presentation = await tx.presentations.create({
+        data: { date, time, tripId, placeId, creatorUserId },
+      });
+
+      await tx.presentationTeam.create({
         data: {
-          tripId,
+          presentationId: presentation.id,
           jobTitle: 'PRESENTER',
           participantsUserId: PRESENTER,
         },
       });
 
-      const isExistcoordinatorId = await tx.user.findUnique({
-        where: {
-          id: PRESENTER,
-        },
+      const COORDINATOR = isExistTrip.baseTeamParticipants.find(
+        (b) => b.jobTitle === 'COORDINATOR',
+      )?.participantsUserId;
 
-        select: {
-          employee: {
-            select: {
-              coordinatorUserId: true,
-            },
-          },
-        },
-      });
-      if (!isExistcoordinatorId) {
-        throw new NotFoundException(
-          'Сотрудник указанный вами как ведущий, на сервере не обнаружен',
-        );
+      if (!COORDINATOR) {
+        throw new ConflictException('В выезде отсутствует координатор');
       }
 
-      if (!isExistcoordinatorId.employee) {
-        throw new ConflictException('Ошибка в аккаунте ведущего');
-      }
-
-      if (!isExistcoordinatorId.employee?.coordinatorUserId) {
-        throw new ConflictException(
-          'Что бы назначить сотрудника ведущим команды, его необходимо присвоить координатору',
-        );
-      }
-
-      const COORDINATOR = isExistcoordinatorId.employee.coordinatorUserId;
-
-      await tx.baseTeamParticipants.create({
+      await tx.presentationTeam.create({
         data: {
-          tripId,
+          presentationId: presentation.id,
           jobTitle: 'COORDINATOR',
           participantsUserId: COORDINATOR,
         },
@@ -114,9 +100,9 @@ export class TeamCompositionsUsecase {
           );
         }
 
-        await tx.baseTeamParticipants.create({
+        await tx.presentationTeam.create({
           data: {
-            tripId,
+            presentationId: presentation.id,
             jobTitle: 'AUDITOR',
             participantsUserId: AUDITOR,
           },
@@ -148,9 +134,9 @@ export class TeamCompositionsUsecase {
           );
         }
 
-        await tx.baseTeamParticipants.create({
+        await tx.presentationTeam.create({
           data: {
-            tripId,
+            presentationId: presentation.id,
             jobTitle: 'TRIP_MANAGER',
             participantsUserId: TRIP_MANAGER,
           },
@@ -169,9 +155,9 @@ export class TeamCompositionsUsecase {
           );
         }
 
-        await tx.baseTeamParticipants.create({
+        await tx.presentationTeam.create({
           data: {
-            tripId,
+            presentationId: presentation.id,
             jobTitle: 'CHIEF_ASSISTANT',
             participantsUserId: CHIEF_ASSISTANT,
           },
@@ -190,9 +176,9 @@ export class TeamCompositionsUsecase {
           );
         }
 
-        await tx.baseTeamParticipants.create({
+        await tx.presentationTeam.create({
           data: {
-            tripId,
+            presentationId: presentation.id,
             jobTitle: 'TM_AND_CA',
             participantsUserId: TM_AND_CA,
           },
@@ -213,38 +199,18 @@ export class TeamCompositionsUsecase {
           );
         }
 
-        await tx.baseTeamParticipants.createMany({
+        await tx.presentationTeam.createMany({
           data: TRADERS.map((id) => ({
-            tripId,
+            presentationId: presentation.id,
             jobTitle: 'TRADERS',
             participantsUserId: id,
           })),
         });
       }
 
-      const ownerUserId = TRIP_MANAGER ? TRIP_MANAGER : (TM_AND_CA as string);
-
-      const warehouseId = await this.warehousesMutationUseCase.create(
-        {
-          name: `${isExistTrip.name} [${dayjs(isExistTrip.dateFrom).format('DD.MM.YYYY')}-${dayjs(isExistTrip.dateTo).format('DD.MM.YYYY')}]`,
-          type: 'TRIP',
-        },
-        ownerUserId,
-      );
-
-      await tx.trip.update({
-        where: {
-          id: tripId,
-        },
-
-        data: {
-          warehouseId,
-        },
-      });
-
       return;
     });
 
-    return buildResponse('Состав добавлен');
+    return buildResponse('Презентация добавлена');
   }
 }

@@ -26,6 +26,8 @@ model User {
   trips                Trip[]
   employeeCoordinator  Employees[]            @relation("Coordinator")
   employee             Employees?             @relation("Employees")
+  presentations        Presentations[]
+  presentationTeams    PresentationTeam[]
 
   @@map("users")
 }
@@ -223,14 +225,15 @@ enum FilesType {
 // ВЫЕЗД
 
 model Places {
-  id        String   @id @default(uuid())
-  name      String
-  city      String
-  street    String
-  postcode  String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id            String          @id @default(uuid())
+  name          String
+  city          String
+  street        String
+  postcode      String?
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
   // trips     Trip[]
+  presentations Presentations[]
 
   @@map("places")
 }
@@ -259,8 +262,39 @@ model Trip {
   updatedAt            DateTime               @updatedAt @map("updated_at")
   baseTeamParticipants BaseTeamParticipants[]
   companies            Company[]              @relation("companies_trips")
+  presentations        Presentations[]
 
   @@map("trips")
+}
+
+model Presentations {
+  id                String             @id @default(uuid())
+  date              String
+  time              String
+  trip              Trip               @relation(fields: [tripId], references: [id])
+  tripId            String             @map("trip_id")
+  place             Places             @relation(fields: [placeId], references: [id])
+  placeId           String             @map("place_id")
+  creator           User               @relation(fields: [creatorUserId], references: [id])
+  creatorUserId     String             @map("creator_user_id")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  presentationTeams PresentationTeam[]
+
+  @@map("presentations")
+}
+
+model PresentationTeam {
+  id                 String          @id @default(uuid())
+  presentation       Presentations   @relation(fields: [presentationId], references: [id])
+  presentationId     String          @map("presentation_id")
+  user               User            @relation(fields: [participantsUserId], references: [id])
+  participantsUserId String          @map("participants_user_id")
+  jobTitle           TeamComposition @map("job_title")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+
+  @@map("presentation_team")
 }
 
 model BaseTeamParticipants {
