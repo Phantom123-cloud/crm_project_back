@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
   Req,
@@ -11,6 +13,7 @@ import { PresentationsService } from './presentations.service';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import type { Request } from 'express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
+import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 
 @Controller('presentations')
 export class PresentationsController {
@@ -25,5 +28,11 @@ export class PresentationsController {
     @Query('tripId') tripId: string,
   ) {
     return this.presentationsService.create(dto, tripId, req);
+  }
+
+  @Get('all/:id')
+  @HttpCode(HttpStatus.OK)
+  allRoles(@Query() dto: PaginationBasic, @Param('id') id: string) {
+    return this.presentationsService.allPresentations(dto, id);
   }
 }
