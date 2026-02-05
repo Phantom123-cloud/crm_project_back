@@ -46,6 +46,18 @@ export class ActionsTripUsecase {
   async renameTrip(tripId: string, dto: RenameTripDto) {
     const isExist = await this.prismaService.trip.findUnique({
       where: { id: tripId },
+
+      select: {
+        presentations: {
+          select: {
+            date: true,
+          },
+        },
+
+        dateFrom: true,
+        dateTo: true,
+        name: true,
+      },
     });
 
     if (!isExist) {
@@ -59,6 +71,34 @@ export class ActionsTripUsecase {
     } = isExist;
 
     const { dateFrom, dateTo, name } = dto;
+
+    if (dateFrom) {
+      const dateFromNew = new Date(dateFrom);
+      const dateFromCurrent = new Date(isExist.dateFrom);
+
+      if (
+        dateFromNew > dateFromCurrent &&
+        isExist.presentations.some((pr) => new Date(pr.date) < dateFromNew)
+      ) {
+        throw new ConflictException(
+          'Вы не можете изменить диапазон выезда, ранее были добавлены презентации на даты которые вы пытаетесь удалить',
+        );
+      }
+    }
+
+    if (dateTo) {
+      const dateToNew = new Date(dateTo);
+      const dateToCurrent = new Date(isExist.dateTo);
+
+      if (
+        dateToNew < dateToCurrent &&
+        isExist.presentations.some((pr) => new Date(pr.date) > dateToNew)
+      ) {
+        throw new ConflictException(
+          'Вы не можете изменить диапазон выезда, ранее были добавлены презентации на даты которые вы пытаетесь удалить',
+        );
+      }
+    }
 
     if (!dateFrom && !dateTo && !name) {
       throw new ConflictException('Что бы внести изменения заполните форму');
@@ -86,7 +126,9 @@ export class ActionsTripUsecase {
     });
 
     if (isExistTrip) {
-      throw new ConflictException('Выезд с таким названием уже существует');
+      throw new ConflictException(
+        'Выезд с таким названием и датами (от-до) уже был добавлен',
+      );
     }
 
     await this.prismaService.$transaction(async (tx) => {
@@ -101,7 +143,7 @@ export class ActionsTripUsecase {
 
           warehouses: {
             update: {
-              name: `${name ? name : nameCurrent} ${dayjs(dateFrom ? dateFrom : dateFromCurrent).format('DD.MM.YYYY')}-${dayjs(dateTo ? dateTo : dateToCurrent).format('DD.MM.YYYY')}`,
+              name: `${name ? name : nameCurrent}${dayjs(dateFrom ? dateFrom : dateFromCurrent).format('DDMMYY')}`,
             },
           },
         },

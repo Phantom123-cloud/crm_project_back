@@ -12,8 +12,8 @@ import {
 import { PresentationsService } from './presentations.service';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import type { Request } from 'express';
-import { Auth } from 'src/auth/decorators/auth.decorator';
 import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @Controller('presentations')
 export class PresentationsController {
@@ -25,9 +25,15 @@ export class PresentationsController {
   async create(
     @Req() req: Request,
     @Body() dto: CreatePresentationDto,
+    @Query('presentationTypeId') presentationTypeId: string,
     @Query('tripId') tripId: string,
   ) {
-    return this.presentationsService.create(dto, tripId, req);
+    return this.presentationsService.create(
+      dto,
+      tripId,
+      presentationTypeId,
+      req,
+    );
   }
 
   @Get('all/:id')

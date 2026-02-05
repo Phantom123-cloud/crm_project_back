@@ -226,7 +226,7 @@ export class TeamCompositionsUsecase {
 
       const warehouseId = await this.warehousesMutationUseCase.create(
         {
-          name: `${isExistTrip.name} [${dayjs(isExistTrip.dateFrom).format('DD.MM.YYYY')}-${dayjs(isExistTrip.dateTo).format('DD.MM.YYYY')}]`,
+          name: `${isExistTrip.name}${dayjs(isExistTrip.dateFrom).format('DDMMYY')}`,
           type: 'TRIP',
         },
         ownerUserId,

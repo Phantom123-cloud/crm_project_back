@@ -14,7 +14,12 @@ import { CreatePresentationDto } from '../dto/create-presentation.dto';
 export class CreatePresentationUsecase {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(dto: CreatePresentationDto, tripId: string, req: Request) {
+  async create(
+    dto: CreatePresentationDto,
+    tripId: string,
+    presentationTypeId: string,
+    req: Request,
+  ) {
     const { id: creatorUserId } = req.user as JwtPayload;
 
     const {
@@ -33,6 +38,12 @@ export class CreatePresentationUsecase {
 
     if (isNaN(dateValidate.getTime())) {
       throw new BadRequestException('Ошибка формата даты/время');
+    }
+
+    const presIndex = +time.split(':')[0];
+
+    if (isNaN(presIndex)) {
+      throw new ConflictException('Некорректный формат времени');
     }
 
     const isExistTrip = await this.prismaService.trip.findUnique({
@@ -58,9 +69,35 @@ export class CreatePresentationUsecase {
       throw new ConflictException('Локация не найдена');
     }
 
+    const isExistPresentationType =
+      await this.prismaService.presentationTypes.findUnique({
+        where: {
+          id: presentationTypeId,
+        },
+      });
+
+    console.log(isExistPresentationType, presentationTypeId);
+
+    if (!isExistPresentationType) {
+      throw new ConflictException('Тип презентации не найден');
+    }
+
     await this.prismaService.$transaction(async (tx) => {
       const presentation = await tx.presentations.create({
-        data: { date, time, tripId, placeId, creatorUserId },
+        data: {
+          index:
+            presIndex <= 12
+              ? '01'
+              : presIndex > 12 && presIndex <= 16
+                ? '02'
+                : '03',
+          date,
+          time,
+          tripId,
+          placeId,
+          creatorUserId,
+          presentationTypeId,
+        },
       });
 
       await tx.presentationTeam.create({
