@@ -12,8 +12,18 @@ export class PresentationsService {
     private readonly presentationsBuilder: PresentationsBuilder,
   ) {}
 
-  async create(dto: CreatePresentationDto, tripId: string, req: Request) {
-    return this.createPresentationUsecase.create(dto, tripId, req);
+  async create(
+    dto: CreatePresentationDto,
+    tripId: string,
+    presentationTypeId: string,
+    req: Request,
+  ) {
+    return this.createPresentationUsecase.create(
+      dto,
+      tripId,
+      presentationTypeId,
+      req,
+    );
   }
 
   async allPresentations(dto: PaginationBasic, tripId: string) {

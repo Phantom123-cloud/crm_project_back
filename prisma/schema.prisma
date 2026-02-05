@@ -268,18 +268,21 @@ model Trip {
 }
 
 model Presentations {
-  id                String             @id @default(uuid())
-  date              String
-  time              String
-  trip              Trip               @relation(fields: [tripId], references: [id])
-  tripId            String             @map("trip_id")
-  place             Places             @relation(fields: [placeId], references: [id])
-  placeId           String             @map("place_id")
-  creator           User               @relation(fields: [creatorUserId], references: [id])
-  creatorUserId     String             @map("creator_user_id")
-  createdAt         DateTime           @default(now()) @map("created_at")
-  updatedAt         DateTime           @updatedAt @map("updated_at")
-  presentationTeams PresentationTeam[]
+  id                 String             @id @default(uuid())
+  date               String
+  time               String
+  index              String
+  trip               Trip               @relation(fields: [tripId], references: [id])
+  tripId             String             @map("trip_id")
+  place              Places             @relation(fields: [placeId], references: [id])
+  placeId            String             @map("place_id")
+  presentationTypes  PresentationTypes  @relation(fields: [presentationTypeId], references: [id])
+  presentationTypeId String             @map("presentation_type_id")
+  creator            User               @relation(fields: [creatorUserId], references: [id])
+  creatorUserId      String             @map("creator_user_id")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  presentationTeams  PresentationTeam[]
 
   @@map("presentations")
 }
@@ -320,13 +323,14 @@ enum TeamComposition {
   TM_AND_CA
 }
 
-model TripTypes {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model PresentationTypes {
+  id            String          @id @default(uuid())
+  name          String          @unique
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  presentations Presentations[]
 
-  @@map("trip_types")
+  @@map("presentation_types")
 }
 
 // СКЛАД

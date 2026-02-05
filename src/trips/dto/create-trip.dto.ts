@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class CreateTripDto {
   @IsString({ message: 'Название должно быть строкой' })
-  @Length(8, 8, { message: 'Длина название 8 символов' })
+  @Length(1, 5, { message: 'Длина название от 1-5 символов' })
   @IsNotEmpty({ message: 'Название - обязательное поле' })
   name: string;
 

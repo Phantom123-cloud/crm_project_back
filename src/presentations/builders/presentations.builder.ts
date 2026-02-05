@@ -27,6 +27,12 @@ export class PresentationsBuilder {
           id: true,
           date: true,
           time: true,
+          index: true,
+          presentationTypes: {
+            select: {
+              name: true,
+            },
+          },
           place: {
             select: {
               name: true,
@@ -38,6 +44,13 @@ export class PresentationsBuilder {
             select: {
               email: true,
               id: true,
+            },
+          },
+
+          trip: {
+            select: {
+              name: true,
+              dateFrom: true,
             },
           },
 

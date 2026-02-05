@@ -18,12 +18,12 @@ import { FilesModule } from './files/files.module';
 // import { CronModule } from './cron/cron.module';
 // import { AppGatewayModule } from './gateway/app.gateway.module';
 import { TripsModule } from './trips/trips.module';
-import { TripTypesModule } from './trip-types/trip-types.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
 import { ProductsModule } from './products/products.module';
 import { PlacesModule } from './places/places.module';
 import { CompanyModule } from './company/company.module';
 import { PresentationsModule } from './presentations/presentations.module';
+import { PresentationTypesModule } from './presentation-types/presentation-types.module';
 
 @Module({
   imports: [
@@ -46,7 +46,7 @@ import { PresentationsModule } from './presentations/presentations.module';
     UploadsModule,
     FilesModule,
     TripsModule,
-    TripTypesModule,
+    PresentationTypesModule,
     WarehousesModule,
     ProductsModule,
     PlacesModule,
