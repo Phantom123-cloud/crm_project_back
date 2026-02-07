@@ -80,4 +80,87 @@ export class PresentationsBuilder {
       data: { presentations, total, countPages, page, limit },
     });
   }
+
+  async presentationById(presentationId: string) {
+    const presentation = await this.prismaService.presentations.findUnique({
+      where: {
+        id: presentationId,
+      },
+      select: {
+        id: true,
+        date: true,
+        time: true,
+        index: true,
+        presentationTypes: {
+          select: {
+            name: true,
+            id: true,
+          },
+        },
+        place: {
+          select: {
+            name: true,
+            city: true,
+            street: true,
+            id: true,
+          },
+        },
+        creator: {
+          select: {
+            email: true,
+            id: true,
+          },
+        },
+
+        trip: {
+          select: {
+            isActive: true,
+            id: true,
+            name: true,
+            dateFrom: true,
+            dateTo: true,
+            createdAt: true,
+            baseTeamParticipants: true,
+            warehouses: {
+              select: {
+                id: true,
+              },
+            },
+            companies: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            creator: {
+              select: {
+                id: true,
+                email: true,
+              },
+            },
+          },
+        },
+
+        presentationTeams: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+              },
+            },
+            jobTitle: true,
+          },
+        },
+      },
+    });
+
+    if (!presentation) {
+      throw new NotFoundException('Презентация не найдена');
+    }
+
+    return buildResponse('Данные', {
+      data: { presentation },
+    });
+  }
 }

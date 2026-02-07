@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { PresentationsService } from './presentations.service';
-import { PresentationsController } from './presentations.controller';
 import { CreatePresentationUsecase } from './use-cases/create-presentation.usecase';
 import { PresentationsBuilder } from './builders/presentations.builder';
 import { UpdatePresentationUsecase } from './use-cases/update-presentation.usecase';
+import { PresentationsController } from './presentations.controller';
 
 @Module({
   controllers: [PresentationsController],

@@ -76,7 +76,6 @@ export class CreatePresentationUsecase {
         },
       });
 
-    console.log(isExistPresentationType, presentationTypeId);
 
     if (!isExistPresentationType) {
       throw new ConflictException('Тип презентации не найден');

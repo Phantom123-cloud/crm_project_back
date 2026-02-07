@@ -8,7 +8,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
 import { Request } from 'express';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
-import { CreatePresentationDto } from '../dto/create-presentation.dto';
 import { UpdatePresentationDto } from '../dto/update-presentation.dto copy';
 
 @Injectable()
@@ -60,21 +59,28 @@ export class UpdatePresentationUsecase {
       if (!isExistPresentation) {
         throw new ConflictException('Презентация не найдена');
       }
-      const where = {
-        date: date ? date : isExistPresentation.date,
-        time: time ? time : isExistPresentation.time,
-        placeId: placeId ? placeId : isExistPresentation.placeId,
-        presentationTypeId: presentationTypeId
-          ? presentationTypeId
-          : isExistPresentation.presentationTypeId,
-      };
 
-      const isExistPresNewData = await tx.presentations.findFirst({ where });
+      if (
+        (date && isExistPresentation.date !== date) ||
+        (time && isExistPresentation.time !== time)
+      ) {
+        const isExistPresNewData = await tx.presentations.findFirst({
+          where: {
+            date,
+            time,
+            placeId: placeId ? placeId : isExistPresentation.placeId,
+            presentationTypeId: presentationTypeId
+              ? presentationTypeId
+              : isExistPresentation.presentationTypeId,
+            tripId,
+          },
+        });
 
-      if (isExistPresNewData) {
-        throw new ConflictException(
-          'Презентация с такими данными уже существует',
-        );
+        if (isExistPresNewData) {
+          throw new ConflictException(
+            'Презентация с такими данными уже существует',
+          );
+        }
       }
 
       if (date) {
