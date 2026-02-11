@@ -16,10 +16,51 @@ export class ActionsTripUsecase {
   async isActiveTrip(id: string) {
     const isExist = await this.prismaService.trip.findUnique({
       where: { id },
+
+      select: {
+        isActive: true,
+        warehouseId: true,
+        warehouses: {
+          select: {
+            stockItems: {
+              select: {
+                quantity: true,
+              },
+            },
+            stockMovementsFrom: {
+              select: {
+                quantity: true,
+                status: true,
+              },
+            },
+            stockMovementsTo: {
+              select: {
+                quantity: true,
+                status: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!isExist) {
       throw new NotFoundException('Переданный выезд не найден');
+    }
+
+    if (
+      isExist.isActive &&
+      (isExist.warehouses?.stockItems.some((q) => q.quantity > 0) ||
+        isExist.warehouses?.stockMovementsFrom.some(
+          (q) => q.quantity > 0 && q.status === 'TRANSIT',
+        ) ||
+        isExist.warehouses?.stockMovementsTo.some(
+          (q) => q.quantity > 0 && q.status === 'TRANSIT',
+        ))
+    ) {
+      throw new ConflictException(
+        'Вы не можете заблокировать выезд, на складе есть товары',
+      );
     }
 
     await this.prismaService.trip.update({
@@ -57,11 +98,16 @@ export class ActionsTripUsecase {
         dateFrom: true,
         dateTo: true,
         name: true,
+        isActive: true,
       },
     });
 
     if (!isExist) {
       throw new NotFoundException('Переданный выезд не найден');
+    }
+
+    if (!isExist.isActive) {
+      throw new ConflictException('Выезд заблокирован, изменения запрещены');
     }
 
     const {

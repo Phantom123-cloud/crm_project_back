@@ -10,41 +10,41 @@ import { buildResponse } from 'src/utils/build-response';
 export class ChangeCoordinatorUsecase {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async changeCoordinator(tripId: string, coordinatorId: string) {
-    const [isExistTrip, isExistUser] = await this.prismaService.$transaction([
-      this.prismaService.trip.findUnique({
-        where: {
-          id: tripId,
-        },
+  async changeCoordinator(presentationId: string, coordinatorId: string) {
+    const [isExistPresentation, isExistUser] =
+      await this.prismaService.$transaction([
+        this.prismaService.presentations.findUnique({
+          where: {
+            id: presentationId,
+          },
 
-        select: {
-          isActive: true,
-          baseTeamParticipants: true,
-          presentations: {
-            select: {
-              presentationTeams: true,
+          select: {
+            presentationTeams: true,
+            trip: {
+              select: {
+                isActive: true,
+              },
             },
           },
-        },
-      }),
-      this.prismaService.user.findUnique({
-        where: {
-          id: coordinatorId,
-        },
+        }),
+        this.prismaService.user.findUnique({
+          where: {
+            id: coordinatorId,
+          },
 
-        select: {
-          employee: true,
-        },
-      }),
-    ]);
+          select: {
+            employee: true,
+          },
+        }),
+      ]);
 
-    if (!isExistTrip || !isExistUser) {
+    if (!isExistPresentation || !isExistUser) {
       throw new NotFoundException(
-        !isExistTrip ? 'Выезд не найден' : 'Пользователь не найден',
+        !isExistPresentation ? 'Выезд не найден' : 'Пользователь не найден',
       );
     }
 
-    if (!isExistTrip.isActive) {
+    if (!isExistPresentation.trip.isActive) {
       throw new ConflictException('Выезд заблокирован, изменения запрещены');
     }
 
@@ -54,7 +54,7 @@ export class ChangeCoordinatorUsecase {
       );
     }
 
-    const currentCoordinatorId = isExistTrip.baseTeamParticipants.find(
+    const currentCoordinatorId = isExistPresentation.presentationTeams.find(
       (item) => item.jobTitle === 'COORDINATOR',
     );
 
@@ -62,21 +62,9 @@ export class ChangeCoordinatorUsecase {
       throw new ConflictException('Вы передали почту текущего координатора');
     }
 
-    const presentationIds = isExistTrip.presentations.reduce((acc, val) => {
-      const id = val.presentationTeams.find(
-        (team) => team.jobTitle === 'COORDINATOR',
-      )?.id;
-
-      if (id) {
-        acc.push(id);
-      }
-
-      return acc;
-    }, [] as string[]);
-
     await this.prismaService.$transaction(async (tx) => {
       if (currentCoordinatorId) {
-        await tx.baseTeamParticipants.update({
+        await tx.presentationTeam.update({
           where: {
             id: currentCoordinatorId.id,
           },
@@ -85,23 +73,14 @@ export class ChangeCoordinatorUsecase {
           },
         });
       } else {
-        await tx.baseTeamParticipants.create({
+        await tx.presentationTeam.create({
           data: {
             jobTitle: 'COORDINATOR',
-            tripId,
+            presentationId,
             participantsUserId: coordinatorId,
           },
         });
       }
-
-      await tx.presentationTeam.updateMany({
-        where: {
-          id: { in: presentationIds },
-        },
-        data: {
-          participantsUserId: coordinatorId,
-        },
-      });
 
       return;
     });

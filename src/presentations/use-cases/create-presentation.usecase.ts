@@ -54,11 +54,16 @@ export class CreatePresentationUsecase {
         dateFrom: true,
         dateTo: true,
         name: true,
+        isActive: true,
       },
     });
 
     if (!isExistTrip) {
       throw new ConflictException('Выезд не найден');
+    }
+
+    if (!isExistTrip.isActive) {
+      throw new ConflictException('Выезд заблокирован, изменения запрещены');
     }
 
     const isExistPlace = await this.prismaService.places.findUnique({
@@ -75,7 +80,6 @@ export class CreatePresentationUsecase {
           id: presentationTypeId,
         },
       });
-
 
     if (!isExistPresentationType) {
       throw new ConflictException('Тип презентации не найден');

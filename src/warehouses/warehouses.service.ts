@@ -4,7 +4,6 @@ import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { WarehousesActionsUseCase } from './use-cases/warehouses-actions.usecase';
 import { WarehousesMutationUseCase } from './use-cases/warehouses-mutation.usecase';
 import { WarehousesBuilder } from './builders/warehouses.builder';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { AddStockItems } from './dto/add-stock-items.dto';
 import { SaleProductDto } from './dto/sele-product.dto';
 import type { Request } from 'express';
@@ -13,6 +12,7 @@ import { PaginationStockMovementsDto } from './dto/pagination-stock-movements.dt
 import { PaginationBasic } from 'src/common/dto-global/pagination.dto';
 import { WarehousesProductActionsUseCase } from './use-cases/warehouses-product-actions.usecase';
 import { WarehousesStockMoveUseCase } from './use-cases/warehouses-stock-move.usecase';
+import { buildResponse } from 'src/utils/build-response';
 
 @Injectable()
 export class WarehousesService {
@@ -25,7 +25,8 @@ export class WarehousesService {
   ) {}
 
   async create(dto: CreateWarehouseDto, ownerUserId: string) {
-    return this.warehousesMutationUseCase.create(dto, ownerUserId);
+    this.warehousesMutationUseCase.create(dto, ownerUserId);
+    return buildResponse('Склад добавлен');
   }
 
   async isActive(id: string) {

@@ -75,4 +75,16 @@ export class PresentationsController {
   delete(@Param('id') id: string) {
     return this.presentationsService.delete(id);
   }
+
+  @Put('change-coordinator')
+  @HttpCode(HttpStatus.CREATED)
+  async changeCoordinstor(
+    @Query('coordinatorId') coordinatorId: string,
+    @Query('presentationId') presentationId: string,
+  ) {
+    return this.presentationsService.changeCoordinator(
+      presentationId,
+      coordinatorId,
+    );
+  }
 }

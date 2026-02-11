@@ -31,11 +31,16 @@ export class UpdateTeamCompositionsUsecase {
         dateFrom: true,
         dateTo: true,
         name: true,
+        isActive: true,
       },
     });
 
     if (!isExistTrip) {
       throw new NotFoundException('Выезд не найден');
+    }
+
+    if (!isExistTrip.isActive) {
+      throw new ConflictException('Выезд заблокирован, изменения запрещены');
     }
 
     const currentComposition = isExistTrip.baseTeamParticipants;
@@ -87,6 +92,31 @@ export class UpdateTeamCompositionsUsecase {
               participantsUserId: PRESENTER,
             },
           });
+
+          const currentJobTitleCoord = currentComposition.find(
+            (c) => c.jobTitle === 'COORDINATOR',
+          );
+
+          if (!currentJobTitleCoord) {
+            await tx.baseTeamParticipants.create({
+              data: {
+                participantsUserId:
+                  isExistcoordinatorId.employee.coordinatorUserId,
+                tripId,
+                jobTitle: 'COORDINATOR',
+              },
+            });
+          } else {
+            await tx.baseTeamParticipants.update({
+              where: {
+                id: currentJobTitleCoord.id,
+              },
+              data: {
+                participantsUserId:
+                  isExistcoordinatorId.employee.coordinatorUserId,
+              },
+            });
+          }
         }
       }
 

@@ -22,6 +22,7 @@ export class TripCompaniecUsecase {
           },
 
           select: {
+            isActive: true,
             companies: {
               select: {
                 id: true,
@@ -42,6 +43,10 @@ export class TripCompaniecUsecase {
       throw new NotFoundException(
         !isExistTrip ? 'Выезд не найден' : 'Компания не найдена',
       );
+    }
+
+    if (!isExistTrip.isActive) {
+      throw new ConflictException('Выезд заблокирован, изменения запрещены');
     }
 
     const isExistCompaniesInTrips = isExistTrip.companies.some((ct) =>
