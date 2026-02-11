@@ -33,6 +33,8 @@ export class WarehousesMutationUseCase {
       },
     });
 
+    console.log(isExist);
+
     if (isExist) {
       throw new ConflictException('Данное имя склада уже задействовано');
     }
@@ -71,7 +73,7 @@ export class WarehousesMutationUseCase {
       })),
     });
 
-    return warehouse.id
+    return warehouse.id;
     // return buildResponse('Склад добавлен');
   }
   async update(dto: UpdateWarehouseDto, id: string) {

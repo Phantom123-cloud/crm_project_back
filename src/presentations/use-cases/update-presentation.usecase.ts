@@ -44,6 +44,10 @@ export class UpdatePresentationUsecase {
         throw new ConflictException('Выезд не найден');
       }
 
+      if (!isExistTrip.isActive) {
+        throw new ConflictException('Выезд заблокирован, изменения запрещены');
+      }
+
       const isExistPresentation = await tx.presentations.findUnique({
         where: { id: presentationId },
 

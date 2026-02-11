@@ -63,9 +63,23 @@ export class WarehousesActionsUseCase {
       throw new ConflictException('Склад не обнаружен');
     }
 
-    if (isExistWarehouse.type === 'CENTRAL') {
-      throw new ConflictException('Центральный склад не блокируется');
+    if (isExistWarehouse.type === 'TRIP') {
+      const isActiveTrip = await this.prismaService.trip.findFirst({
+        where: {
+          warehouseId: id,
+        },
+      });
+
+      if (!isActiveTrip) {
+        throw new ConflictException(
+          'Манипуляции над складом, привязанным к выезду, возможны только при наличии активного выезда',
+        );
+      }
     }
+
+    // if (isExistWarehouse.type === 'CENTRAL') {
+    //   throw new ConflictException('Центральный склад не блокируется');
+    // }
 
     if (isExistEmptyStockItems > 0 || isEmptyStockMovements > 0) {
       throw new ConflictException(
@@ -97,6 +111,7 @@ export class WarehousesActionsUseCase {
 
           select: {
             ownerUserId: true,
+            type: true,
           },
         }),
         this.prismaService.user.findUnique({
@@ -110,6 +125,20 @@ export class WarehousesActionsUseCase {
       throw new NotFoundException(
         !isExistWarehouse ? 'Склад не найден' : 'Пользователь не найден',
       );
+    }
+
+    if (isExistWarehouse.type === 'TRIP') {
+      const isActiveTrip = await this.prismaService.trip.findFirst({
+        where: {
+          warehouseId,
+        },
+      });
+
+      if (!isActiveTrip) {
+        throw new ConflictException(
+          'Манипуляции над складом, привязанным к выезду, возможны только при наличии активного выезда',
+        );
+      }
     }
 
     await this.prismaService.warehouses.update({

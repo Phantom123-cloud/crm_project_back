@@ -8,6 +8,7 @@ import { UpdatePresentationUsecase } from './use-cases/update-presentation.useca
 import { UpdatePresentationDto } from './dto/update-presentation.dto copy';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildResponse } from 'src/utils/build-response';
+import { ChangeCoordinatorUsecase } from './use-cases/change-coordinator.usecase';
 
 @Injectable()
 export class PresentationsService {
@@ -15,6 +16,7 @@ export class PresentationsService {
     private readonly createPresentationUsecase: CreatePresentationUsecase,
     private readonly presentationsBuilder: PresentationsBuilder,
     private readonly updatePresentationUsecase: UpdatePresentationUsecase,
+    private readonly changeCoordinatorUsecase: ChangeCoordinatorUsecase,
     private readonly prismaService: PrismaService,
   ) {}
 
@@ -79,5 +81,12 @@ export class PresentationsService {
     });
 
     return buildResponse('Презентация удалена');
+  }
+
+  async changeCoordinator(presentationId: string, coordinatorId: string) {
+    return this.changeCoordinatorUsecase.changeCoordinator(
+      presentationId,
+      coordinatorId,
+    );
   }
 }

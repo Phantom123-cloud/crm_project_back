@@ -36,11 +36,16 @@ export class TeamCompositionsUsecase {
         dateFrom: true,
         dateTo: true,
         name: true,
+        isActive: true,
       },
     });
 
     if (!isExistTrip) {
       throw new NotFoundException('Выезд не найден');
+    }
+
+    if (!isExistTrip.isActive) {
+      throw new ConflictException('Выезд заблокирован, изменения запрещены');
     }
 
     if (isExistTrip.baseTeamParticipants.length) {
